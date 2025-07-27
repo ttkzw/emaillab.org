@@ -1,0 +1,182 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+
+
+                           Email Bombing and Spamming
+
+
+1. DESCRIPTION
+
+   This document provides a general overview of problems associated with
+   electronic mail bombing and email spamming. It includes information that
+   will help you respond to and recover from this activity. 
+
+   Email "bombing" is characterized by abusers repeatedly sending an identical
+   email message to a particular address. 
+
+   Email "spamming" is a variant of bombing; it refers to sending email to  
+   hundreds or thousands of users (or to lists that expand to that many
+   users). Email spamming can be made worse if recipients reply to the email,
+   causing all the original addressees to receive the reply. It may also occur
+   innocently, as a result of sending a message to mailing lists and not
+   realizing that the list explodes to thousands of users, or as a result of
+   an incorrectly set-up responder message (such as vacation(1)).
+
+   Email bombing/spamming may be combined with email "spoofing" (which alters
+   the identity of the account sending the email), making it more difficult
+   to determine who the email is actually coming from. (For more details on
+   email spoofing, see ftp://info.cert.org/pub/tech_tips/email_spoofing.) 
+
+
+2. TECHNICAL ISSUES
+
+   2.1.1. If you provide email services to your user community, your users are
+          vulnerable to email bombing and spamming. 
+
+   2.1.2. Email spamming is almost impossible to prevent because a user with a
+          valid email address can "spam" any other valid email address,
+          newsgroup, or bulletin-board service. 
+
+   2.1.3. When large amounts of email are directed to or through a single
+          site, the site may suffer a denial of service through loss of
+          network connectivity, system crashes, or failure of a service
+          because of 
+
+          - overloading network connections
+
+          - using all available system resources
+
+          - filling the disk as a result of multiple postings and resulting
+            syslog entries
+
+
+3. WHAT YOU CAN DO 
+
+   3.1. Detection
+
+        If your system suddenly appears sluggish (email is slow or
+        doesn't appear to be sent or received), the reason may be that
+        your mailer is trying to process a large number of messages. 
+
+   3.2. Reaction
+
+        3.2.1. Identify the source of the email bomb/spam and configure your
+               router (or have your Network Service Provider configure the
+               router) to prevent incoming packets from that address.
+
+               Review email headers to determine the true origin of the email.
+               Review the information related to the email bomb/spam following
+               relevant policies and procedures of your organization. 
+
+        3.2.2  Follow up with the site(s) you identified in your review to
+               alert them to the activity.  Contact them to alert them to the
+               activity. 
+
+               NOTE: When contacting these sites, keep in mind that the abuser
+                     may be trying to hide their identity. 
+
+               We would appreciate a cc to "cert@cert.org" on your messages;
+               this facilitates our work on incidents and helps us relate
+               ongoing intruder activities.   
+
+               If you have a CERT# reference for this incident, please include
+               it in the subject line of all messages related to this
+               incident. (NOTE: This reference number will be assigned by the
+               CERT/CC, so if you do not have a reference number, one will be
+               assigned once we receive the incident report.)  
+
+               To find site contact information, please refer to
+
+               ftp://info.cert.org/pub/whois_how_to
+                     
+        3.2.3. Ensure you are up to date with the most current version of
+               email delivery daemon (sendmail, for example) and increase
+               logging capabilities as necessary to detect or alert you to
+               such activity. 
+
+
+   3.3. Prevention
+
+        Unfortunately, at this time, there is no way to prevent email bombing
+        or spamming (other than disconnecting from the Internet), and it
+        is impossible to predict the origin of the next attack. It is trivial
+        to obtain access to large mailing lists or information resources that
+        contain large volumes of email addresses that will provide destination
+        email addresses for the spam.   
+
+        3.3.1. Develop in-house tools to help you recognize and respond to the
+               email bombing/spamming and so minimize the impact of such
+               activity. The tools should increase the logging capabilities
+               and check for and alert you to incoming/outgoing messages that
+               originate from the same user or same site in a very short span
+               of time. Once you identify the activity, you can use other
+               in-house tools to discard the messages from the offending
+               users or sites. 
+
+        3.3.2. If your site uses a small number of email servers, you may want
+               to configure your firewall to ensure that SMTP connections from
+               outside your firewall can be made only to your central email
+               hubs and to none of your other systems. Although this will not
+               prevent an attack, it minimizes the number of machines
+               available to an intruder for an SMTP-based attack (whether that
+               attack is a email spam or an attempt to break into a host). It
+               also means that should you wish to control incoming SMTP in a
+               particular way (through filtering or another means), you have
+               only a small number of systems--the main email hub and any
+               backup email hubs--to configure. More information on filtering
+               is available from
+
+               ftp://info.cert.org/pub/tech_tips/packet_filtering
+
+        3.3.3. Educate your users to call you about email bombing and spamming.
+               
+        3.3.4  Do not propagate the problem by forwarding (or replying to)
+               spammed email.
+
+
+4. ADDITIONAL SECURITY MEASURES THAT YOU CAN TAKE
+
+   4.1. If you have questions concerning legal issues, we encourage you to
+        work with your legal counsel.  
+
+        U.S. sites interested in an investigation of this activity can
+        contact the FBI:
+
+             FBI National Computer Crimes Squad 
+             Washington, DC
+             +1 202 324-9164
+
+        Non-U.S. sites may want to discuss the activity with their local law
+        enforcement agency to determine the appropriate steps for pursuing
+        an investigation. 
+
+   4.2. For general security information, please see
+
+        ftp://info.cert.org/pub/
+
+   4.3. To report an incident, please complete and return
+
+        ftp://info.cert.org/pub/incident_reporting_form
+
+
+
+
+
+- ------------------------------------------------------------------------------
+
+Copyright 1996 Carnegie Mellon University. Conditions for use, disclaimers,
+and sponsorship information can be found in
+http://www.cert.org/legal_stuff.html and ftp://ftp.cert.org/pub/legal_stuff .
+If you do not have FTP or web access, send mail to cert@cert.org with
+"copyright" in the subject line.
+
+CERT is registered in the U.S. Patent and Trademark Office.
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.2
+
+iQCVAwUBNDjWkHVP+x0t4w7BAQGKwwQA03f0+yH4AK+NEhHV1puoD+fPfyrFI+By
+t0VLH5krqWU3y/mZlOe354fWa6pI8YYc+ZY3uh+jt4KJsmhL+LFLFuGMadBpHFfp
+QEVrUr2/VbD03V3jWa4tgNQmdw92ioB9GoOGM9tHZ6itBLIwj/B4Bo6u3QY3wDss
+pacv+hhX6+g=
+=nzSp
+-----END PGP SIGNATURE-----

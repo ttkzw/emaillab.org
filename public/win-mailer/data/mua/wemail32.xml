@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="EUC-JP"?>
+<product name="WeMail32">
+<basic-information>
+  <name>WeMail32</name>
+  <version>1.97C</version>
+  <person-company>NECテレコムシステム</person-company>
+  <uri>http://www.mesh.ne.jp/qsc/ntes/WeMail/</uri>
+  <distribution>shareware</distribution>
+  <price>3,000</price>
+  <release>
+    <year>2000</year>
+    <month>12</month>
+    <day>4</day>
+  </release>
+</basic-information>
+
+<header>
+  <message-id>
+    <is-generated>yes</is-generated>
+    <uniqueness>high</uniqueness>
+    <comment>account + hostname of SMTP server</comment>
+  </message-id>
+  <date>
+    <is-generated>yes</is-generated>
+  </date>
+  <in-reply-to>
+    <is-generated>yes</is-generated>
+  </in-reply-to>
+  <references>
+    <is-generated>yes</is-generated>
+  </references>
+  <content-disposition>
+    <is-generated>yes</is-generated>
+  </content-disposition>
+  <mediatype>
+    <suitable-mediatype>no</suitable-mediatype>
+    <mediatype-parameter>name</mediatype-parameter>
+  </mediatype>
+</header>
+
+<japanese>
+  <jisx0201kana>全角に変換</jisx0201kana>
+  <os-dependent-char>そのまま</os-dependent-char>
+  <subject-encoding>partial</subject-encoding>
+  <filename-encoding>B</filename-encoding>
+  <rfc2231-decoding>yes</rfc2231-decoding>
+</japanese>
+
+<language>
+  <latin1>no</latin1>
+  <latin2>no</latin2>
+  <turkish>no</turkish>
+  <nordic>no</nordic>
+  <cyrillic>no</cyrillic>
+  <arabic>no</arabic>
+  <greek>no</greek>
+  <hebrew>no</hebrew>
+  <chinese>no</chinese>
+  <chinese-tw>no</chinese-tw>
+  <japanese>yes</japanese>
+  <korean>no</korean>
+  <utf-8>no</utf-8>
+  <utf-7>no</utf-7>
+  <note></note>
+</language>
+
+<cipher>
+  <pgp>
+    <is-implemented>yes</is-implemented>
+    <pgp-version>5.5</pgp-version>
+    <pgp-mime>no</pgp-mime>
+  </pgp>
+  <smime>
+    <is-implemented>yes</is-implemented>
+    <comment>別途「WeMail S/MIMEオプション」が必要</comment>
+  </smime>
+  <tls>
+    <smtp>no</smtp>
+    <pop>no</pop>
+    <imap>no</imap>
+  </tls>
+</cipher>
+
+<other-specifications>
+  <binary-encode>base64, uuencode, ish</binary-encode>
+  <smtp>
+    <is-implemented>yes</is-implemented>
+    <pop-before-smtp>yes</pop-before-smtp>
+    <authentication>no</authentication>
+  </smtp>
+  <pop>
+    <is-implemented>yes</is-implemented>
+    <authentication>APOP</authentication>
+  </pop>
+  <imap>
+    <is-implemented>yes</is-implemented>
+    <authentication>CRAM-MD5</authentication>
+  </imap>
+  <ldap>
+    <is-implemented>no</is-implemented>
+    <jp-char></jp-char>
+  </ldap>
+</other-specifications>
+
+<note>
+</note>
+</product>

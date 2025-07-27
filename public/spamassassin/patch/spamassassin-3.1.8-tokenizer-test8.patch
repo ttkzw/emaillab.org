@@ -1,0 +1,222 @@
+diff -uNr Mail-SpamAssassin-3.1.8.orig/lib/Mail/SpamAssassin/Bayes.pm Mail-SpamAssassin-3.1.8/lib/Mail/SpamAssassin/Bayes.pm
+--- Mail-SpamAssassin-3.1.8.orig/lib/Mail/SpamAssassin/Bayes.pm	2007-02-14 03:17:13.000000000 +0900
++++ Mail-SpamAssassin-3.1.8/lib/Mail/SpamAssassin/Bayes.pm	2007-02-15 20:58:39.000000000 +0900
+@@ -220,6 +220,15 @@
+ # will require a longer token than English ones.)
+ use constant MAX_TOKEN_LENGTH => 15;
+ 
++# Skip if a token is too short.
++our $SKIP_UTF8_SHORT_TOKENS_RE = qr{(?:
++    [\x00-\x7F]                # 1 byte
++  | [\xC0-\xDF][\x80-\xBF]     # 2 bytes
++  | [\xE0-\xEF][\x80-\xBF]{2}  # 3 bytes
++  | [\xF0-\xF7][\x80-\xBF]{3}  # 4 bytes
++  | (?:\xE3[\x81-\x83][\x80-\xBF]){2} # 2 characters of Hiragana and Katakana
++)}x;
++
+ ###########################################################################
+ 
+ sub new {
+@@ -233,6 +242,7 @@
+     'log_raw_counts'	=> 0,
+     'use_ignores'       => 1,
+     'tz'		=> Mail::SpamAssassin::Util::local_tz(),
++    'normalize_charset'	=> $main->{conf}->{normalize_charset},
+   };
+   bless ($self, $class);
+ 
+@@ -348,7 +358,7 @@
+   # include quotes, .'s and -'s for URIs, and [$,]'s for Nigerian-scam strings,
+   # and ISO-8859-15 alphas.  Do not split on @'s; better results keeping it.
+   # Some useful tokens: "$31,000,000" "www.clock-speed.net" "f*ck" "Hits!"
+-  tr/-A-Za-z0-9,\@\*\!_'"\$.\241-\377 / /cs;
++  tr/-A-Za-z0-9,\@\*\!_'"\$.\200-\377 / /cs;
+ 
+   # DO split on "..." or "--" or "---"; common formatting error resulting in
+   # hapaxes.  Keep the separator itself as a token, though, as long ones can
+@@ -377,6 +387,11 @@
+     #
+     next if ( defined $magic_re && /$magic_re/ );
+ 
++    # Skip short UTF-8 tokens.
++    if ($self->{normalize_charset}) {
++      next if ($token =~ /^$SKIP_UTF8_SHORT_TOKENS_RE$/o);
++    }
++
+     # *do* keep 3-byte tokens; there's some solid signs in there
+     my $len = length($token);
+ 
+@@ -414,14 +429,17 @@
+     # the domain ".net" appeared in the To header.
+     #
+     if ($len > MAX_TOKEN_LENGTH && $token !~ /\*/) {
+-      if (TOKENIZE_LONG_8BIT_SEQS_AS_TUPLES && $token =~ /[\xa0-\xff]{2}/) {
+-	# Matt sez: "Could be asian? Autrijus suggested doing character ngrams,
+-	# but I'm doing tuples to keep the dbs small(er)."  Sounds like a plan
+-	# to me! (jm)
+-	while ($token =~ s/^(..?)//) {
+-	  push (@rettokens, "8:$1");
+-	}
+-	next;
++      unless ($self->{normalize_charset}) {
++        # except UTF-8 characters
++        if (TOKENIZE_LONG_8BIT_SEQS_AS_TUPLES && $token =~ /[\xa0-\xff]{2}/) {
++          # Matt sez: "Could be asian? Autrijus suggested doing character ngrams,
++          # but I'm doing tuples to keep the dbs small(er)."  Sounds like a plan
++          # to me! (jm)
++          while ($token =~ s/^(..?)//) {
++            push (@rettokens, "8:$1");
++          }
++          next;
++        }
+       }
+ 
+       if (($region == 0 && HDRS_TOKENIZE_LONG_TOKENS_AS_SKIPS)
+@@ -998,9 +1016,29 @@
+   $msgdata->{bayes_token_body} = $msg->{msg}->get_visible_rendered_body_text_array();
+   $msgdata->{bayes_token_inviz} = $msg->{msg}->get_invisible_rendered_body_text_array();
+   @{$msgdata->{bayes_token_uris}} = $msg->get_uri_list();
++
++  if ($self->{normalize_charset}) {
++    my $tokenizer = $self->get_tokenizer($msg);
++    if (ref($tokenizer)) {
++      $msgdata->{bayes_token_body} = $tokenizer->tokenize($msgdata->{bayes_token_body});
++      $msgdata->{bayes_token_inviz} = $tokenizer->tokenize($msgdata->{bayes_token_inviz});
++    }
++  }
+   return $msgdata;
+ }
+ 
++sub get_tokenizer {
++  my ($self, $msg) = @_;
++
++  my $tokenizer;
++  my @languages = split(/\s+/, $msg->{msg}->get_language());
++  foreach my $lang (@languages) {
++    $tokenizer = $self->{'conf'}->{'tokenizer'}->{$lang};
++    last if (ref($tokenizer));
++  }
++  return $tokenizer;
++}
++
+ ###########################################################################
+ 
+ sub sync {
+diff -uNr Mail-SpamAssassin-3.1.8.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm Mail-SpamAssassin-3.1.8/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm
+--- Mail-SpamAssassin-3.1.8.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm	1970-01-01 09:00:00.000000000 +0900
++++ Mail-SpamAssassin-3.1.8/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm	2007-02-15 20:58:39.000000000 +0900
+@@ -0,0 +1,114 @@
++# <@LICENSE>
++# Copyright 2004 Apache Software Foundation
++# 
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++# 
++#     http://www.apache.org/licenses/LICENSE-2.0
++# 
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# </@LICENSE>
++
++=head1 NAME
++
++Mail::SpamAssassin::Plugin::Tokenizer - Tokenizer plugin base class
++
++=head1 SYNOPSIS
++
++=head2 SpamAssassin configuration:
++
++  loadplugin MyTokenizerPlugin /path/to/MyTokenizerPlugin.pm
++
++=head2 Perl code:
++
++  use Mail::SpamAssassin::Plugin::Tokenizer;
++  use vars qw(@ISA);
++  @ISA = qw(Mail::SpamAssassin::Plugin::Tokenizer);
++  # language to use this plugin
++  our $language = 'ja';
++
++  # constructor: register language
++  sub new {
++    my $class = shift;
++    my $mailsaobject = shift;
++
++    # some boilerplate...
++    $class = ref($class) || $class;
++    my $self = $class->SUPER::new($mailsaobject, $language);
++    bless ($self, $class);
++
++    return $self;
++  }
++
++  # tokenize function
++  sub tokenize {
++    my $self = shift;
++    my $text_array_ref = shift;
++
++    ......
++
++    return $tokenized_array_ref;
++  }
++
++
++=head1 DESCRIPTION
++
++This plugin is the base class of tokenizer plugin.
++You must define tokenize() and $language
++
++=head1 INTERFACE
++
++  sub tokenize {
++    my $self = shift;
++    my $text_array_ref = shift;
++
++    ......
++ 
++    return $tokenized_array_ref;
++  }
++
++=cut
++
++package Mail::SpamAssassin::Plugin::Tokenizer;
++
++use Mail::SpamAssassin::Plugin;
++use Mail::SpamAssassin::Logger;
++use strict;
++use warnings;
++use bytes;
++
++use vars qw(@ISA);
++@ISA = qw(Mail::SpamAssassin::Plugin);
++
++sub new {
++  my $class = shift;
++  my $mailsaobject = shift;
++  my $language = shift;
++
++  # some boilerplate...
++  $class = ref($class) || $class;
++  my $self = $class->SUPER::new($mailsaobject);
++  bless ($self, $class);
++
++  if ($language) {
++    $self->{main}->{conf}->{tokenizer}->{$language} = $self;
++  }
++  else {
++    dbg("plugin: $self: \$language is not defined");
++  }
++
++  return $self;
++}
++
++sub tokenize {
++  my ($self, $ref) = @_;
++
++  return $ref;
++}
++
++1;
