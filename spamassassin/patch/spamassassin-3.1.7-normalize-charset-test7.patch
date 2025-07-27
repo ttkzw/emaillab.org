@@ -1,0 +1,480 @@
+diff -uNr Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin/HTML.pm Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin/HTML.pm
+--- Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin/HTML.pm	2006-10-04 23:01:16.000000000 +0900
++++ Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin/HTML.pm	2006-10-18 22:15:00.000000000 +0900
+@@ -738,7 +738,13 @@
+     }
+   }
+   else {
+-    $text =~ s/[ \t\n\r\f\x0b\xa0]+/ /g;
++    if ( $text =~ /[\x80-\xff]{2}/ ) {
++      # multibyte string
++      $text =~ s/[ \t\n\r\f\x0b]+/ /g;
++    }
++    else {
++      $text =~ s/[ \t\n\r\f\x0b\xa0]+/ /g;
++    }
+     # trim leading whitespace if previous element was whitespace
+     if (@{ $self->{text} } &&
+ 	defined $self->{text_whitespace} &&
+diff -uNr Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin/Message/Node.pm Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin/Message/Node.pm
+--- Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin/Message/Node.pm	2006-09-29 22:06:39.000000000 +0900
++++ Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin/Message/Node.pm	2006-10-18 22:15:00.000000000 +0900
+@@ -42,6 +42,7 @@
+ use Mail::SpamAssassin::Constants qw(:sa);
+ use Mail::SpamAssassin::HTML;
+ use Mail::SpamAssassin::Logger;
++use Mail::SpamAssassin::Util::Charset;
+ 
+ =item new()
+ 
+@@ -56,6 +57,7 @@
+ 
+   my $self = {
+     headers		=> {},
++    utf8_headers	=> {},
+     raw_headers		=> {},
+     body_parts		=> [],
+     header_order	=> []
+@@ -66,6 +68,7 @@
+   if (defined $opts->{'subparse'}) {
+     $self->{subparse} = $opts->{'subparse'};
+   }
++  $self->{normalize_charset} = $opts->{'normalize_charset'} || 0;
+ 
+   bless($self,$class);
+   $self;
+@@ -181,10 +184,16 @@
+     if ( !exists $self->{'headers'}->{$key} ) {
+       $self->{'headers'}->{$key} = [];
+       $self->{'raw_headers'}->{$key} = [];
++      $self->{'utf8_headers'}->{$key} = [];
+     }
+ 
+-    push @{ $self->{'headers'}->{$key} },     _decode_header($raw_value);
++    my ($decoded_value, $utf8_value) = 
++      _decode_header($raw_value, $self->{'normalize_charset'});
++    push @{ $self->{'headers'}->{$key} }, $decoded_value;
+     push @{ $self->{'raw_headers'}->{$key} }, $raw_value;
++    if ($self->{'normalize_charset'}) {
++      push @{ $self->{'utf8_headers'}->{$key} }, $utf8_value;
++    }
+ 
+     return $self->{'headers'}->{$key}->[-1];
+   }
+@@ -234,6 +243,40 @@
+   }
+ }
+ 
++=item utf8_header()
++
++Retrieves the normalized version of headers from a specific MIME part.
++The only parameter is the header name.  Header names are case-insensitive.
++
++For retrieval, if utf8_header() is called in an array context, an array
++will be returned with each header entry in a different element.  In a
++scalar context, the last specific header is returned.
++
++ie: If 'Subject' is specified as the header, and there are 2 Subject
++headers in a message, the last/bottom one in the message is returned in
++scalar context or both are returned in array context.
++
++=cut
++
++# Retrieve utf8 headers from a given MIME object
++#
++sub utf8_header {
++  my $self = shift;
++  my $key  = lc(shift);
++
++  # Trim whitespace off of the header keys
++  $key       =~ s/^\s+//;
++  $key       =~ s/\s+$//;
++
++  if (wantarray) {
++    return unless exists $self->{'utf8_headers'}->{$key};
++    return @{ $self->{'utf8_headers'}->{$key} };
++  }
++  else {
++    return '' unless exists $self->{'utf8_headers'}->{$key};
++    return $self->{'utf8_headers'}->{$key}->[-1];
++  }
++}
+ =item add_body_part()
+ 
+ Adds a Node child object to the current node object.
+@@ -400,11 +443,48 @@
+       $self->{rendered_type} = $self->{type};
+       $self->{rendered} = $text;
+     }
++
++    if ($self->{'normalize_charset'}) {
++      my ($charset, $normalized_text) =
++        Mail::SpamAssassin::Util::Charset::normalize_charset($self->{'charset'}, $self->{rendered});
++      $self->{normalized} = $normalized_text;
++      $self->{charset} = $charset;
++      $self->{language} =
++        Mail::SpamAssassin::Util::Charset::get_language($charset, $normalized_text);
++
++      if ($self->{visible_rendered}) {
++        my $visible_rendered;
++        (undef, $visible_rendered) =
++          Mail::SpamAssassin::Util::Charset::normalize_charset($charset, $self->{visible_rendered});
++        $self->{visible_rendered} = $visible_rendered;
++      }
++      else {
++        $self->{visible_rendered} = $self->{'normalized'};
++      }
++      if ($self->{invisible_rendered}) {
++        my $invisible_rendered;
++        (undef, $invisible_rendered) =
++          Mail::SpamAssassin::Util::Charset::normalize_charset($charset, $self->{invisible_rendered});
++        $self->{invisible_rendered} = $invisible_rendered;
++      }
++    }
+   }
+ 
+   return ($self->{rendered_type}, $self->{rendered});
+ }
+ 
++=item normalized()
++
++Render and return the normalized text in this part.
++
++=cut
++
++sub normalized {
++  my ($self) = @_;
++  $self->rendered();  # ignore return, we want just this:
++  return ($self->{rendered_type}, $self->{normalized});
++}
++
+ =item visible_rendered()
+ 
+ Render and return the visible text in this part.
+@@ -478,6 +558,7 @@
+   foreach ( grep(/^${hdr}$/i, keys %{$self->{'headers'}}) ) {
+     delete $self->{'headers'}->{$_};
+     delete $self->{'raw_headers'}->{$_};
++    delete $self->{'utf8_headers'}->{$_};
+   }
+   
+   my @neworder = grep(!/^${hdr}$/i, @{$self->{'header_order'}});
+@@ -488,9 +569,10 @@
+ sub __decode_header {
+   my ( $encoding, $cte, $data ) = @_;
+ 
++  my $decoded_data;
+   if ( $cte eq 'B' ) {
+     # base 64 encoded
+-    return Mail::SpamAssassin::Util::base64_decode($data);
++    $decoded_data = Mail::SpamAssassin::Util::base64_decode($data);
+   }
+   elsif ( $cte eq 'Q' ) {
+     # quoted printable
+@@ -498,36 +580,56 @@
+     # the RFC states that in the encoded text, "_" is equal to "=20"
+     $data =~ s/_/=20/g;
+ 
+-    return Mail::SpamAssassin::Util::qp_decode($data);
++    $decoded_data = Mail::SpamAssassin::Util::qp_decode($data);
+   }
+   else {
+     # not possible since the input has already been limited to 'B' and 'Q'
+     die "message: unknown encoding type '$cte' in RFC2047 header";
+   }
++  if ($encoding) {
++    ($encoding, $decoded_data) =
++        Mail::SpamAssassin::Util::Charset::normalize_charset($encoding, $decoded_data);
++  }
++  return $decoded_data;
+ }
+ 
+ # Decode base64 and quoted-printable in headers according to RFC2047.
+ #
+ sub _decode_header {
+-  my($header) = @_;
++  my($header, $normalize_charset) = @_;
+ 
+-  return '' unless $header;
++  return ('', '') unless $header;
+ 
+   # deal with folding and cream the newlines and such
+   $header =~ s/\n[ \t]+/\n /g;
+   $header =~ s/\r?\n//g;
+ 
+-  return $header unless $header =~ /=\?/;
++  my $utf8_header;
++  unless ($header =~ /=\?/) {
++    if ($normalize_charset) {
++      $utf8_header = $header;
++      if ($header =~ /[\x1b\x80-\xff]/) {
++        (undef, $utf8_header) =
++          Mail::SpamAssassin::Util::Charset::normalize_charset(undef, $header);
++      }
++    }
++    return ($header, $utf8_header);
++  }
+ 
+   # multiple encoded sections must ignore the interim whitespace.
+   # to avoid possible FPs with (\s+(?==\?))?, look for the whole RE
+   # separated by whitespace.
+   1 while ($header =~ s/(=\?[\w_-]+\?[bqBQ]\?[^?]+\?=)\s+(=\?[\w_-]+\?[bqBQ]\?[^?]+\?=)/$1$2/g);
+ 
++  if ($normalize_charset) {
++    $utf8_header = $header;
++    $utf8_header =~
++      s/=\?([\w_-]+)\?([bqBQ])\?([^?]+)\?=/__decode_header($1, uc($2), $3)/ge;
++  }
+   $header =~
+-    s/=\?([\w_-]+)\?([bqBQ])\?([^?]+)\?=/__decode_header($1, uc($2), $3)/ge;
++    s/=\?([\w_-]+)\?([bqBQ])\?([^?]+)\?=/__decode_header(undef, uc($2), $3)/ge;
+ 
+-  return $header;
++  return ($header, $utf8_header);
+ }
+ 
+ =item get_header()
+@@ -550,20 +652,27 @@
+ # TODO: this could be made much faster by only processing all headers
+ # when called in array context, otherwise just do one header
+ sub get_header {
+-  my ($self, $hdr, $raw) = @_;
++  my ($self, $hdr, $raw, $utf8 ) = @_;
+   $raw ||= 0;
++  $utf8 ||= 0;
+ 
+   # And now pick up all the entries into a list
+   # This is assumed to include a newline at the end ...
+   # This is also assumed to have removed continuation bits ...
+ 
+-  # Deal with the possibility that header() or raw_header() returns undef
++  # Deal with the possibility that header(), raw_header() or utf8_header()
++  # returns undef
+   my @hdrs;
+   if ( $raw ) {
+     if (@hdrs = $self->raw_header($hdr)) {
+       @hdrs = map { s/\r?\n\s+/ /g; $_; } @hdrs;
+     }
+   }
++  elsif ( $utf8 ) {
++    if (@hdrs = $self->utf8_header($hdr)) {
++      @hdrs = map { "$_\n" } @hdrs;
++    }
++  }
+   else {
+     if (@hdrs = $self->header($hdr)) {
+       @hdrs = map { "$_\n" } @hdrs;
+@@ -647,14 +756,18 @@
+   # Clean up ourself
+   undef $self->{'headers'};
+   undef $self->{'raw_headers'};
++  undef $self->{'utf8_headers'};
+   undef $self->{'header_order'};
+   undef $self->{'raw'};
+   undef $self->{'decoded'};
+   undef $self->{'rendered'};
++  undef $self->{'normalized'};
+   undef $self->{'visible_rendered'};
+   undef $self->{'invisible_rendered'};
+   undef $self->{'type'};
+   undef $self->{'rendered_type'};
++  undef $self->{'charset'};
++  undef $self->{'language'};
+ 
+   # Clean up our kids
+   if (exists $self->{'body_parts'}) {
+diff -uNr Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin/Message.pm Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin/Message.pm
+--- Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin/Message.pm	2006-09-29 22:06:40.000000000 +0900
++++ Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin/Message.pm	2006-10-18 22:15:00.000000000 +0900
+@@ -111,6 +111,7 @@
+   my($opts) = @_;
+   my $message = $opts->{'message'} || \*STDIN;
+   my $parsenow = $opts->{'parsenow'} || 0;
++  $self->{normalize_charset} = $opts->{'normalize_charset'};
+ 
+   # Specifies whether or not to parse message/rfc822 parts into its own tree.
+   # If the # > 0, it'll subparse, otherwise it won't.  By default, do one
+@@ -544,6 +545,7 @@
+   delete $self->{pristine_body};
+   delete $self->{text_decoded};
+   delete $self->{text_rendered};
++  delete $self->{text_normalized};
+ 
+   # Destroy the tree ...
+   $self->SUPER::finish();
+@@ -659,7 +661,7 @@
+   }
+ 
+   # prepare a new tree node
+-  my $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1 });
++  my $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1, normalize_charset=>$self->{normalize_charset} });
+   my $in_body = 0;
+   my $header;
+   my $part_array;
+@@ -706,7 +708,7 @@
+ 
+       # make sure we start with a new clean node
+       $in_body  = 0;
+-      $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1 });
++      $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1, normalize_charset=>$self->{normalize_charset} });
+       undef $part_array;
+       undef $header;
+ 
+@@ -774,6 +776,7 @@
+   # 0: content-type, 1: boundary, 2: charset, 3: filename
+   my @ct = Mail::SpamAssassin::Util::parse_content_type($part_msg->header('content-type'));
+   $part_msg->{'type'} = $ct[0];
++  $part_msg->{'charset'} = $ct[2];
+ 
+   # multipart sections are required to have a boundary set ...  If this
+   # one doesn't, assume it's malformed and revert to text/plain
+@@ -802,6 +805,7 @@
+       	message		=>	$message,
+ 	parsenow	=>	1,
+ 	subparse	=>	$msg->{subparse}-1,
++	normalize_charset =>	$self->{normalize_charset},
+ 	});
+ 
+       # main message is a message/* part ...
+@@ -922,7 +926,7 @@
+   my $html_needs_setting = !exists $self->{metadata}->{html};
+ 
+   # Go through each part
+-  my $text = $self->get_header ('subject') || '';
++  my $text = $self->get_header ('subject', undef, $self->{normalize_charset}) || '';
+   for(my $pt = 0 ; $pt <= $#parts ; $pt++ ) {
+     my $p = $parts[$pt];
+ 
+@@ -953,7 +957,14 @@
+ 
+   # whitespace handling (warning: small changes have large effects!)
+   $text =~ s/\n+\s*\n+/\f/gs;		# double newlines => form feed
+-  $text =~ tr/ \t\n\r\x0b\xa0/ /s;	# whitespace => space
++  if ($self->{normalize_charset}) {
++    $text =~ s/\xc2\xa0/ /g;		# no-break space => space
++    $text =~ s/\xe3\x80\x80/ /g;	# ideographicspace => space
++    $text =~ tr/ \t\n\r\x0b/ /s;	# whitespace => space
++  }
++  else {
++    $text =~ tr/ \t\n\r\x0b\xa0/ /s;	# whitespace => space
++  }
+   $text =~ tr/\f/\n/;			# form feeds => newline
+ 
+   my @textary = split_into_array_of_short_lines ($text);
+@@ -1008,7 +1019,14 @@
+ 
+   # whitespace handling (warning: small changes have large effects!)
+   $text =~ s/\n+\s*\n+/\f/gs;		# double newlines => form feed
+-  $text =~ tr/ \t\n\r\x0b\xa0/ /s;	# whitespace => space
++  if ($self->{normalize_charset}) {
++    $text =~ s/\xc2\xa0/ /g;		# no-break space => space
++    $text =~ s/\xe3\x80\x80/ /g;	# ideographicspace => space
++    $text =~ tr/ \t\n\r\x0b/ /s;	# whitespace => space
++  }
++  else {
++    $text =~ tr/ \t\n\r\x0b\xa0/ /s;	# whitespace => space
++  }
+   $text =~ tr/\f/\n/;			# form feeds => newline
+ 
+   my @textary = split_into_array_of_short_lines ($text);
+@@ -1019,6 +1037,58 @@
+ 
+ # ---------------------------------------------------------------------------
+ 
++sub get_normalized_body_text_array {
++  my ($self) = @_;
++
++  if (exists $self->{text_normalized}) { return $self->{text_normalized}; }
++
++  $self->{text_normalized} = [];
++
++  # Find all parts which are leaves
++  my @parts = $self->find_parts(qr/^(?:text|message)\b/i,1);
++  return $self->{text_normalized} unless @parts;
++
++  # the html metadata may have already been set, so let's not bother if it's
++  # already been done.
++  my $html_needs_setting = !exists $self->{metadata}->{html};
++
++  # Go through each part
++  my $text = $self->get_header ('subject', undef, 1) || '';
++  my @langs;
++  for(my $pt = 0 ; $pt <= $#parts ; $pt++ ) {
++    my $p = $parts[$pt];
++
++    # put a blank line between parts ...
++    $text .= "\n" if ( $text );
++
++    my($type, $rnd) = $p->normalized(); # decode this part
++    if ( defined $rnd ) {
++      # Only text/* types are normalized ...
++      $text .= $rnd;
++
++      if ($html_needs_setting && $type eq 'text/html') {
++        $self->{metadata}->{html} = $p->{html_results};
++      }
++    }
++    else {
++      $text .= $p->decode();
++    }
++  }
++
++  # whitespace handling (warning: small changes have large effects!)
++  $text =~ s/\n+\s*\n+/\f/gs;		# double newlines => form feed
++  $text =~ s/\xc2\xa0/ /g;		# no-break space => space
++  $text =~ tr/ \t\n\r\x0b/ /s;		# whitespace => space
++  $text =~ tr/\f/\n/;			# form feeds => newline
++
++  my @textary = split_into_array_of_short_lines ($text);
++  $self->{text_normalized} = \@textary;
++
++  return $self->{text_normalized};
++}
++
++# ---------------------------------------------------------------------------
++
+ sub get_decoded_body_text_array {
+   my ($self) = @_;
+ 
+@@ -1044,6 +1114,27 @@
+ 
+ # ---------------------------------------------------------------------------
+ 
++sub get_language {
++  my ($self) = @_;
++
++  if (defined $self->{language}) { return $self->{language}; }
++  my @parts = $self->find_parts(qr/^(?:text|message)\b/i,1);
++  return '' unless @parts;
++
++  # Go through each part
++  my @langs;
++  for(my $pt = 0 ; $pt <= $#parts ; $pt++ ) {
++    my $p = $parts[$pt];
++    my $lang = $p->{language};
++    next unless ($lang);
++    push(@langs, $lang) unless (grep(/^$lang$/, @langs))
++  }
++  $self->{language} = scalar(@langs) ? join(' ', @langs) : '';
++  return $self->{language};
++}
++
++# ---------------------------------------------------------------------------
++
+ sub split_into_array_of_short_lines {
+   my @result = ();
+   foreach my $line (split (/^/m, $_[0])) {
+diff -uNr Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin.pm Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin.pm
+--- Mail-SpamAssassin-3.1.7.orig/lib/Mail/SpamAssassin.pm	2006-10-10 02:35:00.000000000 +0900
++++ Mail-SpamAssassin-3.1.7/lib/Mail/SpamAssassin.pm	2006-10-18 22:19:24.000000000 +0900
+@@ -395,7 +395,9 @@
+ 
+ sub parse {
+   my($self, $message, $parsenow) = @_;
+-  my $msg = Mail::SpamAssassin::Message->new({message=>$message, parsenow=>$parsenow});
++  $self->init(1);
++  my $normalize_charset = $self->{'conf'}->{'normalize_charset'};
++  my $msg = Mail::SpamAssassin::Message->new({message=>$message, parsenow=>$parsenow, normalize_charset=>$normalize_charset});
+   return $msg;
+ }
+ 

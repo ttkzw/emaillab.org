@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+<title>Java Mailer T42 Project - diary:002</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../../taki.css">
+</head>
+<body lang="ja">
+<h1>Java Mailer T42 Project</h1>
+<h2>製作日誌</h2>
+<h3>第2回: サポートする RFC</h3>
+<p>1999年5月23日</p>
+<hr>
+<p>インターネットメイル関係の RFC には筆者編集の「<a href="http://www.ne.jp/asahi/cyber/taki/emailref/emailref.html">電子メール関連リンク集:規格文書(RFCなど)</a>」を見てもらうとわかるが大変多くの規格がある。メイラーを作る上でこれらを全て実装しなければいけないのかというとそうでもない。通常のメッセージのやりとりをする上では後に述べるような RFC をサポートするだけで十分である。</p>
+<p>まず、必要最小限と筆者が思う RFC を並べてみる。これは、T42 の正式公開時にサポートする予定である。なお、IMAP 関連は筆者の頭の中では整理が付いていないためここでは述べないこととする。</p>
+
+<ul>
+<li><strong>SMTP</strong>
+ <ul>
+ <li>RFC  821 "SIMPLE MAIL TRANSFER PROTOCOL"
+ <li>RFC 1123 "Requirements for Internet Hosts -- Application and Support"<br>
+             "5.  ELECTRONIC MAIL -- SMTP and RFC-822"
+ </ul>
+<li><strong>POP3</strong>
+ <ul>
+ <li>RFC 1939 "Post Office Protocol - Version 3"
+ </ul>
+<li><strong>MESSAGE FORMAT</strong>
+ <ul>
+ <li>RFC  822 "STANDARD FOR THE FORMAT OF ARPA INTERNET TEXT MESSAGES"
+ <li>RFC 1123 "Requirements for Internet Hosts -- Application and Support"<br>
+             "5.  ELECTRONIC MAIL -- SMTP and RFC-822"
+ </ul>
+<li><strong>MIME</strong>
+ <ul>
+ <li>RFC 2045 "MIME Part One: Format of Internet Message Bodies"
+ <li>RFC 2046 "MIME Part Two: Media Types"
+ <li>RFC 2047 "MIME Part Three: Message Header Extensions for Non-ASCII Text"
+ <li>RFC 2049 "MIME Part Five: Conformance Criteria and Examples"
+ <li>RFC 2183 "Communicating Presentation Information in Internet Messages:
+                  The Content-Disposition Header Field"
+ <li>RFC 2231 "MIME Parameter Value and Encoded Word Extensions:
+              Character Sets, Languages, and Continuations"
+ </ul>
+<li><strong>I18N</strong>
+ <ul>
+ <li>RFC 1468 "Japanese Character Encoding for Internet Messages"
+ </ul>
+<li><strong>MESSAGE DIGEST</strong>
+ <ul>
+ <li>RFC 1321 "The MD5 Message-Digest Algorithm"
+ </ul>
+</ul>
+
+<p>次に並べるものは現状では無くても構わないが、あった方がいいかなと思うものである。正式公開後に順次サポートする予定である。ここには並べていないが国際化関連を追加するつもりだ。</p>
+<ul>
+<li><strong>SMTP</strong>
+ <ul>
+ <li>RFC 1869 "SMTP Service Extensions"
+ <li>RFC 1870 "SMTP Service Extension for Message Size Declaration"
+ <li>RFC 2476 "Message Submission"
+ <li>RFC 2554 "SMTP Service Extension for Authentication"
+ </ul>
+<li><strong>POP3</strong>
+ <ul>
+ <li>RFC 1734 "POP3 AUTHentication command"
+ <li>RFC 2449 "POP3 Extension Mechanism"
+ </ul>
+<li><strong>AUTHENTICATION</strong>
+ <ul>
+ <li>RFC 2195 "IMAP/POP AUTHorize Extension for Simple Challenge/Response"
+ <li>RFC 2222 "Simple Authentication and Security Layer"
+ </ul>
+<li><strong>MIME</strong>
+ <ul>
+ <li>RFC 1864 "The Content-MD5 Header Field"
+ </ul>
+</ul>
+<hr>
+<a href="index.html">目次</a>
+</body>
+</html>

@@ -1,0 +1,18 @@
+diff -ur mecab-ipadic-2.7.0-20070801.orig/char.def mecab-ipadic-2.7.0-20070801/char.def
+--- mecab-ipadic-2.7.0-20070801.orig/char.def	2007-07-31 23:54:53.000000000 +0900
++++ mecab-ipadic-2.7.0-20070801/char.def	2007-12-31 10:14:36.000000000 +0900
+@@ -40,13 +40,7 @@
+ 0x000A SPACE
+ 
+ # ASCII
+-0x0021..0x002F SYMBOL
+-0x0030..0x0039 NUMERIC
+-0x003A..0x0040 SYMBOL
+-0x0041..0x005A ALPHA
+-0x005B..0x0060 SYMBOL
+-0x0061..0x007A ALPHA
+-0x007B..0x007E SYMBOL
++0x0021..0x007E ALPHA
+ 
+ # Latin
+ 0x00A1..0x00BF SYMBOL # Latin 1

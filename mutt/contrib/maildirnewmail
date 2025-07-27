@@ -1,0 +1,64 @@
+#!/bin/sh
+#  maildirnewmail: count new messages for Maildir
+#
+#  This script was written by TAKIZAWA Takashi <taki@cyber.email.ne.jp>
+#  and changed by SHIOZAKI Takehiko <takehiko.shiozaki@reuters.co.jp>.
+#  This is in the public domain.
+#
+#  set searched path
+SEARCHPATH="$HOME/Maildir $HOME/Mail"
+
+PATH="/usr/bin:/bin"
+export PATH
+
+# function
+list() {
+  LIST=`ls`
+  ISNEWDIR=1
+  CURDIR=`pwd`
+
+  # in case that primary directory is maildir
+  if [ -d new ]; then
+    NUMBER=`/bin/ls new | wc -l`
+    if [ $NUMBER -ne 0 ]; then
+      echo "->" $CURDIR
+      echo "$NUMBER: ."
+    fi
+    return
+  fi
+  
+  # in case that current directory isn't maildir 
+  #   and its subdirectories are maildir.
+  for DIR in $LIST; do
+    if [ -d $DIR/new ]; then
+      NUMBER=`/bin/ls ${DIR}/new | wc -l`
+      if [ $NUMBER -ne 0 ]; then
+	if [ $ISNEWDIR -eq 1 ]; then
+	  echo "->" $CURDIR
+	  ISNEWDIR=0
+	fi
+	echo "$NUMBER: $DIR"
+      fi
+    fi
+  done
+
+  # in case that both current directory and its subdirectories aren't maildir
+  for DIR in $LIST; do
+    if [ -d $DIR ]; then
+      if [ ! -d $DIR/new ]; then
+        (
+          cd $DIR &&
+          list
+        )
+      fi
+    fi
+  done
+}
+
+# main
+for CURDIR in $SEARCHPATH; do
+  cd $CURDIR &&
+  list
+done
+
+exit

@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html lang="ja">
+<head>
+<title>Japanese in the header</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../taki.css">
+</head>
+<body>
+<h1>ヘッダにおける日本語の扱いに関する問題</h1>
+<p>1999年9月3日初出</p>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sun Mar 18 23:36:53 2001
+<!-- hhmts end -->
+</div>
+<hr>
+<h2>目次</h2>
+<ul>
+<li><a href="#rfc">関連する RFC</a>
+<li><a href="#quoted-string">quoted-string と日本語の扱いに関して</a>
+<li><a href="#delimitor">encoded-word 前後の空白文字</a>
+<li><a href="#subject">Subject 全体を符号化することに関して</a>
+<li><a href="#jis">ヘッダにおける JIS コードの扱い</a>
+<li><a href="#filename">添付ファイルにおける日本語のファイル名</a>
+</ul>
+
+<h2><a name="rfc">関連する RFC</a></h2>
+<dl>
+<dt><a href="../emailref/RFC/rfc2822.txt">Internet Message Format</a>
+<dd>基本中の基本である RFC 822 の改定版。
+<dt><a href="../emailref/RFC/rfc2047.txt">RFC 2047 "MIME Part Three: Message Header Extensions for Non-ASCII Text"</a>
+<dd>ヘッダで日本語を扱うには基本的にはこの方法による。
+<dt><a href="../emailref/RFC/rfc2231.txt">RFC 2231 "MIME Parameter Value and Encoded Word Extensions: Character Sets, Languages, and Continuations</a>
+<dd>ヘッダで parameter として定義されているものはこの RFC による。また、RFC 2047 に対して言語情報を付加する拡張を行っている。
+<dt><a href="../emailref/RFC/rfc1468.txt">RFC 1468 "Japanese Character Encoding for Internet Messages"</a>
+<dd>ISO-2022-JP の定義および使用法。
+</dl>
+
+<hr>
+<h2><a name="quoted-string">quoted-string と日本語の扱いに関して</a></h2>
+<p>quoted-string とは二重引用符「"」で囲まれた文字列のことを示す。この quoted-string の役割は、文字通り、二重引用符で囲まれた文字列をそのまま引用することである。そのため、使用したい文字列の中にヘッダーの文法上で特別な意味を持つ文字が含まれる場合、その文字列を二重引用符で囲って quoted-string にすることにより特別な意味を持つ文字を普通の文字として扱うことができる。なお、特別な文字は RFC 822 では specials 「<code>( ) &lt; &gt; @ , ; : \ " . [ ]</code>」として定義されている。それでは、quoted-string の使用例を次に示す。</p>
+<blockquote>
+<pre>From: "HOGO, Hoge" &lt;foo@bar.org&gt;</pre>
+</blockquote>
+<p>これはカンマ「<code>,</code>」がヘッダーの中では特別な意味を持つ（From フィールドにおいては複数のアドレスを区切るために用いられる）ために「<code>HOGO, Hoge</code>」という文字列を記述するには quoted-string にする必要があるので、このような記述になっている。さらに、二重引用符自体を普通の文字列として扱うには quoted-pair として定義されている「<code>\</code>」の後に普通の文字として扱いたい文字を置く記法を用いて「<code>\"</code>」のように扱う。
+</p>
+<p>さて、ここで、ヘッダーの中で日本語を扱う場合はどのようにしたらいいのだろうか？ 原則としては RFC 2047 に規定されている B encoding を使うべきである（Content-Type, Content-Disposition フィールドには使えないことに注意）。例えば、</p>
+<blockquote>
+<pre><code>From: ほご　ほげ &lt;foo@bar.org&gt;</code></pre>
+</blockquote>
+<p>という日本語の文字列を含んだヘッダは日本語の文字列に対して</p>
+<blockquote>
+<pre><code>From: =?iso-2022-jp?B?GyRCJFskNCEhJFskMhsoQg==?= &lt;foo@bar.org&gt;</code></pre>
+</blockquote>
+<p>のようにそのまま B encoding を行えばよい。しかし、一部のメイラーで From フィールドにおける表示名をわざわざ余計な親切なことに二重引用符で囲って</p>
+<blockquote>
+<pre><code>From: "ほご　ほげ" &lt;foo@bar.org&gt;</code></pre>
+</blockquote>
+<p>と記述するものがある。しかし、先に述べたように、quoted-string 内の文字列は quoted-pair を除きそのまま扱うべきものであり、符号化・復号化をしてはいけない。RFC 2047 にも 「encoded-word は quoted-string 内に現れてはいけない」と明記されているにもかかわらず、</p>
+<blockquote>
+<pre><code>From: "=?iso-2022-jp?B?GyRCJFskNCEhJFskMhsoQg==?=" &lt;foo@bar.org&gt;</code></pre>
+</blockquote>
+<p>のように quoted-string 内で符号化した文字列を扱っているメイラーが多い。逆に quoted-string を意味通り扱っている正しい実装のメイラーでは符号化された文字列を受け取った場合に復号化を行わないので本来の文字を読むことができない。</p>
+
+<p>次に日本語と特別な意味を持つ文字 specials を普通の文字として一緒に扱いたい場合はどのようにしたらいいのだろうか？ これは非常に悩ましい問題である。specials を普通の文字として扱うためには quoted-string にしなければならない。しかし、quoted-string 内には日本語は扱えない。このような場合は quoted-string を使う方法はあきらめて、specials 込みで符号化を行うのが適当かもしれない。先に specials を普通の文字として扱うには quoted-string にしなければならないと書いたが、このように符号化を行うのも手ではある。</p>
+
+<p>なお、補足ではあるが、Subject などの Unstructured Field では「<code>"</code>」という文字自体も普通の文字として扱われるため、</p>
+<blockquote>
+<pre><code>Subject: " ほご　ほげ "</code></pre>
+</blockquote>
+<p>のような記述も quoted-string とは見なされず</p>
+<blockquote>
+<pre><code>Subject: " =?iso-2022-jp?B?IhskQiRbJDQhISRbJDIbKEIi?= "</code></pre>
+</blockquote>
+<p>のように符号化できる。（雑誌「DOS/V magazine 9/15号, 1999」に誤った記事を見かけたため念のため記す。）</p>
+
+<hr>
+<h2><a name="delimitor">encoded-word 前後の空白文字</a></h2>
+<p>まず、はじめに linear-white-space について理解していないとこの節は理解できないので説明を行う。linear-white-space とは一つ以上のスペース(SPACE), 水平タブ(HTAB)のような空白文字のことであり、その直前に改行文字 CRLF を置くことによりヘッダのフィールドボディを複数行にわけることが可能になる。このことを "folding" と呼ぶ。linear-white-space は文法上以外では意味を持たないため、スペースに置き換えるかあるいは取り除くことができる。このため、folding されたヘッダを受け取った場合は、linear-white-space を取り除き一行にすることができる。このことを "unfolding" と呼ぶ。例えば</p>
+<blockquote>
+<pre><code>From: hogo &lt;hogo@bar.org&gt;, hoge@bar.org</code></pre>
+</blockquote>
+<p>は</p>
+<blockquote>
+<pre><code>From: hogo &lt;hogo @ bar.org &gt;, hoge @ bar.org</code></pre>
+</blockquote>
+<p>や</p>
+<blockquote>
+<pre><code>From: hogo &lt;hogo@bar.org&gt;,
+ hoge@bar.org</code></pre>
+</blockquote>
+<p>と同じ意味である。</p>
+
+<p>それでは本題に入る。RFC 2047 では US-ASCII 以外の文字符号化方法をヘッダの中に使うときの方法が規定されているが、符号化が行われた文字列 encoded-word 前後に関して次のことを定めている。</p>
+<ol>
+<li>*text として定義されている encoded-word は他の encoded-word や text と linear-white-spece で離さなければならない。
+<li>comments の中にある encoded-word は他の encoded-word や ctext と linear-white-spece で離さなければならない。ただし、comment のデリミタである「<code>(</code>」と「<code>)</code>」とは離す必要はない。なお、Subject などの Unstructured Field では「<code>(</code>」と「<code>)</code>」は普通の文字として扱われるため、1 の扱いになる。
+<li>phrase の中にある encoded-word は他の word や text や special と linear-white-spece で離さなければならない。この RFC 中では明記していないが、encoded-word は word を置き換えるものであるから、encoded-word とも離さなければならないと思われる。
+</ol>
+<p>要するに、メイラーがヘッダを解析するときに encoded-word を取り出しやすくするための仕様といえる。例を「<a href="encoded-word-lws.html">encoded-word と linear-white-space</a>」に示す。</p>
+<p>次に日本語と英語が混在している場合のケースについて考えてみる。例えば、</p>
+<blockquote>
+<pre><code>hogoほげ</code></pre>
+</blockquote>
+<p>という文字列の日本語の部分だけを符号化を行うと</p>
+<blockquote>
+<pre><code>hogo=?iso-2022-jp?B?GyRCJFskMhsoQg==?=</code></pre>
+</blockquote>
+<p>となるが、encoded-word の前に linear-white-spece がないのでこのような実装は誤りとなる。この例で符号化を行うときに空白文字を挿入すると</p>
+<blockquote>
+<pre><code>hogo =?iso-2022-jp?B?GyRCJFskMhsoQg==?=</code></pre>
+</blockquote>
+<p>のようになり、符号化した結果としては正しい。しかし、逆に復号化するときは</p>
+<blockquote>
+<pre><code>hogo ほげ</code></pre>
+</blockquote>
+<p>となり、元の文字列のままには復号化が行われない。このようなことが生じるのは RFC 2047 では単語と単語が空白文字で区切られている言語のことしか想定していないためである。そのため、このような場合は文字列全体に対して符号化を行った方がいい。ISO-2022-JP には ASCII も含まれるため、まとめて符号化できる。また、少々トリッキーな方法ではあるが</p>
+<blockquote>
+<pre><code>=?us-ascii?Q?hogo?= =?iso-2022-jp?B?GyRCJFskMhsoQg==?=</code></pre>
+</blockquote>
+<p>のようにそれぞれの言語を別々に符号化を行えばよい。encoded-word 間の linear-white-space は復号化されるときには取り除かれる（<a href="encoded-word-lws.html">前述の例</a>を参照）ので</p>
+<blockquote>
+<pre><code>hogoほげ</code></pre>
+</blockquote>
+<p>のような文字列に復号化が行われる。なお、このとき</p>
+<blockquote>
+<pre><code>=?us-ascii?Q?hogo?==?iso-2022-jp?B?GyRCJFskMhsoQg==?=</code></pre>
+</blockquote>
+<p>のように encoded-word をつなげてしまうのは当然のことながら誤りである。</p>
+
+<hr>
+<h2><a name="subject">Subject 全体を符号化することに関して</a></h2>
+<p>メイリングリストで返信されたメッセージの Subject に次のようにプレフィックスが重なるものを時々見かける。</p>
+<blockquote>
+<pre><code>Subject: [prefix] Re: [prefix] サブジェクト</code></pre>
+</blockquote>
+<p>これは復号化を行う前は次のようになっている。</p>
+<blockquote>
+<pre><code>Subject: [prefix] =?iso-2022-jp?B?UmU6IFtwcmVmaXhdIBskQiU1JVYlOCUnJS8lSBsoQg==?=</code></pre>
+</blockquote>
+<p>先頭の [prefix] という文字はメーリングリストマネージャによって付けられたものであり、その後の符号化した文字列はメイラーが作成したものである。つまり、メイラーは Subject 全体を符号化してしまっている。</p>
+
+<p>プレフィックスを付加するメーリングリストマネージャは大抵、投稿されたメッセージの Subject に「<code>Re: [prefix] </code>」のような文字列がある場合、古いプレフィックスを削除し、新しいプレフィックスを先頭に付ける。このとき先の例のように Subject 全体を符号化した場合は古いプレフィックスを見つけることができないため当然削除もできないので、プレフィックスが重なるわけである。一部のメーリングリストマネージャでは復号化を行った上でプレフィックスを付け変えるものもあるが、一般的ではない。そのため、メイラーの仕様としては、ASCII 文字列を符号化しないようにするか、あるいは返信時にプレフィックスを削除するような仕組みがあるといい。手動で削除を行っていると、どうしてもうっかり削除をするのを忘れてしまうことがあるからだ。</p>
+
+<hr>
+<h2><a name="jis">ヘッダにおける JIS コードの扱い</a></h2>
+<p>日本では Subject に日本語を使うときに ISO-2022-JP コードを使うことがある。日本語にローカライズされたメイラーでは、Subject をエスケープシーケンスから判断するか、あるいは無条件に ISO-2022-JP であると決めうちして OS の表示コードに変換して表示しているものでは読むことができる。また、RFC 822 の文法上からも ISO-2022-JP で使用している 7bit 文字は使用できるため一応使うことができるようにみえる。しかし、国際化されている（日本語は使用できるが、日本特有の事情は理解していない）メイラーでは読むことができない。そのため、文字符号化方法（Character Encoding Scheme）を指定する RFC 2047 の方法で符号化を行うのが好ましい。ただし、相手が使用しているメイラーが MIME に対応していなければ結局読むことができないので、相手が MIME 対応のメイラーを使っているとわかっている場合以外は US-ASCII で書くのが無難である。なお、RFC 2231 でさらに言語情報（language）を付ける拡張も示されているが、現状でこの RFC 2231 をサポートしているメイラーは少ないため付けない方がよい。</p>
+
+<p>先に述べたように Subject に関しては ISO-2022-JP を使うときもあるが、それ以外のヘッダ、特にアドレスを指定するフィールドには使うべきではない。ISO-2022-JP で使用できる文字の中にはヘッダにおいて特別な意味を持つ文字やエスケープシーケンスがある。そのため、メッセージを配送するサーバによってこのアドレスが解析された場合、アドレスを誤認識したり、誤動作を行う恐れがあり、トラブルの元である。そのため、決して使ってはいけない。</p>
+
+<hr>
+<h2><a name="filename">添付ファイルにおける日本語のファイル名</a></h2>
+<p>「<a href="japanese-filename.html">添付ファイルにおける日本語のファイル名に関して</a>」を参照のこと。</p>
+
+<hr>
+<p>Thanks to HAT. (He provided me examples and suggestions.)</p>
+<hr>
+<address>
+滝澤 隆史(TAKIZAWA Takashi)<br>
+<a href="mailto:taki@cyber.email.ne.jp">taki@cyber.email.ne.jp</a>
+</address>
+<hr>
+<p class="footmenu">
+<a href="index.html">目次</a>
+</p>
+</body>
+</html>

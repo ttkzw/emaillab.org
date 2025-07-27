@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="EUC-JP"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=EUC-JP" /><title>Mutt 1.4.2.1用日本語パッチ拡張機能マニュアル</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2" /></head><body><div class="article" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h1 class="title"><a id="id2425019"></a>Mutt 1.4.2.1用日本語パッチ拡張機能マニュアル</h1></div><div><div class="authorgroup"><h3 class="corpauthor">mutt-j 開発チーム</h3></div></div><div><p class="copyright">Copyright  © 2000-2004 TAKIZAWA Takashi &lt;taki@cyber.email.ne.jp&gt;</p></div><div><p class="copyright">Copyright  © 2000 Yukinori YOSHIDA &lt;yyo@pjs.nevt.nec.co.jp&gt;</p></div><div><p class="copyright">Copyright  © 2000 Kawaguti Ginga &lt;ginga@ginganet.org&gt;</p></div></div><div></div><hr /></div><div class="toc"><p><b>目次</b></p><dl><dt><a href="#id2430505">日本語パッチ拡張機能マニュアル</a></dt><dd><dl><dt><a href="#id2430511">設定用変数</a></dt></dl></dd></dl></div><hr /><div class="sect1" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2430505"></a>日本語パッチ拡張機能マニュアル</h2></div></div><div></div></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2430511"></a>設定用変数</h3></div></div><div></div></div><p>
+&quot;Default:&quot; の項目で括弧内()に記述したものは ./configure 時に --enalbe-default-japaneseオプションを付けた場合のものです．
+</p><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430525"></a>assumed_charset</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;us-ascii&quot; (&quot;iso-2022-jp:euc-jp:shift_jis:utf-8&quot;)
+</pre><p>
+</p><p>
+文字符号化方式の指定が行われていないへッダフィールドやボディはデフォルトでは us-ascii とみなされます．このオプションを設定すると，設定した文字符号化方式であると推定を行います．推定できる文字符号化方式はコロンで区切られた複数のものを設定できます．例えば，日本語の場合では次のように設定するとよいでしょう．
+</p><p>
+</p><pre class="programlisting">
+  set assumed_charset=&quot;iso-2022-jp:euc-jp:shift_jis:utf-8&quot;
+</pre><p>
+</p><p>
+ただし，メッセージボディの場合は最初のものしか有効ではありません．なお，このオプションは strict_mime=no を設定しないと有効になりません．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430579"></a>create_rfc2047_parameters</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: no
+</pre><p>
+</p><p>
+この変数を設定すると，Muttは添付ファイルのファイル名として次のようなRFC2047形式で符号化されたパラメータをContent-Typeフィールドに追加します．
+</p><p>
+</p><pre class="programlisting">
+  name=&quot;=?iso-2022-jp?B?GyRCO244MxsoQi50eHQ=?=&quot;
+</pre><p>
+</p><p>
+注記: このようなRFC2047形式の符号化の使用はRFC2047により明示的に禁止されています．受信者のメイラーがRFC2231形式のパラメータを解析できない場合のみ，この変数を設定してください．なお，このオプションは strict_mime=no を設定しないと有効になりません．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432375"></a>delete_prefix</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: unset
+</pre><p>
+</p><p>
+設定するとメーリングリストにおける Subject フィールドのプレフィックス（[prefix:0123]のようなもの）をインデックス画面および返信時のメッセージで削除することができます．削除するプレフィックスのパターンは $delete_regexp で記述できます．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432404"></a>delete_regexp</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: regular expression
+Default: &quot;^(\[[A-Za-z0-9_.: \-]*\][ ]*)&quot;
+</pre><p>
+</p><p>
+$delete_prefix で用いられる正規表現です．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432426"></a>file_charset</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;&quot; (&quot;iso-2022-jp:euc-jp:shift_jis:utf-8&quot;)
+</pre><p>
+</p><p>
+テキストファイルを添付する場合の想定される文字符号化方式を設定します．コロンで区切られリストとして記述できます．例えば，日本語を使う場合は次のように設定します．
+</p><p>
+</p><pre class="programlisting">
+  set file_charset=&quot;iso-2022-jp:euc-jp:shift_jis:utf-8&quot;
+</pre><p>
+</p><p>
+iso-2022-* を使う場合は必ずリストの先頭に持ってきてください．このオプションが設定されていない場合は，$charset で指定したものが代わりに想定されます．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432474"></a>mh_path</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: path
+Default: &quot;&quot;
+</pre><p>
+</p><p>
+mh_path option で ~/Mailなどと指定しておくと .mh_sequences がなくても ~/Mail以下の subdirectory で他の folder 条件に引っ掛からず，なおかつ，さらにその下に subdirectory を持たない directory は MH folder として解釈するようになります．他の MH tool で生成した folder を mutt で扱う際の &quot;xxx はメールボックスではありません&quot; の誤判定を減らせます．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432503"></a>msgid</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: yes
+</pre><p>
+</p><p>
+このオプションが設定されていると，メール送信時に mutt自身が Message-ID フィールドを生成します．MTAに Message-ID フィールドを生成させたい場合は設定を解除します．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432530"></a>msgid_use_from</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: yes
+</pre><p>
+</p><p>
+このオプションが設定されていると，Message-ID フィールドに使う文字列を $hostnameの代わりに $from で設定した文字列（メールアドレス）を使います．そのため,Message-ID のユニーク性が高まります．
+</p><p>
+例えば，次のように設定してある場合,
+</p><p>
+</p><pre class="programlisting">
+    set msgid_use_from=yes
+    set realname=&quot;foo&quot;
+    set from=&quot;foo@example.org&quot;
+</pre><p>
+</p><p>
+次のような From と Message-ID を生成します．
+</p><p>
+</p><pre class="programlisting">
+    Message-ID: &lt;20000907080905.A5250%foo@example.org&gt;
+    From: Foo Bar &lt;foo@example.org&gt;
+</pre><p>
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432590"></a>pager_hdrs_only</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: no
+</pre><p>
+</p><p>
+インデックスからメッセージを選択したときに，すぐに本文を表示するかを決めます.セットされていると最初はヘッダ部しか表示せず，ページ送りや行送り動作を行なった時点で本文が表示されます．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432618"></a>pager_spoil</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: no
+</pre><p>
+</p><p>
+pager_hdrs_only がセットされているときの本文の表示の仕方を決めます．セットされていると，本文の文字を pager_spoiler に指定されたキャラクタで置き換えます．セットされていなければ本文の行数だけ空行を出力します．
+</p><p>
+注意: セットされていないとき，本文の行数は実際のメールの行数をもとに計算します.ファイルが添付されている場合や本文が折り返されて表示される場合には，出力される空行数と本文を表示したときの行数とが合わなくなります．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432660"></a>pager_spoiler</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;*&quot;
+</pre><p>
+</p><p>
+pager_hdrs_only と pager_spoil がセットされているときに本文の文字を置き換えるキャラクタを指定します．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432684"></a>sanitize_ja_chars</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: no
+</pre><p>
+</p><p>
+このオプションを設定すると，日本語の機種依存文字を〓に置き換え，また，JIS X 0201 kana(&quot;ESC ) I&quot; の場合のみ) を ? に置き換えて表示が乱れるのを防ぎます．ただし，JIS X 0201 kana が 8bit のままでてきた場合は処理しません．また，$charset がEUC-JP に設定している場合は，EUC-JP には JIS X 0201 roman が含まれないため，受け取ったメッセージの ISO-2022-JP の文字列にそのエスケープシーケンスが含まれている場合，EUC-JP には変換できません．逆に，Shift_JIS には ASCII が含まれないため,受け取ったメッセージの ISO-2022-JP の文字列にそのエスケープシーケンスが含まれている場合は Shift_JIS には変換できません．そのため，このようなケースの場合には文字化けが生じます．このオプションを設定すると，JIS X 0201 roman と ASCII ののエスケープシーケンスを互いに置き換え，文字化けを防ぐことができます．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432733"></a>strict_mime</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: yes
+</pre><p>
+</p><p>
+このオプションを解除すると，MIME に従っていないメッセージなど表示できるようになります．具体的には，charset の指定がないメッセージを表示します．$assumed_charset も見てください．さらに，encoded-word と *text の間の linear-white-space を space に置き換えます．これにより，MIME 符号化された Subject フィールドの表示が複数行にわかれることを防ぐことができます．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2432762"></a>tree_chars</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: no
+</pre><p>
+</p><p>
+vt-100 非互換端末では ACS 文字を表示できません．このオプションを設定すると，スレッドや添付ファイルのツリーを表示する際に任意の文字を設定することができます.例えば，日本語であれば，JIS 0208 の罫線を用いることもできます．文字の設定は $tree_llcorner，$tree_ulcorner，$tree_ltee，$tree_hline，$tree_vline,$tree_ttee，$tree_btee，$tree_space，$tree_rarrow，$tree_star，$tree_hiddeni，tree_equals，$tree_missing で行います．ただし，設定ファイルの記述で用いられる文字符号化方式と $charset に設定したものを同じにしてください．デフォルトでは $ascii_chars をセットしたときに使われる文字を使って表示します．
+</p><p>
+設定例：JIS X 0208 の罫線を用いた例
+</p><p>
+</p><pre class="programlisting">
+  set tree_chars=yes
+  set tree_llcorner=&quot;└&quot;
+  set tree_ulcorner=&quot;┌&quot;
+  set tree_ltee=&quot;├&quot;
+  set tree_hline=&quot;─&quot;
+  set tree_vline=&quot;│&quot;
+  set tree_ttee=&quot;┬&quot;
+  set tree_btee=&quot;┴&quot;
+  set tree_space=&quot;　&quot;
+  set tree_rarrow=&quot;＞&quot;
+  set tree_star=&quot;＊&quot;
+  set tree_hidden=&quot;＆&quot;
+  set tree_equals=&quot;＝&quot;
+  set tree_missing=&quot;？&quot;
+</pre><p>
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430754"></a>tree_llcorner</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;`&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430774"></a>tree_ulcorner</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;,&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430794"></a>tree_ltee</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;|&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430815"></a>tree_hline</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;-&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430835"></a>tree_vline</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;|&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430854"></a>tree_ttee</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;-&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430874"></a>tree_btee</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;-&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430894"></a>tree_space</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot; &quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430914"></a>tree_rarrow</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;&gt;&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430934"></a>tree_star</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;*&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430954"></a>tree_hidden</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;&amp;&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430975"></a>tree_equals</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;=&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2430995"></a>tree_missing</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: string
+Default: &quot;?&quot;
+</pre><p>
+</p><p>
+$tree_chars を参照．
+</p></div><div class="sect3" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h4 class="title"><a id="id2431015"></a>use_jisx0208</h4></div></div><div></div></div><p>
+</p><pre class="programlisting">
+Type: boolean
+Default: no (yes)
+</pre><p>
+</p><p>
+このオプションを設定すると，UTF-8ロケールにおいてJIS X 0208の記号・ギリシャ文字・キリル文字の幅が2桁であると判断します．
+</p></div></div></div></div></body></html>

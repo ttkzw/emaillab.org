@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<title>qmail-popup extention</title>
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="vida.css" />
+<body>
+<h1>qmail-popup の拡張機能</h1>
+<p>qmail-popupがqmail-vidaパッケージにより拡張された機能を示す。</p>
+
+<h2>POP3コマンド</h2>
+<p>"APOP"と"CAPA"コマンドを追加してある。</p>
+
+<h2>環境変数</h2>
+<h3>ALLOWPLAIN</h3>
+<p>qmail-vidaで拡張されたqmail-popupはデフォルトでは平分認証を許可しない。環境変数 ALLOWPLAIN を設定すると平文認証を利用できるようになる。</p>
+<p>tcpserverのアクセス制御の機能を利用して、特定のIPアドレスからのアクセスの場合のみにこの環境変数を設定して平文認証を認めるといったような運用も可能である。ただし、平文認証は常に盗聴される可能性があることに注意してください。 </p>
+
+
+</body>
+</html>

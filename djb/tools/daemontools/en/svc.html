@@ -1,0 +1,52 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>The svc program</h1>
+<tt>svc</tt>
+controls services
+monitored by <a href="supervise.html">supervise</a>.
+<h2>Interface</h2>
+<pre>
+     svc <i>opts</i> <i>services</i>
+</pre>
+<p>
+<tt><i>opts</i></tt> is a series of getopt-style options.
+<tt><i>services</i></tt> consists of any number of arguments,
+each argument naming a directory used by <tt>supervise</tt>.
+<p>
+<tt>svc</tt> applies all the options to each service in turn.
+Here are the options:
+<ul>
+<li><tt>-u</tt>: Up.
+If the service is not running, start it.
+If the service stops, restart it.
+<li><tt>-d</tt>: Down.
+If the service is running, send it a TERM signal and then a CONT signal.
+After it stops, do not restart it.
+<li><tt>-o</tt>: Once.
+If the service is not running, start it.
+Do not restart it if it stops.
+<li><tt>-p</tt>: Pause.
+Send the service a STOP signal.
+<li><tt>-c</tt>: Continue.
+Send the service a CONT signal.
+<li><tt>-h</tt>: Hangup.
+Send the service a HUP signal.
+<li><tt>-a</tt>: Alarm.
+Send the service an ALRM signal.
+<li><tt>-i</tt>: Interrupt.
+Send the service an INT signal.
+<li><tt>-t</tt>: Terminate.
+Send the service a TERM signal.
+<li><tt>-k</tt>: Kill.
+Send the service a KILL signal.
+<li><tt>-x</tt>: Exit.
+<tt>supervise</tt> will exit as soon as the service is down.
+If you use this option on a stable system,
+you're doing something wrong;
+<tt>supervise</tt> is designed to run forever.
+</ul>
+</body>
+</html>

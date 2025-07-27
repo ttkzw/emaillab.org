@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html lang="ja">
+<head>
+<title>Japanese in the header - encoded-word example</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../taki.css">
+</head>
+<body>
+<h3>encoded-word と linear-white-space</h3>
+<p>encoded-word と linear-space-white の関係を示す例を紹介する。主に RFC 2047 に示されている例である。</p>
+
+<dl>
+<dt>コメントのデリミタである"<code>(</code>"と"<code>)</code>"との間には linear-space-white が必要ないことを示す例
+<dd>
+<pre>encoded form                                displayed as
+(=?ISO-8859-1?Q?a?=)                        (a)</pre>
+
+
+<dt>encoded-word と ctext との間には linear-space-white が必要な例
+<dd>
+<pre>encoded form                                displayed as
+(=?ISO-8859-1?Q?a?= b)                      (a b)
+(a =?ISO-8859-1?Q?b?=)                      (a b)
+(a                                          (a b)
+ =?ISO-8859-1?Q?b?=)
+(=?ISO-8859-1?Q?a?=                         (a b)
+ b)</pre>
+
+<dt>encoded-word 間の linear-space-white が表示の目的で無視される例
+<dd>
+<pre>encoded form                                displayed as
+(=?ISO-8859-1?Q?a?= =?ISO-8859-1?Q?b?=)     (ab)
+(=?ISO-8859-1?Q?a?=  =?ISO-8859-1?Q?b?=)    (ab)
+(=?ISO-8859-1?Q?a?=                         (ab)
+    =?ISO-8859-1?Q?b?=)</pre>
+
+<dt>符号化される文字列の中にスペースを表示するためにスペースを encoded-word として符号化する例
+<dd>
+<pre>encoded form                                displayed as
+(=?ISO-8859-1?Q?a_b?=)                      (a b)</pre>
+
+<dt>二つの符号化される文字列の間にスペースを表示ために encoded-word の一つにスペースを符号化する例
+<dd>
+<pre>encoded form                                displayed as
+(=?ISO-8859-1?Q?a?= =?ISO-8859-2?Q?_b?=)    (a b)</pre>
+</dl>
+
+</body>
+</html>

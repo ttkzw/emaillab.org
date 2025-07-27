@@ -1,0 +1,79 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The svscan program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<br><a href="top.html">daemontools</a>
+<h1><a href="http://cr.yp.to/daemontools/svscan.html">svscan プログラム</a></h1>
+<tt>svscan</tt> はサービスの集まりを開始させ、監視します。
+
+<h2>使い方</h2>
+<tt>svscan</tt> は現在のディレクトリの各サブディレクトリ(1000個のサブディレクトリの制限まで)に対して、一つの <a href="supervise.html">supervise</a> のプロセスを開始させます。
+<tt>svscan</tt> はドットで始まるサブディレクトリ名をとばします。
+<tt>supervise</tt> は <tt>svscan</tt> のパスになければなりません。
+
+<p>
+サブディレクトリ <tt><i>sub</i></tt> が sticky であれば、<tt>svscan</tt> は一組の <tt>supervise</tt> プロセス、<tt><i>sub</i></tt> に一つ、<tt><i>sub</i>/log</tt> に一つ、を開始させ、それらの間をパイプでつなぎます。
+
+<p>
+5秒毎に、<tt>svscan</tt> は再びサブディレクトリを調べます。
+新しいサブディレクトリを見つけたら、新しい <tt>supervise</tt> プロセスを開始させます。
+<tt>supervise</tt> プロセスが終了している古いサブディレクトリを見つけたら、その <tt>supervise</tt> プロセスを再開させます。
+sticky の場合は、データが失われないように同じパイプを再使用します。
+
+<p>
+<tt>svscan</tt> は絶えず動くように設計されています。
+パイプを作成するときや <tt>supervise</tt> を動かすときに問題が生じたら、メッセージを標準エラーに出力し、5秒後に再び試します。
+
+<p>
+<tt>svscan</tt> がコマンドライン引数を与えられたら、開始時にそのディレクトリに移動します。
+
+<h2><a name="boot"></a><tt>/service</tt> ディレクトリ</h2>
+通常、<tt>svscan</tt> はブート時に新しい <tt>/service</tt> ディレクトリで開始されます。
+（バージョン0.70以降では）これを設定するために、初めに、root として <tt>/service</tt> を作成してください。
+<pre>
+     mkdir /service
+     chmod 755 /service
+</pre>
+
+<p>
+それからシステムのブートスクリプトから <tt>svscan</tt> を起動させます。
+<ul>
+<li><tt>/etc/inittab</tt> がある Linux や SVR4系のシステムでは、
+<tt>SV:123456:respawn:env - PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin svscan /service &lt;/dev/null &gt;/dev/console 2&gt;/dev/console</tt>
+を <tt>/etc/inittab</tt> の終りに加え、<tt>kill -HUP 1</tt> を入力してください。
+<li>BSD システム上では、
+<tt>env - PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin csh -cf 'svscan /service &amp;'</tt>
+を <tt>/etc/rc.local</tt> に加え、リブートしてください。
+</ul>
+すぐに <tt>ps</tt> を使って <tt>svscan</tt> が動作しているか確認してください。
+
+<p>
+新しいサービスを導入するためには、<tt>/service/<i>sub</i></tt> からそのファイルシステムの他の場所にあるディレクトリへシンボリック・リンクを作ってください。
+<tt>svscan</tt> は 5 秒以内にそのリンクを見つけ、一つの  <tt>supervise</tt> プロセス、あるいは <tt><i>sub</i></tt> が sticky の場合は 2 つの  <tt>supervise</tt> プロセスを開始させます。
+その後、<a href="svc.html">svc</a> を使って、<tt>/service/<i>sub</i></tt> でのサービスを制御できます。
+
+<p>
+サービスを除去するためには、シンボリックリンクを削除して、それから <tt>supervise</tt> プロセスを停めます:
+<pre>
+     cd /service/<i>sub</i>
+     rm /service/<i>sub</i>
+     svc -dx . log
+</pre>
+
+<h2>他のサービス監視ツール</h2>
+SVR4形式の <tt>init</tt> プログラムは <tt>/etc/inittab</tt> に記述されたデーモンを起動させます。
+
+<p>
+Sun の <tt>sac</tt> プログラムは <tt>/etc/saf/_sactab</tt> に記述された ``port monitors'' を起動させます。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Nov 19 20:03:50 2000
+<!-- hhmts end -->
+</body>
+</html>

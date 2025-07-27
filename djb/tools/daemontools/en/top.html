@@ -1,0 +1,46 @@
+<html>
+<body>
+<a href="djb.html">D. J. Bernstein</a>
+<br><a href="unix.html">UNIX</a>
+<h1>daemontools</h1>
+<a href="daemontools/install.html">How to install daemontools</a>
+<br><a href="daemontools/upgrade.html">Upgrading from previous versions of daemontools</a>
+<p>
+<a href="daemontools/supervise.html">The supervise program</a>
+<br><a href="daemontools/svc.html">The svc program</a>
+<br><a href="daemontools/svok.html">The svok program</a>
+<br><a href="daemontools/svstat.html">The svstat program</a>
+<br><a href="daemontools/svscan.html">The svscan program</a>
+<br><a href="daemontools/fghack.html">The fghack program</a>
+<p>
+<a href="daemontools/multilog.html">The multilog program</a>
+<br><a href="daemontools/tai64n.html">The tai64n program</a>
+<br><a href="daemontools/tai64nlocal.html">The tai64nlocal program</a>
+<p>
+<a href="daemontools/setuidgid.html">The setuidgid program</a>
+<br><a href="daemontools/envuidgid.html">The envuidgid program</a>
+<br><a href="daemontools/envdir.html">The envdir program</a>
+<br><a href="daemontools/softlimit.html">The softlimit program</a>
+<br><a href="daemontools/setlock.html">The setlock program</a>
+<hr>
+The logging utilities in daemontools
+are discussed on the
+<a href="lists.html#log">log mailing list</a>.
+<p>
+<h2>What is it?</h2>
+daemontools is a collection of tools for managing UNIX services.
+<p>
+<tt>supervise</tt> monitors a service.
+It starts the service and restarts the service if it dies.
+Setting up a new service is easy:
+all <tt>supervise</tt> needs is
+a directory with a <tt>run</tt> script that runs the service.
+<p>
+<tt>multilog</tt> saves error messages to one or more logs.
+It optionally timestamps each line and,
+for each log, includes or excludes lines matching specified patterns.
+It automatically rotates logs to limit the amount of disk space used.
+If the disk fills up, it pauses and tries again,
+without losing any data.
+</body>
+</html>

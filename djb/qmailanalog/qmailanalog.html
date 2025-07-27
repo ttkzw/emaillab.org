@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+<title>qmailanalog</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../djb.css">
+</head>
+<body lang="ja">
+<h2>ログの統計情報ツール qmailanalog</h2>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sun May  7 15:51:33 2000
+<!-- hhmts end -->
+</div>
+<hr>
+<p>qmailanalog は qmail が出力するログから統計情報を求めるためのツールです。</p>
+<ul>
+<li><a href="#install">qmailanalog のインストール</a>
+<li><a href="#how2use">qmailanalog の使い方(splogger を使う場合)</a>
+<li><a href="#how2use-multilog">qmailanalog の使い方(multilog を使う場合)</a>
+</ul>
+
+<hr>
+<h3><a name="install">qmailanalog のインストール</a></h3>
+<p>インストールは次のとおりです。</p>
+<ol>
+<li>以下のファイルを入手します。<br>
+<a href="qmailanalog-0.70.tar.gz">qmailanalog-0.70.tar.gz</a><br>
+<li>それぞれファイルを展開します。
+<pre>
+$ gzip -dc qmailanalog-0.70.tar.gz | tar xvf -
+</pre>
+<li>make してインストールします。標準では /usr/local/qmailanalog にインストールされます。
+<pre>
+$ cd qmailanalog-0.70
+$ make
+$ su
+# make setup check
+</pre>
+<li>ezmlm を使っていると envelope sender の情報が長く、メッセージ毎にシーケンス番号が異なるので、そのままでは個別にそれぞれ出力され分析結果が見にくくなってしまいます。そこで senders を修正してみます。（必要に応じて行ってください）
+<pre>
+  /^m/ {
+    sender = $10"/"$8
+の次に行に
+    sub("-return-.*=.*@","@",sender)
+を挿入します。また、
+  /^d/ {
+    sender = $10"/"$7
+の次の行にも
+    sub("-return-.*=.*@","@",sender)
+を挿入します。
+</pre>
+</ol>
+
+<hr>
+<h3><a name="how2use">qmailanalog の使い方(splogger を使う場合)</a></h3>
+<ol>
+<li>/etc/syslog.conf を見て、maillog が単独で出力されるか確認します。以下は syslog.conf の例です。なおこの例では、パケットフィルタリングのログを KERN レベルで吐き出し、tcpserver のログを AUTH レベルで吐き出すため、maillog と同様にそれぞれファイルを独立させています。man 3 syslog あるいは syslog.h を見るといいです。
+<pre>
+*.=info;*.=notice;kern,mail,auth.none   /var/log/messages
+*.=debug;kern,mail,auth.none            /var/log/debug
+*.warn;kern,mail,auth.none              /var/log/syslog
+*.crit                                  /var/log/critical
+kern.*                                  /var/log/kernel
+mail.*                                  /var/log/maillog
+auth.*                                  /var/log/authlog
+</pre>
+<li>maillog から日時、ホスト名、"qmail:"を取り除いて、matchup に通してログを整理します。以下はこれを処理するスクリプトの一部です。
+<pre>
+#!/bin/sh
+#
+PATH=/usr/local/qmailanalog/bin:/var/qmail/bin
+MAILLOG="/var/log/maillog"
+QMAILLOG="$HOME/tmp/qmail.$$"
+/usr/bin/awk '{$1="";$2="";$3="";$4="";$5="";print}' \
+    &lt; $MAILLOG | matchup &gt; $QMAILLOG
+</pre>
+<li>整理されたログを標準入力として qmailanalog の各スクリプトに通して統計結果を得ます。以下のスクリプトは先のスクリプトにつなげて使い、ログの統計情報をpostmaster にメイルするものです。cron で毎日1回動かすといいでしょう。
+<pre>
+(echo "To: postmaster@foo.or.jp"
+echo "From: postmaster@foo.or.jp"
+echo "Subject: maillog"
+echo ""
+zoverall &lt; $QMAILLOG
+zfailures &lt; $QMAILLOG
+zdeferrals &lt; $QMAILLOG
+zrecipients &lt; $QMAILLOG
+zsenders &lt; $QMAILLOG )| qmail-inject -f postmaster@foo.or.jp
+/bin/rm -f $QMAILLOG
+</pre>
+</ol>
+
+<hr>
+<h3><a name="how2use-multilog">qmailanalog の使い方(multilog を使う場合)</a></h3>
+<p>splogger は syslogd を経由してログを出力するため、syslogd の性能上、すべてのログを確実に残せる保証はありません。そこで、DJB 氏による <a href="../tools/daemontools/top.html">daemontools</a> というパッケージに含まれる multilog を用いた例を示します。</p>
+<ol>
+<li>daemontools をインストールして、multilog の設定をします。
+詳細は <cite><a href="../daemontools/daemontools-howto.html">daemontools HOW-TO</a></cite> をご覧下さい。</p>
+<li>/service/qmail にあるログから統計を取りたい時間のみ取り出し、matchup に通
+してログを整理します。以下はこれを処理するスクリプトの一部です。logcollector 
+は multilog が出力するログから必要な時間だけを取り出すスクリプトだと思ってください。
+<pre>
+#!/bin/sh
+#
+PATH="/usr/local/qmailanalog/bin:/var/qmail/bin:$PATH"
+export PATH
+QMAILLOG="/service/qmail/log/qmail.$$"
+/usr/local/bin/logcollector /service/qmail/log 1 | matchup &gt; $QMAILLOG
+</pre>
+<li>整理されたログを標準入力として qmailanalog の各スクリプトに通して統計結果を得ます。以下のスクリプトは先のスクリプトにつなげて使い、ログの統計情報をpostmaster にメイルするものです。qmaill の UID として cron で毎日1回動かすといいでしょう。
+<pre>
+(echo "To: postmaster@foo.or.jp"
+echo "From: postmaster@foo.or.jp"
+echo "Subject: maillog"
+echo ""
+zoverall &lt; $QMAILLOG
+zfailures &lt; $QMAILLOG
+zdeferrals &lt; $QMAILLOG
+zrecipients &lt; $QMAILLOG
+zsenders &lt; $QMAILLOG )| qmail-inject -f postmaster@foo.or.jp
+/bin/rm -f $QMAILLOG
+</pre>
+</ol>
+
+<hr>
+<p>
+<a href="index.html">目次</a>
+</p>
+</body>
+</html>
+
+
+
+
+
+
+
+

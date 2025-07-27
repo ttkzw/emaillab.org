@@ -1,0 +1,34 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>Upgrading from previous versions of daemontools</h1>
+<h2>0.53 to 0.60 or 0.61</h2>
+<tt>supervise</tt> no longer takes a program name as an argument.
+Instead it switches to the given directory and starts <tt>./run</tt>.
+The options have disappeared;
+if you do not want <tt>./run</tt> to be started immediately,
+touch <tt>./down</tt>.
+<p>
+The <tt>testfilelock</tt> program is gone.
+You can use <tt>svok</tt> to check reliably
+whether <tt>supervise</tt> is running.
+<p>
+<tt>cyclog</tt>, <tt>fifo</tt>, <tt>errorsto</tt> and <tt>usually</tt>
+have been replaced by <tt>multilog</tt>,
+which has built-in line selection and timestamping.
+<p>
+<tt>accustamp</tt> and <tt>tailocal</tt>
+have been replaced by <tt>tai64n</tt> and <tt>tai64nlocal</tt>,
+with new time formats designed to encourage Y2038-compliant code.
+<p>
+<tt>setuser</tt> is now called <tt>setuidgid</tt>.
+<h2>0.61 to 0.70</h2>
+There are many internal changes.
+There are two new utilities,
+<tt>setlock</tt> (from the <tt>serialmail</tt> package)
+and <tt>envdir</tt>.
+<tt>svscan</tt> now allows a command-line <tt>/service</tt> argument.
+</body>
+</html>

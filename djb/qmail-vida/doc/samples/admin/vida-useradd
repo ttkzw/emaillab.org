@@ -1,0 +1,22 @@
+#!/bin/sh
+#  vida-useradd: sample script for adding user
+
+# parameters
+PATH=/var/qmail/bin:/usr/local/bin:/usr/bin:/bin
+export PATH
+
+USER=$1
+umask 077
+
+cd || exit 111
+if [ -d $USER ]; then
+  echo "$USER already exists!"
+  exit 111
+fi
+vida-passwd -a -u $USER || exit 111
+vida-assign -a -u $USER || exit 111
+vida-maildirmake $USER Maildir || exit 111
+echo -e "$USER was added\n";
+
+exit 0;
+

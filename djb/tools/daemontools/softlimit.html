@@ -1,0 +1,77 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The softlimit program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<br><a href="top.html">daemontools</a>
+<h1><a href="http://cr.yp.to/daemontools/softlimit.html">softlimit プログラム</a></h1>
+<tt>softlimit</tt> は新しい資源制限を伴って別のプログラムを起動させます。
+
+<h2>使い方</h2>
+<pre>
+     softlimit <i>opts</i> <i>child</i>
+</pre>
+<p>
+<tt><i>opts</i></tt> は getopt 形式のオプション郡です。
+<tt><i>child</i></tt> は一つ以上の引数から成ります。
+
+<p>
+<tt>softlimit</tt> は <tt><i>opts</i></tt> によって指定されたソフト資源制限(soft resource limits)を設定します。
+それから <tt><i>child</i></tt> を起動させます。
+
+
+<h2>オプション</h2>
+次のオプションのどれについても、<tt><i>n</i></tt> はソフト制限(soft limit)がハード制限(soft limit)に等しく設定されることを示す <tt>=</tt> でもかまいません。
+
+<p>
+メモリ使用量制御オプション:
+<ul>
+<li><tt>-m <i>n</i></tt>:
+<tt>-d <i>n</i> -s <i>n</i> -l <i>n</i> -a <i>n</i></tt>
+と等しい。
+<li><tt>-d <i>n</i></tt>:
+プロセス当りのデータ・セグメントを <tt><i>n</i></tt> バイトに制限する。
+<li><tt>-s <i>n</i></tt>:
+プロセス当りのスタック・セグメントを <tt><i>n</i></tt> バイトに制限する。
+<li><tt>-l <i>n</i></tt>:
+プロセス当りのロックされた物理ページを <tt><i>n</i></tt> バイトに制限する。
+このオプションはオペレーション・システムによっては有効ではない。
+<li><tt>-a <i>n</i></tt>:
+プロセス当りの全てのセグメントの総量を <tt><i>n</i></tt> バイトに制限する。
+このオプションはオペレーション・システムによっては有効ではない。
+<li><tt>-o <i>n</i></tt>:
+プロセス当りの開いているファイル記述子の数を <tt><i>n</i></tt> に制限する。
+このオプションはオペレーション・システムによっては有効ではない。
+<li><tt>-p <i>n</i></tt>:
+uid 当りのプロセス数を <tt><i>n</i></tt> に制限する。
+</ul>
+
+<ul>
+<li><tt>-f <i>n</i></tt>:
+出力するファイルのサイズを <tt><i>n</i></tt> バイトに制限する。
+<li><tt>-c <i>n</i></tt>:
+core のファイルサイズを <tt><i>n</i></tt> バイトに制限する。
+</ul>
+
+<p>
+効率オプション:
+<ul>
+<li><tt>-r <i>n</i></tt>:
+常駐設定サイズを <tt><i>n</i></tt> バイトに制限する。
+この制限は物理メモリがいっぱいでない限り強要されない。
+
+<li><tt>-t <i>n</i></tt>:
+CPU 時間を <tt><i>n</i></tt> 秒に制限する。
+この制限はプロセスが <tt><i>n</i></tt> 秒後に SIGXCPU シグナルを受けることがなければ強要されない。
+</ul>
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Apr 16 19:10:16 2000
+<!-- hhmts end -->
+</body>
+</html>

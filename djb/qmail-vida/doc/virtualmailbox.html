@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<title>virtual user</title>
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="vida.css" />
+<body>
+<h1>仮想メールボックス</h1>
+<h2>仮想メールボックスとは</h2>
+<p>仮想メールボックスとはシステムにアカウントのない（つまり/etc/passwdに登録されていない）仮想ユーザのメールボックスであるとここでは定義します。仮想メールボックスを用いることによりメール・アカウントの管理をシステムと切り離すことができます。</p>
+<p>仮想メールボックスといっても、何れかのユーザが所有することになります。qmail-vidaではドメイン毎に仮想メールボックスを所有・管理するユーザを設けます。そして、その所有者のホームディレクトリに仮想メールボックスを作成します。</p>
+
+<h2>準備</h2>
+<p>先に述べたように、仮想メールボックスはドメインの所有者のホームディレクトリに作成されるため、所有者のアカウントを作成する際に仮想メールボックスを置きたいパーティションにホームディレクトリを作成してください。</p>
+
+<h2>追加</h2>
+<p>仮想メールボックスを追加する場合はドメインの所有者の権限で以下の３つの作業を行います。</p>
+<ol>
+<li>パスワードデータベースにエントリを追加(vida-passwd)</li>
+<li>users/assignに登録(vida-assign)</li>
+<li>メールボックスの作成(vida-maildirmake)</li>
+</ol>
+<p>例えば、fooという仮想ユーザのメールボックスを所有者がpopであるドメインに追加する場合は次のようにします。</p>
+<pre class="example">
+$ su pop
+$ vida-passwd -a -u foo
+$ vida-assign -a -u foo
+$ vida-maildirmake foo Maildir
+</pre>
+
+<h2>削除</h2>
+<p>仮想メールボックスを削除する場合はドメインの所有者の権限で以下の３つの作業を行います。</p>
+<ol>
+<li>パスワードデータベースからエントリを削除(vida-passwd)</li>
+<li>users/assignから削除(vida-assign)</li>
+<li>メールボックスの削除</li>
+</ol>
+<p>例えば、fooという仮想ユーザのメールボックスを所有者がpopであるドメインから削除する場合は次のようにします。</p>
+<pre class="example">
+$ su pop
+$ vida-passwd -d -u foo
+$ vida-assign -d -u foo
+$ cd;rm -rf foo
+</pre>
+
+<h2>dot-qmail</h2>
+<p>仮想メールボックスの場合でも実在ユーザのメールボックスと同様に dot-qmail を記述することができます。特に制限はありませんが、<a href="security.html">セキュリティ上の注意事項</a>があります。</p>
+
+</body>
+</html>

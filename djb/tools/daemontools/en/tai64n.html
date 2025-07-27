@@ -1,0 +1,57 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>The tai64n program</h1>
+<tt>tai64n</tt>
+puts a precise timestamp on each line.
+<h2>Interface</h2>
+<tt>tai64n</tt>
+reads lines from stdin.
+For each line,
+it writes
+<ol>
+<li>an @,
+<li>a precise timestamp,
+<li>a space, and
+<li>a copy of the input line
+</ol>
+to stdout.
+The timestamp indicates the moment that
+<tt>tai64n</tt> read the first character of the line.
+<p>
+<tt>tai64n</tt>
+exits 0 when it sees end of input.
+It exits 111 without an error message
+if it has trouble reading stdin
+or writing stdout.
+<p>
+<tt>tai64n</tt>
+does not allocate any memory after it starts.
+<h2>Timestamps</h2>
+Timestamps used by <tt>tai64n</tt>
+are 12-byte TAI64N labels
+in <a href="../libtai/tai64.html#tai64n">external TAI64N format</a>,
+printed as 24 lowercase hexadecimal characters.
+You can use
+<a href="tai64nlocal.html">tai64nlocal</a>
+to convert the timestamps to a human-readable format.
+<p>
+For example, the timestamp 4000000037c219bf2ef02e94
+refers to the nanosecond
+beginning exactly 935467455.787492500 seconds
+after the beginning of 1970 TAI;
+37c219bf hexadecimal is 935467455,
+and
+2ef02e94 hexadecimal is 787492500.
+<p>
+The current implementation of <tt>tai64n</tt>
+relies on the UNIX <tt>gettimeofday</tt> library routine
+to return the current time as the number of TAI seconds since
+1970-01-01 00:00:10 TAI.
+Beware that most <tt>gettimeofday</tt> implementations
+are not Y2038-compliant.
+Furthermore, most clocks are not set accurately.
+</body>
+</html>

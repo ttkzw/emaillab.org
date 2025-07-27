@@ -1,0 +1,7507 @@
+  The Mutt E-Mail Client
+  by Michael Elkins <me@cs.hmc.edu>
+  version 1.4
+
+  ``All mail clients suck.  This one just sucks less.'' -me, circa 1995
+  ______________________________________________________________________
+
+  目次
+
+
+
+  1. イントロダクション
+     1.1 Muttのホームページ
+     1.2 メーリングリスト
+     1.3 ソフトウエア配布サイト
+     1.4 IRC
+     1.5 USENET
+     1.6 Copyright
+
+  2. さあ始めよう
+     2.1 メニュー内の移動
+     2.2 入力フィールドを編集する
+     2.3 メールを読む - インデックスとぺージャー
+        2.3.1 メッセージインデックス
+           2.3.1.1 状態を表すフラグ
+        2.3.2 ぺージャー
+        2.3.3 スレッドモード
+        2.3.4 色々な機能
+     2.4 メールを送る
+        2.4.1 メールのヘッダーを編集する。
+        2.4.2 PGPといっしょに使う
+        2.4.3 mixmasterを使った匿名メッセージの送信
+     2.5 メールの転送と中継
+     2.6 メールの送信を延期する
+
+  3. 設定
+     3.1 初期化ファイルの構文
+     3.2 エイリアスを定義/使用する
+     3.3 デフォルトのキーバインディングを変更する
+     3.4 文字セットのエイリアスを定義する
+     3.5 メールボックスに関係する変数の設定
+     3.6 キーボードマクロ
+     3.7 色属性と白黒属性を使う
+     3.8 不要なメールヘッダを隠す
+     3.9 メーリングリスト
+     3.10 複数のスプールするメールボックスを使う
+     3.11 メールを取り込むメールボックスを定義する
+     3.12 ユーザが定義するへッダ
+     3.13 メールを閲覧する時のヘッダの並び方を決める
+     3.14 セーブする時のデフォルトのファイル名を指定する
+     3.15 Fcc:としてセーブするデフォルトのメールボックスを指定する
+     3.16 セーブするファイル名のデフォルトと Fcc: するメールボックスのデフォルトを一度に指定する。
+     3.17 メールの宛先によって設定を変更する
+     3.18 メッセージを整形する前に設定を変える
+     3.19 受取人の PGP キーを選ぶ
+     3.20 一連のキーをキーボードバッファーに加える
+     3.21 関数の実行
+     3.22 メールにスコア付けする
+     3.23 変数を設定する
+     3.24 他のファイルから初期化コマンドを読み込む
+     3.25 フックを取り除く
+
+  4. 高度な使い方
+     4.1 正規表現
+     4.2 パターン
+        4.2.1 パターン修飾子
+        4.2.2 組み合わせて検索する
+        4.2.3 日付で検索する
+     4.3 タグを使う
+     4.4 フックを使う
+        4.4.1 フックコマンドでメールにマッチさせる
+     4.5 外部にアドレスを問い合わせる
+     4.6 メールボックスの形式
+     4.7 メールボックスへのショートカット
+     4.8 メーリングリストを扱う
+     4.9 配送状態の通知(DSN)のサポート
+     4.10 POP3 サポート(オプション)
+     4.11 IMAP サポート(オプション)
+        4.11.1 フォルダブラウザ
+        4.11.2 認証
+     4.12 複数の IMAP/POP アカウントを使う (OPTIONAL)
+     4.13 WWW ブラウザーを起動して URL の場所に行く
+
+  5. Mutt の MIME サポート
+     5.1 Mutt で MIME を使う
+        5.1.1 ページャーで MIME メールを閲覧する
+        5.1.2 添付ファイルメニュー
+        5.1.3 メール作成メニュー
+     5.2 mime.typesファイルを使って MIME タイプの設定を行う
+     5.3 メールキャップファイルを編集して MIME ビューワーを設定する
+        5.3.1 メールキャップファイルの基本
+        5.3.2 メールキャップの安全な使い方
+        5.3.3 メールキャップの進んだ使い方
+           5.3.3.1 オプショナルフィールド
+           5.3.3.2 検索順序
+           5.3.3.3 コマンドの展開
+        5.3.4 メールキャップファイルの例
+     5.4 MIME 自動閲覧
+     5.5 MIME Multipart/Alternative
+
+  6. Reference
+     6.1 コマンドラインオプション
+     6.2 設定コマンド
+     6.3 設定用変数
+        6.3.1 abort_nosubject
+        6.3.2 abort_unmodified
+        6.3.3 alias_file
+        6.3.4 alias_format
+        6.3.5 allow_8bit
+        6.3.6 allow_ansi
+        6.3.7 alternates
+        6.3.8 arrow_cursor
+        6.3.9 ascii_chars
+        6.3.10 askbcc
+        6.3.11 askcc
+        6.3.12 assumed_charset
+        6.3.13 attach_format
+        6.3.14 attach_sep
+        6.3.15 attach_split
+        6.3.16 attribution
+        6.3.17 autoedit
+        6.3.18 auto_tag
+        6.3.19 beep
+        6.3.20 beep_new
+        6.3.21 bounce_delivered
+        6.3.22 charset
+        6.3.23 check_new
+        6.3.24 collapse_unread
+        6.3.25 create_rfc2047_parameters
+        6.3.26 uncollapse_jump
+        6.3.27 compose_format
+        6.3.28 confirmappend
+        6.3.29 confirmcreate
+        6.3.30 connect_timeout
+        6.3.31 copy
+        6.3.32 date_format
+        6.3.33 default_hook
+        6.3.34 delete
+        6.3.35 delete_prefix
+        6.3.36 delete_regexp
+        6.3.37 delete_untag
+        6.3.38 digest_collapse
+        6.3.39 display_filter
+        6.3.40 dotlock_program
+        6.3.41 dsn_notify
+        6.3.42 dsn_return
+        6.3.43 duplicate_threads
+        6.3.44 edit_headers
+        6.3.45 editor
+        6.3.46 encode_from
+        6.3.47 envelope_from
+        6.3.48 escape
+        6.3.49 fast_reply
+        6.3.50 fcc_attach
+        6.3.51 fcc_clear
+        6.3.52 file_charset
+        6.3.53 folder
+        6.3.54 folder_format
+        6.3.55 followup_to
+        6.3.56 force_name
+        6.3.57 forward_decode
+        6.3.58 forward_format
+        6.3.59 forward_quote
+        6.3.60 from
+        6.3.61 gecos_mask
+        6.3.62 hdrs
+        6.3.63 header
+        6.3.64 help
+        6.3.65 hidden_host
+        6.3.66 hide_limited
+        6.3.67 hide_missing
+        6.3.68 hide_top_limited
+        6.3.69 hide_top_missing
+        6.3.70 history
+        6.3.71 honor_followup_to
+        6.3.72 hostname
+        6.3.73 ignore_list_reply_to
+        6.3.74 imap_authenticators
+        6.3.75 imap_delim_chars
+        6.3.76 imap_force_ssl
+        6.3.77 imap_home_namespace
+        6.3.78 imap_keepalive
+        6.3.79 imap_list_subscribed
+        6.3.80 imap_pass
+        6.3.81 imap_passive
+        6.3.82 imap_peek
+        6.3.83 imap_servernoise
+        6.3.84 imap_user
+        6.3.85 implicit_autoview
+        6.3.86 include
+        6.3.87 indent_string
+        6.3.88 index_format
+        6.3.89 ispell
+        6.3.90 keep_flagged
+        6.3.91 locale
+        6.3.92 mail_check
+        6.3.93 mailcap_path
+        6.3.94 mailcap_sanitize
+        6.3.95 maildir_trash
+        6.3.96 mark_old
+        6.3.97 markers
+        6.3.98 mask
+        6.3.99 mbox
+        6.3.100 mbox_type
+        6.3.101 metoo
+        6.3.102 menu_scroll
+        6.3.103 meta_key
+        6.3.104 mh_path
+        6.3.105 mh_purge
+        6.3.106 mh_seq_flagged
+        6.3.107 mime_forward
+        6.3.108 mime_forward_decode
+        6.3.109 mime_forward_rest
+        6.3.110 mix_entry_format
+        6.3.111 mixmaster
+        6.3.112 move
+        6.3.113 message_format
+        6.3.114 msgid
+        6.3.115 msgid_use_from
+        6.3.116 pager
+        6.3.117 pager_context
+        6.3.118 pager_format
+        6.3.119 pager_hdrs_only
+        6.3.120 pager_index_lines
+        6.3.121 pager_spoil
+        6.3.122 pager_spoiler
+        6.3.123 pager_stop
+        6.3.124 pgp_autosign
+        6.3.125 pgp_autoencrypt
+        6.3.126 pgp_ignore_subkeys
+        6.3.127 pgp_entry_format
+        6.3.128 pgp_good_sign
+        6.3.129 pgp_long_ids
+        6.3.130 pgp_replyencrypt
+        6.3.131 pgp_replysign
+        6.3.132 pgp_replysignencrypted
+        6.3.133 pgp_retainable_sigs
+        6.3.134 pgp_show_unusable
+        6.3.135 pgp_sign_as
+        6.3.136 pgp_strict_enc
+        6.3.137 pgp_timeout
+        6.3.138 pgp_verify_sig
+        6.3.139 pgp_sort_keys
+        6.3.140 pgp_create_traditional
+        6.3.141 pgp_decode_command
+        6.3.142 pgp_getkeys_command
+        6.3.143 pgp_verify_command
+        6.3.144 pgp_decrypt_command
+        6.3.145 pgp_clearsign_command
+        6.3.146 pgp_sign_command
+        6.3.147 pgp_encrypt_sign_command
+        6.3.148 pgp_encrypt_only_command
+        6.3.149 pgp_import_command
+        6.3.150 pgp_export_command
+        6.3.151 pgp_verify_key_command
+        6.3.152 pgp_list_secring_command
+        6.3.153 pgp_list_pubring_command
+        6.3.154 forward_decrypt
+        6.3.155 ssl_starttls
+        6.3.156 certificate_file
+        6.3.157 ssl_usesystemcerts
+        6.3.158 entropy_file
+        6.3.159 ssl_use_sslv2
+        6.3.160 ssl_use_sslv3
+        6.3.161 ssl_use_tlsv1
+        6.3.162 pipe_split
+        6.3.163 pipe_decode
+        6.3.164 pipe_sep
+        6.3.165 pop_authenticators
+        6.3.166 pop_auth_try_all
+        6.3.167 pop_checkinterval
+        6.3.168 pop_delete
+        6.3.169 pop_host
+        6.3.170 pop_last
+        6.3.171 pop_reconnect
+        6.3.172 pop_user
+        6.3.173 pop_pass
+        6.3.174 post_indent_string
+        6.3.175 postpone
+        6.3.176 postponed
+        6.3.177 preconnect
+        6.3.178 print
+        6.3.179 print_command
+        6.3.180 print_decode
+        6.3.181 print_split
+        6.3.182 prompt_after
+        6.3.183 query_command
+        6.3.184 quit
+        6.3.185 quote_regexp
+        6.3.186 read_inc
+        6.3.187 read_only
+        6.3.188 realname
+        6.3.189 recall
+        6.3.190 record
+        6.3.191 reply_regexp
+        6.3.192 reply_self
+        6.3.193 reply_to
+        6.3.194 resolve
+        6.3.195 reverse_alias
+        6.3.196 reverse_name
+        6.3.197 reverse_realname
+        6.3.198 rfc2047_parameters
+        6.3.199 sanitize_ja_chars
+        6.3.200 save_address
+        6.3.201 save_empty
+        6.3.202 save_name
+        6.3.203 score
+        6.3.204 score_threshold_delete
+        6.3.205 score_threshold_flag
+        6.3.206 score_threshold_read
+        6.3.207 send_charset
+        6.3.208 sendmail
+        6.3.209 sendmail_wait
+        6.3.210 shell
+        6.3.211 sig_dashes
+        6.3.212 sig_on_top
+        6.3.213 signature
+        6.3.214 simple_search
+        6.3.215 smart_wrap
+        6.3.216 smileys
+        6.3.217 sleep_time
+        6.3.218 sort
+        6.3.219 sort_alias
+        6.3.220 sort_aux
+        6.3.221 sort_browser
+        6.3.222 sort_re
+        6.3.223 spoolfile
+        6.3.224 status_chars
+        6.3.225 status_format
+        6.3.226 status_on_top
+        6.3.227 strict_mime
+        6.3.228 strict_threads
+        6.3.229 suspend
+        6.3.230 text_flowed
+        6.3.231 thread_received
+        6.3.232 thorough_search
+        6.3.233 tilde
+        6.3.234 timeout
+        6.3.235 tmpdir
+        6.3.236 to_chars
+        6.3.237 tunnel
+        6.3.238 tree_chars
+        6.3.239 tree_llcorner
+        6.3.240 tree_ulcorner
+        6.3.241 tree_ltee
+        6.3.242 tree_hline
+        6.3.243 tree_vline
+        6.3.244 use_8bitmime
+        6.3.245 use_domain
+        6.3.246 use_from
+        6.3.247 user_agent
+        6.3.248 visual
+        6.3.249 wait_key
+        6.3.250 weed
+        6.3.251 wrap_search
+        6.3.252 wrapmargin
+        6.3.253 write_inc
+        6.3.254 write_bcc
+     6.4 Functions
+        6.4.1 generic
+        6.4.2 index
+        6.4.3 pager
+        6.4.4 alias
+        6.4.5 query
+        6.4.6 attach
+        6.4.7 compose
+        6.4.8 postpone
+        6.4.9 browser
+        6.4.10 pgp
+        6.4.11 editor
+
+  7. Miscellany
+     7.1 Acknowledgements
+     7.2 この文章について
+
+
+  ______________________________________________________________________
+
+  1.  イントロダクション
+
+  Muttは小さいけれどパワフルなテキストベースの MIMEメールクライアントで
+  す。Muttは多くのことが設定可能でキーバインディング、キーボードマクロ、
+  メールスレッド、正規表現による検索、メッセージを選択する強力なパターン
+  マッチング言語などの高度な機能を持つ、メールのパワーユーザーに最適なプ
+  ログラムです。
+
+  1.1.  Muttのホームページ
+
+  http://www.mutt.org/
+
+  1.2.  メーリングリスト
+
+  次のメーリングリストに参加するためには本文に subscribeと書いて
+  list-name-request@mutt.orgに送ってください。
+
+
+  o  mutt-announce@mutt.org -- 流量の少ないアナウンス用のリスト
+
+  o  mutt-users@mutt.org -- ヘルプ、バグリポート、機能のリクエスト等を送
+     るユーザー用のリスト
+
+  o  mutt-dev@mutt.org -- 開発用のメーリングリスト
+
+  注意: mutt-announceに送られたメッセージは自動的に mutt-usersにも送られ
+  ます。そのためこの2つのリストに同時に参加する必要はありません。
+
+
+  1.3.  ソフトウエア配布サイト
+
+
+  o  ftp://ftp.mutt.org/pub/mutt/
+
+  o  ftp://ftp.guug.de/pub/mutt/
+
+  ミラーサイトについてはhttp://www.mutt.org/download.htmlを見てくださ
+  い。
+
+  1.4.  IRC
+
+  OpenProjects.Net (www.openprojects.net)のチャンネル #muttで Muttに関す
+  る会話を楽しむことができます。
+
+  1.5.  USENET
+
+  ニュースグループ comp.mail.muttをみてください。
+
+  1.6.  Copyright
+
+  Mutt is Copyright (C) 1996-2000 Michael R. Elkins <me@cs.hmc.edu> and
+  others
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or (at
+  your option) any later version.
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111, USA.
+
+  このプログラムはフリーソフトウェアです。Free Software Foundation によ
+  る GNU Public License のバージョン 2 もしくは望むならばそれ以降のバー
+  ジョンに従う限り自由に変更し再配布することができます。
+
+  このプログラムは役に立つことを願って配布されていますが無保証です。市場
+  性や特定の目的に対する適合性を持つ場合に生じ得る暗黙の保証も含めていっ
+  さい保証しません。詳細は GNU General Public License をごらん下さい。
+  GNU General Public Licenseはこのプログラムといっしょに受け取ったはずで
+  す。もし持っていないなら、Free Software Foudation, Inc. に手紙をだして
+  入手してください。 住所は 59 Temple Place - Suite 330, Boston, MA
+  02111, USA です。
+
+  2.  さあ始めよう
+
+  このセクションでは Muttの使い方を簡単に説明しています。このセクション
+  で書かれていること以外にも多くの機能があり、マニュアルの他の場所で説明
+  されています。また Mutt FAQ や様々な web ページにも多くの情報がありま
+  す。詳しくは Mutt Pageを見てください。
+
+  ここで説明されているキーバインディングはデフォルトのものです。システム
+  管理者があなたのサイトのデフォルトのキーバインドを変えている場合もあり
+  ます。どのメニューの中にいても「?」を入力すると現在のキーバインドが表
+  示されます。
+
+  まずはじめにすることはコマンドラインから muttと入力して muttを起動する
+  ことです。コマンドラインのオプションについては muttの manページか
+  ``reference''を参照してください。
+
+  2.1.  メニュー内の移動
+
+  情報は ELMと同じようにメニューの中に表示されます。メニュー内の移動によ
+  く使われるキーを表にしておきます。
+
+
+  j or Down       next-entry      次の項目へ移動
+  k or Up         previous-entry  前の項目へ移動
+  z or PageDn     page-down       次のページへ行く
+  Z or PageUp     page-up         前のページに行く
+  = or Home       first-entry     初めの項目に移動する
+  * or End        last-entry      最後の項目に移動する
+  q               quit            このメニューを終了する。
+  ?               help            このメニューのキーバインドを表示する
+
+
+
+  2.2.  入力フィールドを編集する
+
+  Muttは e-mail アドレスやファイル名等のような簡単な入力をするためのライ
+  ンエディタを内蔵しています。編集中のカーソルの移動は Emacsに似たものに
+  なっています。
+
+
+  ^A or <Home>    bol             行頭に移動する
+  ^B or <Left>    backward-char   1文字戻る
+  Esc B           backward-word   1語戻る
+  ^D or <Delete>  delete-char     カーソルの下の文字を消す
+  ^E or <End>     eol             行末に移動する
+  ^F or <Right>   forward-char    1文字前に進む
+  Esc F           forward-word    1語前に進む
+  <Tab>           complete        ファイル名やエイリアスを補完
+  ^T              complete-query  クエリーによるアドレスの補完
+  ^K              kill-eol        行末まで削除
+  ESC d           kill-eow        カーソルから単語の最後までを削除
+  ^W              kill-word       カーソルの前の１語を消す
+  ^U              kill-line       一行全部を削除
+  ^V              quote-char      次に入力するキーに引用符をつける
+  <Up>            history-up      ヒストリーから直前の文字列を取り出す
+  <Down>          history-down    ヒストリーから次の文字列を取り出す
+  <BackSpace>     backspace       カーソルの前の文字を消す
+  Esc u           upcase-word     単語を大文字に変換
+  Esc l           downcase-word   単語を小文字に変換
+  Esc c           capitalize-word 単語を大文字ではじめる
+  ^G              n/a             取消
+  <Return>        n/a             編集の終了
+
+
+
+  ``bind''コマンドを使って編集機能用のキーの割当を変える事ができます。例
+  えば Deleteキーでカーソルの下の文字でなくカーソルの前の文字を消すよう
+  にしたいのなら、次のようにしてください。
+
+  bind editor <delete> backspace
+
+  2.3.  メールを読む - インデックスとぺージャー
+
+  他のメールクライアントと同じようにメールを読むのに Muttには2つのモード
+  があります。始めのモードはメールボックスのメッセージの一覧を表示しま
+  す。これを Muttではインデックスと呼んでいます。2番目のモードはメッセー
+  ジの内容を表示します。これをぺージャーといいます。
+
+  以下のいくつかのセクションで各々のモードの機能を説明していくことにしま
+  しょう。
+
+
+  2.3.1.  メッセージインデックス
+
+
+  c               他のメールボックスへかわる
+  C               カーソルのあるメッセージを他のメールボックスへコピー
+  ESC c           フォルダーをリードオンリーモードに変える
+  ESC C           メッセージをデコードしフォルダーへコピー
+  ESC s           メッセージをデコードしフォルダーへセーブする
+  D               パターンにマッチするメッセージに削除マークをつける
+  d               カーソルのあるメッセージに削除マークをつける
+  F               重要なメッセージとしてマーク
+  l               パターンにマッチするメッセージを表示する
+  N               新しいメッセージとしてマークする
+  o               ソートの方法を変える
+  O               メールボックスを逆向けにソートする
+  q               セーブして終了
+  s               メッセージのセーブ
+  T               マッチするパターンのメッセージにタグをつける
+  t               メッセージのタグのオン、オフのトグル
+  ESC t           メッセージスレッド全体へのタグのオン、オフ
+  U               パターンにマッチするメッセージの削除マークを消す
+  u               メッセージの削除マークを消す
+  v               添付ファイルを見る
+  x               セーブせずに終了
+  <Return>        メッセージを表示
+  <Tab>           次の新しいメッセージに移動
+  @               完全な e-mailアドレスの表示
+  $               変更をメールボックスへ保存
+  /               検索
+  ESC /           逆方向へ検索
+  ^L              画面を消して描き直す
+  ^T               パターンにマッチするメッセージのタグを消す
+
+
+
+  2.3.1.1.  状態を表すフラグ
+
+  メッセージの送り主とサブジェクトだけでなく、簡単なメッセージの状態を表
+  すために次のような「フラグ」がメッセージ番号の横に表示されます。
+
+
+  D       削除された（削除マークのついた）メッセージ
+  d       削除マークのついた添付ファイルがあるメッセージ
+  K       PGP公開キーを含むメッセージ
+  N       新しいメッセージメッセージ
+  O       古いメッセージ
+  P       PGPで暗号化されたメッセージ
+  r       返信済みのメッセージ
+  S       PGPサインが入り、その署名が確かめられたメッセージ
+  s       PGPのサインが入ったメッセージ
+  !       重要であるというフラグがつけられたメッセージ
+  *       タグがつけられたメッセージ
+
+
+
+  いくつかの状態を表すフラグは次のようにしてオン、オフすることができま
+  す。
+
+
+  o  set-flag (デフォルトでは w)
+
+  o  clear-flag (デフォルトでは W)
+
+  また次のフラグはメッセージがだれ宛のものかを表します。これは
+  ``$to_chars''変数によって変更することができます。
+
+  +       メッセージはあなた宛で、他の人には送られていない
+  T       メッセージはあなた宛だが to または cc で他の人にも送られている
+  C       メッセージは cc であなたに送られてきた
+  F       あなたが送ったメッセージ
+  L       購読しているメーリングリストに送られたメッセージ
+
+
+
+  2.3.2.  ぺージャー
+
+  デフォルトでは Muttはメッセージの内容を表示するのに内蔵されたぺー
+  ジャーを使います。このぺージャーは Unixプログラムの less に似ています
+  が、lessほど多機能ではありません。
+
+
+  <Return>        1行下に移動
+  <Space>         次のページを表示 (すでにメッセージの終りまで表示している場合は、次のメッセージを表示)
+  -               前のページに戻る
+  n               次のマッチするパターンを探す
+  S               引用文を飛ばす
+  T               引用文の表示のオン、オフのトグル
+  ?               キーバインドを表示
+  /               正規表現での検索
+  ESC /           正規表現で後ろ向けに検索
+  \               検索パターンの色付けのトグル
+  ^               メッセージの先頭にジャンプ
+  $               メッセージの最後にジャンプ
+
+
+
+  さらに、ページャーはインデックスから多くの機能を引き継いでいます。例え
+  ばメールを削除(delete-message)したりメールをコピー(copy-message)したり
+  する機能がそうです(これが外部ページャーではなく内蔵のページャーを使う
+  利点の一つです)。
+
+  内蔵のページャーにはさらに2つの優れた機能があります。1つ目は内蔵のペー
+  ジャーは nroff の太字と下線という標準のシークエンスを理解できることで
+  す。太字の場合、文字-バックスペース(^H)-文字、下線つき文字の場合、文
+  字-バックスペース- _ 、のシークエンスです。端末がそれらをサポートして
+  いれば Mutt はこれらの文字列をそれぞれ太字と下線つき文字として表示しよ
+  うとします。もし端末がサポートしていなければ、太字と下線つき文字のシー
+  クエンスは色をつける対象となっていますのでカラー端末なら色属性を、白黒
+  端末なら白黒属性をそれぞれ自分でつけることができます(参照: ``color''色
+  属性と白黒属性 を使う)。
+
+  もう一つは内蔵ページャーは文字属性に関する ANSI エスケープシークエンス
+  をサポートしていることです。Mutt はそれらのシークエンスを正しい色と文
+  字設定に解釈します。Mutt がサポートしているシークエンスは:
+
+
+
+  ESC [ Ps;Ps;Ps;...;Ps m
+  Psは Ps=
+  0    全ての属性を消す
+  1    太字にする
+  4    下線つきにする
+  5    明滅させる
+  7    色を反転表示させる
+  3x   foreground の色を x にする
+  4x   background の色を x にする
+
+  色は
+  0    黒
+  1    赤
+  2    緑
+  3    黄
+  4    青
+  5    赤紫
+  6    青緑
+  7    白
+
+
+
+  text/enriched メールを扱うのに Mutt はこれらの属性を使います。またこれ
+  らは外部の``autoview''(自動閲覧)スクリプトから色づけの目的で使うことも
+  できます。
+
+  注意: ディスプレイの色を変えていた場合には、その色が代わりに使われま
+  す。例えば、color2に関連づけられている色を他の色に変更していた場合はそ
+  の色が緑の代わりに使われます。
+
+  2.3.3.  スレッドモード
+
+  メールボックスがスレッドで並べられている（``sorted''）場合は他にいくつ
+  かの機能がインデックスとページャーで利用できます。
+
+
+  ^D      delete-thread        現在のスレッドの全てのメールに削除マークをつける
+  ^U      undelete-thread      現在のスレッドの全ての削除マークを消す
+  ^N      next-thread          次のスレッドの最初に移動
+  ^P      previous-thread      前のスレッドの最初に移動
+  ^R      read-thread          現在のスレッドを既読にする
+  ESC d   delete-subthread     サブスレッドのメールを全てに削除マークをつける
+  ESC u   undelete-subthread   サブスレッドのメールの削除マークを消す
+  ESC n   next-subthread       次のサブスレッドに移動
+  ESC p   previous-subthread   前のサブスレッドに移動
+  ESC r   read-subthread       サブスレッドに既読のマークをつける
+  ESC t   tag-thread           スレッドのタグ付けのオン/オフのトグル
+  ESC v   collapse-thread      現在のスレッドを折り畳む/広げるのトグル
+  ESC V   collapse-all         すべてのスレッドを折り畳む/広げるのトグル
+  P       parent-message       スレッドの親メッセージにジャンプする
+
+
+
+  注意: スレッドを折り畳むとはスレッドの最初のメールだけ表示して残りのも
+  のは隠しておく機能のことです。一つのスレッドに多くのメールが含まれてい
+  てスクリーン上にわずかなスレッドしか見えない場合に便利で
+  す。``$index_format''の設定の %Mを参照して下さい。例え
+  ば、``$index_format''に "%?M?(#%03M)&(%4l)?"を加えることでスレッドが折
+  り畳まれている時に隠れているメールの数を表示させることができます。
+
+  参照: ``$strict_threads''
+
+  2.3.4.  色々な機能
+
+  エイリアスの作成 / create-alias (default: a)
+
+  現在のメールをもとに新しいエイリアスを作成します(メールを選択してなけ
+  ればどのようなエイリアスを作成するかのプロンプトを表示します)。編集を
+  終えると、いま設定した``alias''が後々使えるように ``$alias_file'' で指
+  定したファイルに加えられます。注意: ``$alias_file'' を指定するだけでは
+  そこに書かれているエイリアスはエイリアスとして機能しません。``source''
+  コマンドを実行してそのファイルを読み込む必要があります。
+
+  古い方法の pgpのチェック/check-traditional-pgp (default: ESC P)
+
+  これは読んでいるメッセージの中に正しく MIMEタグを使っていない古い方法
+  で PGPを使って署名または暗号化された内容がないかどうかを調べます。技術
+  的には PGPデータを含んだボディーパートの MIME content typeを一時的に変
+  えます。 ``edit-type''機能の効果と似ています。
+
+  へッダの表示 / display-toggle-weed (default: h)
+
+  ``ignore'' コマンドで指定された余分なヘッダーフィールドの表示のオン/オ
+  フのトグルです。
+
+  メッセージの編集 / edit (default: e)
+
+  このコマンドは現在のメールを編集するコマンドでインデックス(index)と
+  ページャー(pager)で使うことができます。編集を終えると変更されたメール
+  が現在いるフォルダに付け加えられ、もとのメールに削除マークがつきます。
+
+  添付ファイルの typeの編集/edit-type(default: 添付メニュー、ぺー
+  ジャー、インデックスメニューでは^E、メール作成(compose)メニューでは
+  ^T)
+
+  このコマンドは添付する物の content type を一時的に編集するのに使いま
+  す。インデックスかぺージャーからこのコマンドを使うとトップレベルの
+  content typeを変えることができます。また ``attachment menu''からこのコ
+  マンドを使うとすべての添付物の content typeを編集できます。ただし、こ
+  れらの編集の効果は永続的ではなくフォルダーを変えると失われます。
+
+  このコマンドは ``compose menu''でも使うことができます。メッセージを送
+  信するときに添付ファイルの性質を調整するのに使ってください。
+
+  コマンドの入力 / enter-command (default: ``:'')
+
+  このコマンドは通常は設定ファイルの中で使うコマンドを実行するのに使いま
+  す。これは設定している値のチェックに使ったり、``macros''を使って設定を
+  すぐに変更するのに便利です。
+
+  PGP公開鍵を取り出す / extract-keys (default: ^K)
+
+  このコマンドは現在のメールもしくはタグ付けされたメールから PGP公開鍵を
+  取り出し、それらをPGP公開鍵リングに加えるコマンドです。
+
+  パスフレーズをメモリ上から消去 / forget-passphrase (default: ^F)
+
+  このコマンドは PGP パスフレーズをメモリ上から消去します。パスフレーズ
+  を書き間違えた場合などに便利です。
+
+  メーリングリストに返信 / list-reply (default: L)
+
+  現在のメールもしくはタグ付けつけされたメールに返信する際に ``lists or
+  subscribe''コマンドで指定されているアドレスにマッチするアドレスを取り
+  出して返信するコマンドです。それだけではなく、もし
+  ``$honor_followup_to''変数が設定されていたら Mail-Followup-Toへッダが
+  付け加えられます。メーリングリストに送信されているメールに返信する時に
+  このコマンドを使うことでメーリングリストと差出人に二重に送信するのを避
+  けるのに使うことができます。
+
+  パイプ / pipe-message (default: |)
+
+  外部から Unix のコマンドを呼び出し、現在のメールもしくはタグ付けつけさ
+  れたメールをパイプに通しま
+  す。``$pipe_decode''、``$pipe_split''、``$pipe_sep''、``$wait_key''変
+  数がこの機能の動作をコントロールします。
+
+  メッセージの再送 / resend-message (default: ESC e)
+
+  これを使うと mutt は現在のメッセージを新しいメッセージのテンプレートに
+  します。つまりこれは任意のディレクトリからの転送を可能にします。この機
+  能はもとのメールの構造を壊すことなく、MIMEメッセージを転送するのに便利
+  です。これに含まれるへッダーの量は``$weed''変数に依存します。
+
+  この機能は添付メニューからも使えます。これを使えば簡単に
+  message/rfc822 body part として来たメッセージを再送できます。
+
+  シェルコマンドの実行 / shell-escape (default: !)
+
+  外部の UNIX コマンドを呼び出し実行します。``$wait_key'' でコマンドから
+  復帰した時に Muttが(コマンドの出力をユーザーが読めるように)なんらかの
+  キーが押されるのを待つかどうかをコマンドの戻り値によってコントロールで
+  きます。
+
+  引用部分を表示するかどうかのトグル / toggle-quoted (default: T)
+
+  ページャーは ``$quote_regexp''変数を使ってメールの本文を表示する時に引
+  用部分を判断します。この機能はメールの引用部分を表示するかどうかのトグ
+  ルです。返事の部分だけに興味があったり大量の引用があったりするときに役
+  に立ちます。
+
+  引用部分をスキップ / skip-quoted (default: S)
+
+  この機能は引用されていないテキストの次の行に移動します、つまり内部ペー
+  ジャーで引用行と判断されるテキストをスキップするコマンドです。
+
+  2.4.  メールを送る
+
+  次のコマンドはメールを送信する時にインデックスで利用できるコマンドで
+  す。
+
+
+  m       compose      新しいメールを作成する。
+  r       reply        送信者に返信する。
+  g       group-reply  受信者全員に返信する。
+  L       list-reply   メーリングリストのアドレスに返信する。
+  f       forward      転送する。
+  b       bounce       中継する。(bounce (remail) message)
+  ESC k   mail-key     PGP 公開鍵を送る。
+
+
+
+  メールの中継はメールをそのままの形で誰かに送り直すものです。メールの転
+  送はコメントを加えたりなんらかの変更を加えて誰かに送り直すものです。こ
+  れらに関しては次の節````Forwarding and Bouncing Mail''''「メールの転送
+  と中継」で詳しく説明します。
+
+  Mutt はメール作成メニュー(compose menu)を表示し、受信者を To: ヘッダ
+  ーフィールドに入力するように促します。次に Mutt は Subject: フィールド
+  を入力するように要求します。この時、返信か転送を行おうとしていた場合は
+  デフォルトの Subjectを入れます。Muttがこれらの質問をどのようにたずねる
+  かを変えるには ``$askcc''、``$askbcc''、``$autoedit''、
+  ``$fast_reply''を参照してください。
+
+  それから Mutt はメールの本文を編集するために ``$editor''で指定されたエ
+  ディタを起動します。この時 ``$edit_headers''変数が指定されていれば、エ
+  ディタの上の方にヘッダーを表示し編集可能にします。メールに返信しようと
+  している場合はもとのメールをもとの順どおりに取り込
+  み、``$attribution''、 ``$indent_string''、``$post_indent_string''変数
+  に従い適切に整形します。メールを転送する場合に ``$mime_forward''変数が
+  セットされていなければもとのメールのコピーを本文に取り込みます。また
+  ``$signature'' を指定していればそれも添えられます。
+
+  いったんメールの本文の編集を終えると再びメール作成メニュー(compose
+  menu) に戻ります。ここでは次の操作が可能になります:
+
+
+  a      attach-file          ファイルを添付する。
+  A      attach-message       メールにメールを添付する。
+  ESC k  attach-key           公開鍵を添付する。
+  d      edit-description     添付ファイルの descriptionを記述します。
+  D      detach-file          添付ファイルを削除します。
+  t      edit-to              To フィールドを編集し直します。
+  ESC f   edit-from           From フィールドを編集し直します。
+  r       edit-reply-to       Reply-To フィールドを編集し直します。
+  c      edit-cc              Cc フィールドを編集し直します。
+  b      edit-bcc             Bccフィールドを編集し直します。
+  y      send-message         メールを送信します。
+  s      edit-subject         Subject を編集し直します。
+  f      edit-fcc             Fcc するメールボックスを指定します。
+  p      pgp-menu             PGP のオプションを選択します(i バージョンのみ)
+  P      postpone-message     メールを送信するのを延期します。
+  q      quit                 メールを送信するのを中断します。
+  w      write-fcc            メールをフォルダーに書き込む
+  i      ispell               スペルチェックを行います。(ispellがある場合のみ)
+  ^F     forget-passphrase    メモリ上から PGP パスフレーズを消去します。
+
+
+
+  注意: メールを添付する機能を使うと添付しようとするメールがあるフォル
+  ダーを選択するようにプロンプトが表示されます。そこのフォルダーで添付し
+  ようとするメールにタグをつけることができます。このフォルダーにいる間は
+  新しくメールを起稿したりメールに返信したり、メールを転送したりするよう
+  な操作ができないということに注意してください。``$status_format'' 変数
+  に %rが含ま れていればそれが 'A'に変わっていまメール添付モードにいるの
+  がわかるようになっています。
+
+  2.4.1.  メールのヘッダーを編集する。
+
+  送信するメールのヘッダーを編集する場合、いくつかの特別な機能を利用する
+  ことができます。
+
+  もし Fcc: filename を指定していれば Mutt はメール作成メニュー(compose
+  menu)で edit-fccコマ ンドを使った場合と同じように扱います。
+
+  またファイルを添付する場合、次のようにすることもできます。Attach:
+  filename [ description ] ここで filenameは添付するファイルの名前
+  で、descriptionはファイルの種類で、省略することが可能です。
+
+  あるメールに返信しようとしている時に In-Reply-To: フィールドを削除すれ
+  ば Mutt は Reference: フィールドを作成するのを中止するので新規のメール
+  として(スレッドを切って)送り出すことができます。
+
+  ``edit_headers'' も見てください。
+
+  2.4.2.  PGPといっしょに使う
+
+  PGPを使いたい場合は
+
+  Pgp: [ E | S | S<id> ] を設定してください。「E」は暗号化、「S」は署
+  名、「S<id>」はあらかじめ ``$pgp_sign_as''で設定しておいた鍵で署名しま
+  す。
+
+
+  メールの暗号化を選んだ場合には、メールを送るときに鍵を選択するプロセス
+  に入ります。メールの受取り手のメールアドレスに対応する保証付きのユー
+  ザー IDがある場合には mutt は何も質問せずにそれを使います。しかしメー
+  ルアドレスに対応した鍵がいくつもある場合や、信用度が低い場合、メールア
+  ドレスに対応する鍵が無い場合があります。
+
+  そういう場合には、鍵のリストが表示された鍵を選択するメニューになりま
+  す。そのメニューを終わるときや、muttが対応する鍵を見つけられない場合に
+  は、ユーザー IDを入力するように求められます。このプロンプトは他の場合
+  と同じように Gを使って中止することができます。中止した場合にはメール作
+  成メニュー (compose menu) に戻ります。
+
+  鍵をちゃんと選ぶと、メッセージは選んだ公開鍵を使って暗号化され送信され
+  ます。
+
+  鍵選択メニューのほとんどの項目は自明でしょう（``$pgp_entry_format''も
+  参照してください）。ここでは flags、capabilities、validityのフィールド
+  を説明しておきましょう。
+
+  %fは以下のフラグのうちのどれかに展開されます。
+
+
+  R   破棄され使うことができない鍵
+  X   有効期限が切れ使うことのできない鍵
+  d   自分で使用不可のマークをつけた鍵
+  c   未知の重要な自己署名パケットが存在
+
+
+
+  2つの文字に展開される capabilities フィールド (%c) は鍵の能力を表して
+  います。１つめの文字は暗号化能力を表します。マイナス(-)の場合は暗号化
+  に使えないことを意味します。ドット(.)は証明に使えるが暗号化にも使える
+  ことを意味します。eは暗号化に使えることを意味します。
+
+  2つめの文字は鍵の署名能力を表しています。マイナス(-)の場合は署名に使え
+  ないことを意味します。ドット(.)はあるユーザー IDに暗号化するための鍵で
+  あることを示しています。s は署名に使えることを意味します。
+
+  最後に、validity フィールド (%t)は鍵の信用度を表しています。クエスチョ
+  ンマーク(?)は信用度が定義されていないことを、マイナス(-)は信用できない
+  保証を、スペース文字は部分的に信用できる保証を、プラス(+)は完全な信用
+  度を表しています。
+
+  2.4.3.  mixmasterを使った匿名メッセージの送信
+
+  muttを Mixmasterといっしょに使うように設定することもできま
+  す。Mixmasterは匿名リメイラ(remailer)です。Mixmasterはいくつかのリメイ
+  ラを通して使うことでメッセージの発信元を隠してメッセージを送ることがで
+  きます。muttでサポートしているのは mixmaster version 2.04 （beta 45 が
+  最新のようです）と 2.03です。これ以前のバージョンと version 3 beta と
+  呼ばれるもの（最新のものは 2.9b23）はサポートしていません。
+
+  Mixmasterを使うにはいくつかの制限があります。一番重要なのは、Ccと Bcc
+  へッダを使うことができないということです。Muttから mixmasterを使うに
+  は、まずメール作成メニューの max機能を使って一連のリメイラを選ぶ必要が
+  あります。
+
+  この一連のリメイラを選ぶ画面は2つの部分に分かれています。大きな上の部
+  分は使うことのできるリメイラのリストを表示します。下の部分に今選ばれて
+  いる一連のリメイラが表示されます。
+
+  この選ばれている一連のリメイラの鎖の中を chain-prev関数と chain-next関
+  数を使って移動できます。この関数はデフォルトでは左と右の矢印キーと hと
+  lキーに割り当てられています（viのキーバインドを考えてください）。新し
+  いリメイラを鎖の中のカーソルのある位置に挿入するには、insert関数を使っ
+  てください。リメイラをカーソルの後ろに付け加えるには select-entryまた
+  は appendを使ってください。対応する関数を使って鎖の中のリメイラを消す
+  こともできます。最後にリメイラの鎖の編集を終わるにはメニューを終えるか
+  acceptを選んでそれから（デフォルトでは）リターンキーを押してください。
+
+  リメイラによって能力が異なることに注意してください。それはリメイラメ
+  ニューの %cの項目で表示されています（``$mix_entry_format''を参照してく
+  ださい）。一番重要なのは大文字の M で表示される middlemanの能力です。
+  これはそのリメイラが他の mixmasterリメイラにメッセージを送ることはでき
+  るが、リメイラの鎖の一番最後にはなれないことを意味しています。他の能力
+  については、mixmasterのマニュアルを見てください。
+
+  2.5.  メールの転送と中継
+
+  メールの転送と中継を使うことでいま持っているメールをほかの受信者に送る
+  ことができます。メールの中継は ``sendmail'' コマンドを利用して、その
+  メールのコピーを送ろうとしようとしている相手があたかも元々の受信者であ
+  るかのようにして送ります。メールの転送はそれとは対照的に再度送信する前
+  にメールに変更を加えて送ることができます(例えばコメントを加えるなど)。
+
+  次のキーが初期値として割り当てられています:
+
+
+  f       forward         メールを転送する
+  b       bounce          メールを中継する
+
+
+
+  メールの転送はオリジナルのメールを(それとわかるように示す行で囲んで)新
+  しいメールの本文に含めるか、もしくは MIME 添付ファイルとして含めること
+  ができ ``$mime_forward''変数の値でコントロールします。添付ファイルのデ
+  コードは(ページャーのように)、``$forward_decode''変数と
+  ``$mime_forward_decode'' 変数の値にそれぞれ依存しています。どちらの転
+  送方法がよいかは転送しようとするメールの内容によります。そのため
+  $mime_forward変数は quadoptionになっています、つまり ask-noという風に
+  設定することができます。
+
+  へッダを含めるかどうかは ``mime_forward''が設定されていない限
+  り、``$weed''の設定によってコントロールされます。
+
+  転送するメールの編集はメールを新たに送信したり返信したりする手続きと同
+  じです。
+
+  2.6.  メールの送信を延期する
+
+  すでに書き始めたメールを後で送りたい場合が時々あります。こういう場合に
+  postpone-message機能をメール作成メニュー(compose menu)で使うと、メール
+  の本文と添付ファイルは ``$postponed''変数で指定されたメールボックスに
+  保存されます。こうすることでいったん Mutt を終了した後でももう一度その
+  メールを呼び出して編集することができるようになります。
+
+  いったんメールの送信が延期され $postponed 変数で指定されたメールボック
+  スに保存された場合、そのメールを呼び出すにはいくつかの方法があります。
+  コマンドラインからは -pオプションをつけて Muttを起動してください。また
+  インデックスもしくはページャーで新規のメールを作成しようとすると延期し
+  たメールがある場合それを使うかどうか Muttが尋ねてきます。延期したメー
+  ルが複数ある場合はどのメールの編集を再開するか選択できます。
+
+  注意: 返信のメールを延期したならば返信済のマーク(r)はそのメールの編集
+  を終えて実際に送信した時につきます。また返信済のマークがきちんとつくよ
+  うに延期した返信のメールを送信する時は前にいたフォルダーと同一のフォル
+  ダーにいなければなりません。
+
+  ``$postpone'' もご覧下さい。
+
+
+
+  3.  設定
+
+  Mutt を最適に利用できるように初期設定(選択)はなされていますが、自分の
+  好みにあわせて設定ファイルを書き直した方がよい場合も多いでしょう。Mutt
+  を初めて起動したとき、 -n ``command line''コマンドラインオプションが指
+  定されていなければ、Muttはシステムで設定されている設定ファイルを読みに
+  いこうとします(初期のファイルの場所はシステム管理者が指定しています)。
+  普通この設定ファイルは /usr/local/share/mutt/Muttrc か /etc/Muttrcで
+  す。次に Muttはホームディレクトリーにある .muttrc というファイルを探し
+  にいきます。もしこのファイルがなくてホームディレクトリーに .muttという
+  サブディレクトリーがあれば .mutt/muttrc を読み込みに行こうとします。
+
+  .muttrc に``commands''コマンドを書き込んで Muttをユーザー独自の設定に
+  します。
+
+  また Mutt はバージョン毎の設定ファイルを指定することができ、それを指定
+  していた場合は上に述べた初期の設定ファイルではなくそのファイルを読み込
+  みます。例えば Muttrc-0.88というファイルがシステムで設定されているディ
+  レクトリーにあって、Mutt のヴァージョン 0.88 を使っている場合、 Muttrc
+  ではなくそのファイルが読み込まれます。ユーザー独自の設定ファイルに関し
+  ても同様で、ホームディレクトリーに .muttrc-0.88.6 というファイルをおい
+  てバージョン 0.88.6の Mutt を走らせた場合、このファイルが .muttrc の代
+  わりに読み込まれます。いま使っている Mutt がどのバージョンのものかはコ
+  マンドラインオプションで -v を指定するか、インデックスメニューでバー
+  ジョンを確認する show-versionキー(初期値: V)を押すことで確認できます。
+
+  3.1.  初期化ファイルの構文
+
+  初期化ファイルは一連のコマンドで構成され、それぞれの行は一つ以上のコマ
+  ンドを含みます。一つの行に複数のコマンドを記入する場合はセミコロン(;)
+  でコマンドを区切らなければなりません。
+
+
+  set realname='Mutt user' ; ignore x-
+
+
+
+  ハッシュマーク、またはポンド記号( # )、はコメント記号として使われま
+  す。コメント記号から行の最後まではコメントとして無視されますので初期化
+  ファイルに注釈を付けたい場合に利用できます。例えば、
+
+
+  my_hdr X-Disclaimer: Why are you listening to me? # This is a comment
+
+
+
+  シングル引用符(')とダブル引用符(")はスペースなどの特殊な文字を含む文字
+  列をくくるのに使います。二つの引用符の違いは多くの一般的なシェルプログ
+  ラミングにおけるそれらの違いと似ています。つまり、シングル引用符が用い
+  られた場合その中の文字列はその文字の字義のままになります(シェル変数の
+  展開もされませんしバックスラッシュによるエスケープ[次のパラグラフを参
+  照]も受けません)。一方、ダブル引用符の中の文字列はその中の文字が特殊な
+  文字として解釈されうる場合があります。例えば、バック引用符はダブル引用
+  符の中では解釈されますがシングル引用符の中では解釈されません。
+
+  \ は、bash や zsh でそうであるように、次に来る特殊な文字を解釈されない
+  ようにエスケープします。例えばダブル引用符(")を解釈され得る特殊な文字
+  としてではなく字義通りの意味で文字列の中で使いたい場合、 \ を使うこと
+  が できます。
+
+
+  set realname="Michael \"MuttDude\" Elkins"
+
+
+
+  \ そのものを行に挿入するには \\ とします。 \n と \r は C で持つ意味と
+  同じで改行と復帰をそれぞれ意味します。
+
+  行末に \ を置くことでコマンドを複数の行に分けて書くことができます。た
+  だしコマンド名の途中でわけることは許されません。
+
+  初期化ファイルの中で Unix のコマンドをバック引用符(`)でくくることによ
+  り Unix の出力に置き換えるようにすることもできます。例えば次のようにし
+  ます。
+
+
+  my_hdr X-Operating-System: `uname -a`
+
+
+
+  行が解釈される前に uname -a という Unix のコマンドの出力に置き換えられ
+  ます。初期化ファイルは行指向であるため Unix コマンドの出力は最初の行し
+  か置き換えられないということに注意して下さい。
+
+  UNIX の環境には sh や bashのようなシェルと似た方法でアクセスすることが
+  できます。環境変数名の前に "$"を前置するのです。例えば、次のように使っ
+  てください、
+
+
+  set record=+sent_on_$HOSTNAME
+
+
+
+  Muttが解釈できるコマンドは次のセクションから説明されています。コマンド
+  の完全なリストは ``command reference''を見てください。
+
+  3.2.  エイリアスを定義/使用する
+
+  使い方: alias key address [ , address, ... ]
+
+  メールをやりとるする相手のメールアドレスを覚えておいたりタイプしたりす
+  るのは普通とても面倒です。Muttでは完全なメールアドレスの略記としてエイ
+  リアスを作成することができます。
+
+  注意: エイリアスをグループ(複数のメールアドレスを指定)に対して作成した
+  い場合はそのアドレスをコンマ( , )で区切らなければなりません。
+
+  エイリアスを削除するには、
+
+  unalias [ * | key ... ] を使ってください (*はすべてのエイリアスという
+  意味です)。
+
+
+  alias muttdude me@cs.hmc.edu (Michael Elkins)
+  alias theguys manny, moe, jack
+
+
+
+  他のメーラーとは違い Mutt はエイリアスを特別のファイルに定義する必要は
+  ありません。エイリアスコマンドはそのファイルが読み込まれる(``sourced''
+  を参照)ならば設定ファイルの中のどこにあってもいいのです。従って、複数
+  のエイリアスファイルを持つこともすべて muttrc の 中に定義することもで
+  きます。
+
+  一方、 ``create-alias'' という機能で扱えるファイルは ``$alias_file''変
+  数で指定される(初期の状態で ~/.muttrc)ファイルのみです。Mutt はどの
+  ファイルにたいしてもうまくエイリアスを追加できるという意味ではこのファ
+  イルは特別なファイルではありませんが、新しいエイリアスを機能させるには
+  このファイルを ``source'' コマンドで読み込む必要があります。
+
+
+  例えば:
+
+
+  source /usr/local/share/Mutt.aliases
+  source ~/.mail_aliases
+  set alias_file=~/.mail_aliases
+
+
+
+  エイリアスを使うには To: や Cc: など Mutt がメールアドレスの入力を要求
+  するところで作成したエイリアスを入力するだけです。またヘッダーを編集可
+  能なように ``$edit_headers''変数をセットしている場合は適切なヘッダーに
+  対してエイリアスを使うことができます。
+
+  さらに、メールアドレスを入力する様々な場面で TABキーを押すことで書きか
+  けのエイリアスを完全なエイリアスに補完することができます。いくつかのエ
+  イリアスにマッチした場合マッチしたエイリアスを選択するメニューを表示し
+  ます。エイリアスの完全なリストを表示させるには書きかけのエイリアスが無
+  い状態で TABキーを押さなければなりません、つまり未入力の状態や複数の
+  メールアドレスに対するエイリアスの場合はコンマの後などで TAB キーを押
+  すのです。
+
+  エイリアス選択メニューでは select-entryキー(初期値: RET)を押すことで好
+  きなだけ選択することができます。選択メニューを抜けてメールアドレスの入
+  力に戻るには exitキー(初期値: q)を押します。
+
+  3.3.  デフォルトのキーバインディングを変更する
+
+  使い方: bind map key function
+
+  このコマンドは初期のキーバインディングを変更するコマンドです(キーを押
+  した時に機能します)。
+
+  map はどのメニューに対するキーバインディングなのかを指定します。今のと
+  ころ定義されている map は、
+
+
+  o  generic
+
+  o  alias
+
+  o  attach
+
+  o  browser
+
+  o  editor
+
+  o  index
+
+  o  compose
+
+  o  pager
+
+  o  pgp
+
+  o  postpone
+
+  です。
+
+  key はバインドしたいキー(または一続きのキー)です。コントロール文字を指
+  定したい場合は \Cx という一連のキーを用います。ここで x はコントロール
+  キーを押しながら入力する文字です(例えば Control-A を指定したい場合は
+  \Ca とし ます)。x と \C が大文字であるか小文字であるかは無視されます、
+  つまり\CA、 \Ca、 \cA、\ca はすべて同じものを意味します。もう一つの方
+  法は \ を前 に置いた三桁の8進数で指定することで可能になります(例えば
+  \177は \c?と同 じ意味です)。
+  また次のものも使うことができます:
+
+
+  \t              tab
+  <tab>           tab
+   \r             carriage return
+   \n             newline
+   \e             escape
+  <esc>           escape
+  <up>            up arrow
+  <down>          down arrow
+  <left>          left arrow
+  <right>         right arrow
+  <pageup>        Page Up
+  <pagedown>      Page Down
+  <backspace>     Backspace
+  <delete>        Delete
+  <insert>        Insert
+  <enter>         Enter
+  <return>        Return
+  <home>          Home
+  <end>           End
+  <space>         Space bar
+  <f1>            function key 1
+  <f10>           function key 10
+
+
+
+  key はスペースを含まない限り引用符でくくる必要はありません。
+
+  function で key が押された時にどのような動作をするかを指定しま
+  す。function の完全なリストは ``reference'' を参照して下さい。noop は
+  特殊な functionでキー(一連のキー)へのバインドを外します。
+
+  3.4.  文字セットのエイリアスを定義する
+
+  使い方: charset-hook alias charset
+
+  使い方: iconv-hook charset local-charset
+
+  charset-hook コマンドは文字セットのエイリアスを定義します。これは mutt
+  が知らない文字セットを使っているメッセージを正しく表示するのに便利で
+  す。
+
+  iconv-hookコマンドは文字セットにシステム特有の名前を定義します。この機
+  能はあなたのシステムの文字変換ライブラリが文字セットに変わったシステム
+  特有の名前を使っている場合に便利です。
+
+  3.5.  メールボックスに関係する変数の設定
+
+  使い方: folder-hook [!]regexp command
+
+  メールボックスによって設定を変更したい場合が多くあります。folder-hook
+  コマンドを使うことで特定のメールボックスに対して設定コマンドを実行でき
+  ます。regexpは commandを実行するメールボックスを指定する正規表現
+  で、command はメールボックスを読み込む前に実行されます。一つのメール
+  ボックスに対していくつかの folder-hook がマッチした場合は muttrc に書
+  いてある順に実行されます。
+
+  注意: ``$spoolfile''へのショートカットとして ! を pattern の最初に使い
+  たい場合、正規表現の not 演算子と区別するためにダブルもしくはシングル
+  引用符でくくらなければなりません。
+
+  メールボックスを離れた時に元の設定に戻るわけではないということに注意し
+  て下さい。例えば、読み込むメールボックスの並べ方を変更するためのコマン
+  ドの例として次のようなものがありますが:
+  folder-hook mutt set sort=threads
+
+
+
+  別のメールボックスに移ったからといって前の並べ方にもどるわけではありま
+  せん。default のコマンドを指定するには 「.」 というパターンを用いて下
+  さい:
+
+
+  folder-hook . set sort=date-sent
+
+
+
+  3.6.  キーボードマクロ
+
+  使い方: macro menu key sequence [ description ]
+
+  一連のアクションを一つのキーで実行したい時にマクロは便利です。ある
+  menu で key を押した場合、Mutt は sequence を続けざまに押した時と同じ
+  ように振舞います。ですから、共通して使う一連のコマンドがある場合、マク
+  ロを作成すると一つのキーでそれらのコマンドを実行できるようになります。
+
+  key と sequence はキーバインディングにおけるルール(``key bindings'')と
+  基本的に同じルールで展開されますが、次のルールが追加されていま
+  す。sequence においてコントロールキャラクターを入力するのに ^x という
+  形も使うことができます。カレット( ^ )を入力するには ^^ と入力する必要
+  があります。2番目はある種のキー、例えば Up、や関数を <key name>と
+  <function name>というフォーマットを使って直接呼び出すことができること
+  です。使うことのできるキーの名前は ``key bindings''を参照してくださ
+  い。また関数は``function reference''に一覧表があります。
+
+  関数名を直接使う場合のメリットはマクロが現在のキーバインドに影響されな
+  いことです。したがってユーザーがどのようにキーを定義しているかに依存し
+  ません。これによってマクロがより環境に影響されにくくなり可搬性が高まり
+  ます。またこれを使うことによって何人もの人が使うファイル（例えばシステ
+  ム全体の Muttrc）の中でマクロを定義できます。
+
+  オプションとして一連のコマンドの後ろにヘルプスクリーンに表示される説明
+  文を指定することができます。
+
+  注意: ヘルプ画面に表示されるマクロ定義は画面の広さにあわせて折り返して
+  表示するということありません。つまり、スクリーンの広さ分しか表示されま
+  せん。
+
+  3.7.  色属性と白黒属性を使う
+
+  使い方: color object foreground background [ regexp ]
+
+
+  使い方: color index foreground background pattern
+
+  使い方: uncolor index pattern [ pattern ...  ]
+
+  端末がカラー表示をサポートしていれば、Muttを独自の色構成にすることで見
+  ためをちょっと派手にすることができます。objectの色を定義するには
+  foregroundの色と backgroundの色の両方を定義しなければなりません(片方だ
+  けを定義することはできません)。
+
+  object は次の内のどれかです:
+
+
+  o  attachment
+
+  o  body (regexp にマッチするメールの本文)
+
+
+  o  bold (メールの本文の太字シークエンス)
+
+  o  error (Mutt が出力するエラーメッセージ)
+
+  o  header (regexp にマッチするメールのヘッダー)
+
+  o  hdrdefault (pager におけるメールのヘッダーのデフォルトの色)
+
+  o  index (メールインデックスにおける pattern にマッチします)
+
+  o  indicator (メニューで現在のアイテムを指し示す矢印もしくはバー)
+
+  o  markers (ページャーで折り返された行の最初に表示される + マーク)
+
+  o  message
+
+  o  normal
+
+  o  quoted (メールの本文で $quote_regexp にマッチする部分)
+
+  o  quoted1, quoted2, ... quotedN
+
+  o  search
+
+  o  signature
+
+  o  status (メールボックスやメールに関するモードに関する情報を示す行)
+
+  o  tilde (ページャーにおいて空行を示すのに使われる ~ )
+
+  o  tree (インデックスとファイル添付メニューで描かれるスレッドツリー)
+
+  o  underline (メールの本文の下線つき文字のシークエンス)
+
+  foregroundと backgroundは次の内のどれかです:
+
+
+  o  white
+
+  o  black
+
+  o  green
+
+  o  magenta
+
+  o  blue
+
+  o  cyan
+
+  o  yellow
+
+  o  red
+
+  o  default
+
+  o  colorx
+
+  foreground に関しては先頭に bright という接頭辞を付けることにより太字
+  にすることもできます(例えば、brightred)。
+
+  端末がサポートしていれば、基本色として default という特別な色を指定す
+  ることができます。また brightdefault という書き方も正しい書き方で
+  す。Mutt が S-Lang ライブラリーにリンクされている場合、さらに
+  COLORFGBG変数を端末の基本色として設定しておく必要があります。例え
+  ば(Bourne-like shells の場合):
+
+  set COLORFGBG="green;black"
+  export COLORFGBG
+
+
+
+  注意: この変数を設定するときに S-Lang ライブラリーは white と yellow
+  の代わりに lightgray と brown をキーワードとして使うことを要求します。
+
+  注意: uncolorコマンドは色の登録を解除するコマンドで indexの objectに関
+  してのみ使うことができます。このコマンドを使うとき colorコマンドで指定
+  したパターンと同一のパターンを指定しなければなりません。 * という特別
+  なパターンは indexに関する色指定をすべてまとめて解除します。
+
+  また Mutt は color0, color1, ..., colorN-1といったキーワードも解釈でき
+  ます(N は端末がサポートしている色の番号です)。このキーワードを使うこと
+  でディスプレイの色を変更しなおす時に楽になります(例えば、xtermの
+  color2 に設定してある色を変更したりする時です)。ただしそのために色が元
+  々の意味を失ってしまうこともあるかもしれません。
+
+  端末がカラー表示をサポートしていなくとも、monoコマンドを使うことで白黒
+  属性を変更することはできます。
+
+  使い方: mono <object> <attribute> [ regexp ]
+
+
+  使い方: mono index attribute pattern
+
+  使い方: unmono index pattern [ pattern ... ]
+
+  attributeは次のうちのどれかです:
+
+
+  o  none
+
+  o  bold
+
+  o  underline
+
+  o  reverse
+
+  o  standout
+
+  3.8.  不要なメールヘッダを隠す
+
+  使い方: [un]ignore pattern [ pattern ... ]
+
+
+  メールにシステムから自動的につけられたたくさんのヘッダーフィールドがあ
+  ることがしばしばあります、またはスクリーンに表示させてもあまり役に立ち
+  そうにないヘッダーフィールドもあります。このコマンドを使うことで普段は
+  隠しておきたいヘッダーフィールドを指定することができるようになります。
+
+  ヘッダーフィールドの名前を完全に指定する必要はありません。例えば、
+  ignore content- としていすると content- で始まるヘッダーフィールドはす
+  べて無視されます。
+
+  一度隠すように設定されたへッダーフィールドを隠すリストから外すには
+  unignore コマンドを使って下さい。注意してほしいのは、例えば ignore x-
+  としてから unignore x-mailerとしてもうまくいかないということで
+  す。unignore コマンドは与えられたパターンのヘッダーフィールドを表示さ
+  せるコマンドではないのです。
+
+  unignore * とすると設定を隠すリストから全て外します。
+
+  例えば、
+
+  # Sven's draconian header weeding
+  ignore *
+  unignore from date subject to cc
+  unignore organization organisation x-mailer: x-newsreader: x-mailing-list:
+  unignore posted-to:
+
+
+
+  3.9.  メーリングリスト
+
+  使い方: [un]lists address [ address ... ]
+
+
+  使い方: [un]subscribe address [ address ... ]
+
+
+  Mutt にはメーリングリスト``handling mailing lists''に関する優れた機能
+  があります。それを利用するにはどのアドレスがメーリングリストに属するの
+  かを指定しなければなりません。それを指定すると、``list-reply''機能をす
+  べてのメーリングリストに対して使えるようになります。そのうえ購読してい
+  るメーリングリストに送るメッセージには Mail-Followup-Toへッダがつき他
+  の人の MUA (Mail User Agents)に返信をあなたの個人のメールアドレスに送
+  らないように知らせます。Mail-Followup-Toへッダは非標準的な拡張ですべて
+  の MUAでサポートされているわけではないことに注意してください。またこの
+  へッダを付け加えることはメーリングリストのメッセージの個人宛の CC:を受
+  け取るのを完全に防ぐものではありません。もう一つ注意しておくと
+  Mail-Followup-Toへッダの生成は ``followup_to''変数によってコントロール
+  されます。
+
+  詳しく説明すると、Muttは既知(known)のメーリングリストのリストと購
+  読(subscribe)しているメーリングリストのリストを保持しています。すべて
+  の購読しているメーリングリストは既知です。あるメーリングリストを既知の
+  状態にするには listコマンドを使います。購読の状態にするには subscribe
+  コマンドを使います。
+
+  あいまいさをなくすために十分なアドレスを指定しましょう。例えば、Muttの
+  メーリングリストを購読していて、mutt-users@mutt.orgというアドレスで
+  メールを受け取るとします。Muttにこれがメーリングリストだと教えてやるに
+  は設定ファイルに lists mutt-users という行を付け加えてください。これが
+  購読しているメーリングリストだと Muttに教えてやるには subscribe
+  mutt-usersという行を代わりに付け加えます。もし mutt-users@example.com
+  というアドレスを持つ他の人からメールを受け取る可能性がある場合には実際
+  のメーリングリストのメールに一致させるために lists mutt-users@mutt.org
+  または subscribe mutt-users@mutt.orgを使って下さい。
+
+  unlists コマンドは既知と購読のメーリングリストのリストからアドレスを外
+  すコマンドです。すべての設定を解除するには unlists * というコマンドを
+  使って下さ い。
+
+  購読のリストからははずすが、既知のリストには残しておく場合には
+  unsubscribeを使ってください。
+
+  3.10.  複数のスプールするメールボックスを使う
+
+  使い方: mbox-hook [!]pattern mailbox
+
+  このコマンドはメールボックスを離れたり Mutt を終了させた時に既読のメー
+  ルを自動的に他のメールボックスに移すのに使われます。pattern はスプール
+  メールボックスとして扱うメールボックスを指定する正規表現です。mailbox
+  は既読のメールをセーブする場所を指定します。
+
+  他のいくつかの hook コマンドとは違い、最初にマッチしたパターンだけが使
+  われます(既読のメールを複数のメールボックスにセーブすることはできませ
+  ん)。
+
+
+  3.11.  メールを取り込むメールボックスを定義する
+
+  使い方: mailboxes [!]filename [ filename ... ]
+
+
+  このコマンドはどのフォルダーにメールを取り込むことができ、そして新着の
+  メールをチェックするかを指定します。初期の設定ではステータスバーにこれ
+  らのフォルダーに何通の新着のメールがあるかが表示されています。
+
+  フォルダーを移動する時に space を押すと新着のメールが到着しているフォ
+  ルダーを次々に表示します。
+
+  ディレクトリーブラウザーで TAB キーを押すと mailboxes コマンドで指定さ
+  れたメールボックスを表示するメニューを表示します。-y オプション付きで
+  Mutt が起動されると自動的にこのモードになります。
+
+  注意: 新着のメールであるかどうかは変更が加えられた時間と最後にアクセス
+  した時間とを比べて判断していますので、biff や frm や他のなんらかのプロ
+  グラムでメールボックスにアクセスするものを使っている場合、それらのプロ
+  グラムが適切にアクセスタイムをリセットしなければ Mutt は新着のメールの
+  到着を判断できません。バックアップツールもアクセスタイムを変える原因の
+  一つです。
+
+  注意: mailboxes コマンドにおける filename はコマンドが実行される時に展
+  開されます。そのため、これらの名前が``shortcut characters''( =や ! の
+  ようなショートカット文字)や変数定義の時に使われる文字(``$folder''
+  や``$spoolfile''のような)を含んでいれば mailboxes コマンドが実行される
+  前に展開されます。
+
+  3.12.  ユーザが定義するへッダ
+
+  使い方: my_hdr string
+
+  使い方: unmy_hdr field [ field ... ]
+
+  my_hdr コマンドを使うことで独自のヘッダーフィールドを定義することがで
+  きます。またそのヘッダーフィールドは送信するメール毎に付加されます。
+
+  例えば、Organization: ヘッダーフィールドを出ていくメールすべてに付加し
+  たい場合は次のコマンドを .muttrc に書き加えて下さい:
+
+
+       my_hdr Organization: A Really Big Company, Anytown, USA
+
+
+  注意: キーワードとコロン(:)の間にスペースを入れることは許されません。
+  電子メールの標準を定める RFC822 でそのスペースは許されないと定められて
+  いるので Mutt でもそのルールに従っています。
+
+  全てのメールに対してではなくある一つのメールにヘッダーフィールドを付加
+  したい場合には、そのメールの本文に伴うヘッダーを編集できるように
+  ``edit_headers'' 変数をセットしておくか、send-menu で edit-headers 機
+  能 (デフォルト: E)を利用して下さい。
+
+  ユーザー独自のヘッダーフィールドを除くには unmy_hdr コマンドを使って下
+  さい。全てのヘッダーフィールドを除くのにアスタリスク(*)を使うこともで
+  きます。例えば、すべての To と Cc ヘッダーフィールドを削除するには次の
+  よ うにします:
+
+
+       unmy_hdr to cc
+
+
+
+  3.13.  メールを閲覧する時のヘッダの並び方を決める
+
+  使い方: hdr_order header1 header2 header3
+
+  このコマンドを使うことでメールを閲覧する時に Mutt が表示するヘッダーの
+  並び方を指定することができます。
+
+  `unhdr_order * 'はオーダーリストからすべての前のヘッダーをクリアしま
+  す。そのためヘッダーの並び方を削除することはシステムワイドなスタート
+  アップファイルによる設定にも影響します。
+
+
+  hdr_order From Date: From: To: Cc: Subject:
+
+
+
+  3.14.  セーブする時のデフォルトのファイル名を指定する
+
+  使い方: save-hook [!]pattern filename
+
+  このコマンドでメールをセーブする時に使われるデフォルトのファイル名を変
+  えることができます。メールの From: が regexp にマッチするかあなた自身
+  がメールの送信者であった場合と To: が regexp にマッチする場合にこの
+  ファイル名が使われます。
+
+  パターンの正確な形式に関する情報に関しては ``Message Matching in
+  Hooks''を参照して下さい。
+
+  例:
+
+
+  save-hook me@(turing\\.)?cs\\.hmc\\.edu$ +elkins
+  save-hook aol\\.com$ +spam
+
+
+
+  ``fcc-save-hook''コマンドも参照して下さい。
+
+  3.15.  Fcc:としてセーブするデフォルトのメールボックスを指定する
+
+  使い方: fcc-hook [!]pattern mailbox
+
+  このコマンドは送信するメールを ``$record'' 以外にセーブしたい場合に使
+  います。 Muttはメールの受信者のリストのなかに regexp にマッチするもの
+  があった場合に mailbox として指定されたメールボックスを Fcc: として保
+  存するメールボックスにします。regexp にマッチしなかった場合は
+  ``$record''メールボックスに保存します。
+
+  正規表現(regexp)の正確な形式に関する情報に関しては ``Message Matching
+  in Hooks''を参照して下さい。
+
+  Example: fcc-hook aol.com$ +spammers
+
+  上記のようにすると送信しようとするメールのうちドメインが aol.com であ
+  るメールはデフォルトで +spammers メールボックスにコピーが保存されま
+  す。``fcc-save-hook''コマンドも参照して下さい。
+
+  3.16.  セーブするファイル名のデフォルトと Fcc: するメールボックスのデ
+  フォルトを一度に指定する。
+
+  使い方: fcc-save-hook [!]pattern mailbox
+
+  このコマンドは ``fcc-hook''と ``save-hook'' を一度に指定するショート
+  カットコマンドで mailbox で同じメールボックスに指定します。
+
+
+  3.17.  メールの宛先によって設定を変更する
+
+  使い方: send-hook [!]pattern command
+
+  このコマンドを使うことでメールの宛先に応じて任意のコマンドを実行できま
+  す。pattern は send-hook コマンドを実行したいアドレスにマッチする正規
+  表現で、マッチした場合は command で指定されたコマンドが実行されます。
+  複数の send-hook コマンドがマッチした場合には muttrc に書かれている順
+  に実行 されます。
+
+  パターンの正確な形式に関する情報に関しては ``Message Matching in
+  Hooks''を参照して下さい。
+
+  例: send-hook mutt "set mime_forward signature=''"
+
+
+  他の典型的な使い方としてはメールの宛先に応じて ``$attribution''、
+  ``$signature''、``$locale''変数を変更することがあります。こうすること
+  で引用する時に示す出典の言葉と署名の言語を変更することができます。
+
+  注意: send-hook コマンドは最初に受信者のリストを Mutt が調べた時に一度
+  だけ実行されます。返信操作を行った後や編集を終えた後で受信者を追加して
+  も send-hookコマンドは実行されません。また受取人に関するへッダやサブ
+  ジェクトを変える my_hdrコマンドは send-hookから実行されるメッセージに
+  は何の影響も与えません。
+
+  3.18.  メッセージを整形する前に設定を変える
+
+  使い方： message-hook [!]pattern command
+
+  このコマンドはメッセージを見たり、整形する前にメッセージの内容によって
+  任意の設定コマンドを実行するのに使います。表示されるメッセージに
+  patternがマッチすれば commandが実行されます。同じメッセージがいくつも
+  のパターンにマッチする場合には、muttrcに書いてある順でコマンドが実行さ
+  れます。
+
+  パターンのフォーマットについての情報は ``Message Matching in Hooks''を
+  参照して下さい。
+
+  例：
+
+
+  message-hook ~A 'set pager=builtin'
+  message-hook '~f freshmeat-news' 'set pager="less  \  "+/^  subject: .*\ ""'
+
+
+
+  3.19.  受取人の PGP キーを選ぶ
+
+  使い方: pgp-hook pattern keyid
+
+  PGPでメールを暗号化しようとしている場合、特定のメールアドレスに対して
+  一定の PGP鍵を自動的に振り当てたい場合があります。受取人の公開鍵がアド
+  レスから推測できなかったり、なんらかの理由で Mutt が普通使う鍵ではない
+  ものを使いたかったりするような場合です。pgp-hook コマンドを使うことで
+  特定の受取人へのメールを暗号化するときに公開鍵の IDを指定することがで
+  きるようになります。
+
+  3.20.  一連のキーをキーボードバッファーに加える
+
+  使い方: push string
+
+  このコマンドは名前付き文字列をキーボードバッファーに加えます。この文字
+  列は ``macro''コマンドの一連の文字列と同じようにコントロールキャラク
+  タ、キーの名前、関数名を含むことができます。これ使って起動時や特定の
+  フォルダに移動したときに一連のコマンドを実行することができます。
+  3.21.  関数の実行
+
+  使い方: exec function [ function ... ]
+
+  このコマンドは任意の関数を実行するのに使います。使うことのできる関数
+  は``Functions''に一覧にしてあります。``exec function''は ``push
+  <function>''と同じです。
+
+  3.22.  メールにスコア付けする
+
+  使い方: score pattern value
+
+  使い方: unscore pattern [ pattern ... ]
+
+  scoreコマンドは patternにマッチするメールのスコアに valueの値を加えま
+  す。pattern は``patterns''セクションに書かれている形式の文字列です（注
+  意: 効率が悪くなるので、インデックスで使うことのできない情報を走査する
+  パターン、例えば~b、~B、~h等は使わない方がいいでしょう）。valueは正か
+  負の整数です。メールの最終的なスコアは scoreコマンドのすべての合計で
+  す。とはいえ、value に等号記号(=)を前置して pattern にマッチする特定の
+  エントリーに対するスコアの計算を止めさせることで上限を設定することもで
+  きます。スコアの下限は 0 です。
+
+  unscore コマンドはリストから score のエントリーを外します。外す時は
+  scoreコマンドで指定したのと同じパターンを指定しなければなりません。*
+  という特殊なパターンは score のエントリーを全て外します。
+
+  3.23.  変数を設定する
+
+  使い方: set [no|inv]variable[=value] [variable ... ]
+
+  使い方: toggle variable [variable ... ]
+
+  使い方: unset variable [variable ... ]
+
+  使い方: reset variable [variable ... ]
+
+  このコマンドは``configuration variables''変数をセットしたり外したりす
+  るのに使います。変数には boolean, number, string, quadoption という4つ
+  の種類があります。boolean 変数は set (true)か unset (false)がその取り
+  得る値で、number 変数はその値に正の整数を指定します。
+
+  string 変数はいくつかの文字からなり、スペースやタブを含む場合は引用符
+  で括らなければなりません。また Cと同様に改行とタブはそれぞれ \n、\t と
+  いうエスケープシークエンスで指定することができます。
+
+  quadoption 変数は何らかの操作をした時にプロンプトを表示させるかどうか
+  をコントロールしたりプロンプトのデフォルトの答えを指定するのに使いま
+  す。yesという値を設定するとプロンプトの質問に対して自動的に yes と答え
+  たように Mutt は反応します。同様に no と設定した場合は no と答えたよう
+  に反 応します。ask-yes と設定した場合はデフォルトの答えを yes にしてプ
+  ロンプトが表示され ask-no と設定した場合はデフォルトの答えを no にして
+  プロンプトが表示されます。
+
+  no という前置詞を変数につけるとその変数の設定を外します。例: set
+  noaskbcc
+
+  boolean変数に対しては inv という前置詞を変数名につけて利用することがで
+  きます。inv という前置詞が付けられた boolean変数はその値が逆になります
+  (on か off )。これはマクロを書く時に便利です。例: set invsmart_wrap
+
+  toggle コマンドは指定されたすべての変数の頭に inv がつけられたようにす
+  ることができるコマンドです。
+
+  unsetコマンドは自動的に指定した変数の頭に no という前置詞をつけます。
+
+  変数の値を調べるにはインデックスメニューで enter-command 機能で変数の
+  前にクエスチョンマークを付けたものをセットすればわかります。
+
+
+  set ?allow_8bit
+
+
+
+  実際には boolean 変数と quadoption変数に対してしかクエスチョンマークを
+  付ける必要はありません。
+
+  resetコマンドは与えられたすべての変数の値をコンパイル時のデフォルトに
+  戻します。setコマンドで変数の頭に「&」をつけると resetコマンドと同じ振
+  舞いをします。
+
+  reset コマンドには all という特殊な変数を設定することができ、この変数
+  を設定するとすべての変数設定を解除してシステムのデフォルトの設定に戻す
+  ことができます。
+
+  3.24.  他のファイルから初期化コマンドを読み込む
+
+  使い方: source filename
+
+  このコマンドを使うことで他のファイルから初期化コマンドを読み込むことが
+  できます。例えば、エイリアスファイルを ~/.mail_aliases にわけてこちら
+  は他の人が読めないようにし ~/.muttrcは読めるようにする、ということがで
+  きます。
+
+  filenameがチルド(~)で始まっていれば、チルドはあなたのホームディレクト
+  リの絶対パスに展開されます。
+
+  filenameが垂直バー(|)で終っていればそのファイルはそこから入力を読み込
+  む実行ファイルとみなされます。(例: source ~bin/myscript|/)
+
+  3.25.  フックを取り除く
+
+  使い方: unhook [ * | hook-type ]
+
+  このコマンドは設定してある hookを無効にします。すべての hookを無効にす
+  るにはアステリスク(*)を引数にしてください。unhook send-hookのようにし
+  て特定のタイプの hookをすべて無効にすることもできます。
+
+  4.  高度な使い方
+
+  4.1.  正規表現
+
+  複雑なパターン``patterns''も含めて Mutt で文字列を検索するには POSIXで
+  拡張された形の正規表現を指定しなければなりません。(拡張正規表現の文法
+  は egrepとGNU awkでも多少採り入れられています)。この文法の簡単に説明し
+  ておきましょう。
+
+  検索パターンが一つでも大文字を含めば大文字小文字を区別して検索が行われ
+  ます、それ以外は大文字小文字を区別しません。初期化コマンドの中で \ を
+  正規表現に使いたい場合、\ は \\ という風にエスケープされなければなりま
+  せん。
+
+  正規表現は文字列のセットを記述するためのパターンです。正規表現は数学の
+  式の組み立てと似ており、小さな式を組み合わせるのに色々な演算子を使いま
+  す。
+
+  正規表現を囲んだり、分けたりするのに " と ' が使えます。これは正規表現
+  が空白文字を含む場合に便利です。" と 'がどのように処理されるかについて
+  の詳しい説明は ``初期化ファイルの構文''にあります。またこれらはそのま
+  ま（特殊文字ではなく）リテラルとして正規表現に含めたい場合には前に\
+  （バックスラッシュ）をつけてください。
+
+  基本となる単位は1つの文字にマッチする正規表現であり、アルファベットと
+  アラビア数字の全てを含むほとんどの文字はその文字そのものがそれ自身に
+  マッチする正規表現です。特殊な意味を持つメタキャラクターは前にバックス
+  ラッシュを付けることでエスケープします。
+
+  ピリオド(.)は任意の1文字にマッチします。カレット(^)とドル記号($)はそれ
+  ぞれ行の最初と最後という概念的な文字(行の最初にある一文字を表すのでは
+  なく行の最初という概念的なものを表す正規表現です)にマッチするメタキャ
+  ラクターです。
+
+  [ と ] で囲まれた文字のリストはその中にある文字のどれかにマッチしま
+  す。もしリストの最初にカレット(^)があればそのリストにない文字にマッチ
+  します。例えば [0123456789]はアラビア数字のうちのどれかにマッチしま
+  す。ASCII文字を指定する場合最初の文字と最後の文字の間にハイフン(-)を置
+  くことで範囲指定することができます。ほとんどのメタキャラクターはリスト
+  の中ではその意味を失います。]そのものをリストの中に置きたい場合はリス
+  トの最初に置きます。同様に ^ そのものをリストの中に置きたい場合はリス
+  トの最初以外の場所に置きます。そしてハイフン(-)を置きたい場合はリスト
+  の最後に置きます。
+
+  特定の文字クラスは前もって定義してあります。文字クラスは、[: 、そのク
+  ラスを表すキーワード、:] 、で構成されます。次に示すクラスは POSIX 標準
+  で定められているものです。
+
+
+     [:alnum:]
+        アルファベットとアラビア数字
+
+     [:alpha:]
+        アルファベット
+
+     [:blank:]
+        スペースとタブ
+
+     [:cntrl:]
+        制御文字
+
+     [:digit:]
+        アラビア数字
+
+     [:graph:]
+        印字可能かつ見える文字(スペースは印字可能であるが見えない。一方
+        a は印字可能かつ見える文字)
+
+     [:lower:]
+        アルファベットの小文字
+
+     [:print:]
+        印字可能な文字(制御文字以外)
+
+     [:punct:]
+        句読点(アルファベット、アラビア数字、制御文字、スペース以外の文
+        字)
+
+     [:space:]
+        空白文字(スペース、タブ、改ページ等)
+
+     [:upper:]
+        アルファベットの大文字
+
+     [:xdigit:]
+        16進数
+
+  文字クラスは角括弧で囲まれた文字リストの中でのみ有効です。文字クラス名
+  にある角括弧は記号名の一部だということに注意して下さい。つまり、文字リ
+  ストを定義する角括弧とは別に角括弧で囲まれなければなりません。例えば:
+  [[:digit:]] は [0-9] と同義です。
+
+  文字リストの中ではさらに2つの特別なシークエンスがあり、これらで照合要
+  素と呼ばれる複数の文字を表す一つの記号を使ったり、同じように文字を照合
+  したりソートしたりするために等価ないくつかの文字を一つの記号で表したり
+  することで ASCII 以外の文字セットも利用できるようになっています。
+
+
+     照合記号
+        照合記号は [. と .] で括られた複数の文字を参照する要素です。例え
+        ば、ch が照合要素だとすると [[.ch.]] がこの照合要素にマッチする
+        正規表現です。一方 [ch] は c か h のどちらかにマッチする正規表現
+        です。
+
+     等価クラス
+        等価クラスとは各々のロケール固有のよく似ていて同一視できる文字の
+        リストの名前です。名前は [= と =] で括ります。例えば、e という名
+        前がアルファベットの eとアクセント付の eの全てを表すものとして使
+        われているとします。この場合 [[=e=]] は e、アクセント付の eのど
+        れかにマッチする正規表現です。
+
+  一つの文字にマッチする正規表現は下に示す繰り返し演算子を後に付けること
+  ができます。
+
+
+     ?  直前の正規表現が一つもないか一つ
+
+     *  直前の正規表現の0回以上の繰り返し
+
+     +  直前の正規表現の1回以上の繰り返し
+
+     {n}
+        直前の正規表現のn回の繰り返し
+
+     {n,}
+        直前の正規表現のn回以上の繰り返し
+
+     {,m}
+        直前の正規表現の0回以上m回までの繰り返し
+
+     {n,m}
+        直前の正規表現のn回以上m回までの繰り返し
+
+  二つの正規表現をそのままつなぐこともできます。つないでできた一つの正規
+  表現はつなげた二つの正規表現がそれぞれマッチする二つの文字列をあわせた
+  一つの文字列にマッチします。
+
+  二つの正規表現は選択演算子 | でつなぐことができ、二つをつないでできる
+  一つの正規表現は二つの正規表現の内のどちらかがマッチする文字列にマッチ
+  します。
+
+  繰り返し演算子と正規表現とのつながりは正規表現同士のつながりよりも優先
+  します。選択演算子でつながれた正規表現の後に繰り返し演算子がくると、繰
+  り返し演算子が選択演算子に対して優先しますので、どちらかの正規表現の繰
+  り返しを表します。正規表現同士を括弧 () で括ってしまえば繰り返し演算子
+  より優先させ ることができます
+
+  注意: Mutt を GNU rx パッケージと共にコンパイルしていれば次の演算子を
+  正規表現の中で使うこともできます。
+
+
+     \\y
+        単語の先頭か最後という概念的な文字ににマッチします
+
+     \\B
+        単語内という概念的な文字にマッチします
+     \\<
+        単語の先頭という概念的な文字にマッチします
+
+     \\>
+        単語の最後という概念的な文字にマッチします
+
+     \\w
+        単語を構成する任意の文字にマッチします(アルファベット、アラビア
+        数字、アンダースコア)
+
+     \\W
+        単語の成分以外の任意の文字にマッチします。
+
+     \\`
+        バッファの先頭という概念的な文字列にマッチします(文字列)
+
+     \\'
+        バッファの最後という概念的な文字列にマッチします
+
+  しかしながらこれらの演算子は POSIX では定められておらず、そのため様々
+  なシステムのストックライブラリでは使えたり使えなかったりする、というこ
+  とに注意して下さい。
+
+  4.2.  パターン
+
+  多くの Muttコマンドではマッチさせるパターンを指定することができます
+  (limit、タグパターン、削除パターン、etc)。複数のメールを選択するのにも
+  いくつかの方法があります:
+
+
+
+  ~A              全てのメール
+  ~b EXPR         本文に EXPR を含むメール
+  ~B EXPR         EXPR を含むメール
+  ~c USER         CC に USER が宛てられているメール
+  ~C EXPR         To: か Cc: に EXPR を含むメール
+  ~D              削除マークが付けられたメール
+  ~d [MIN]-[MAX]  送信された日付けがその範囲の中にあるメール
+  ~E              エクスパイアされているメール
+  ~e EXPR         Sender フィールドに EXPR を含むメール
+  ~F              重要のマークがついているメール
+  ~f USER         USERから出されたメール
+  ~g              PGP 署名されているメール
+  ~G              PGP 暗号化されているメール
+  ~h EXPR         ヘッダーに EXPR を含むメール
+  ~k              PGP鍵を含んだメール
+  ~i ID           Message-ID フィールドで ID にマッチするメール
+  ~L EXPR         EXPR から出されているか EXPR に届いているメール
+  ~l              メーリングリストに指定されているアドレスにマッチするメール
+  ~m [MIN]-[MAX]  MIN から MAX の範囲のメール
+  ~n [MIN]-[MAX]  MIN から MAX の範囲のスコアのメール
+  ~N              新着のメール
+  ~O              古い未読メール
+  ~p              あなたに宛てられたメール
+  ~P              あなたが出したメール
+  ~Q              返信済のメール
+  ~R              既読のメール
+  ~r [MIN]-[MAX]  受信日がその範囲にあるメール
+  ~S              置き換えられたメール
+  ~s SUBJECT      Subject フィールドに SUBJECT を持つメール
+  ~T              タグ付けされたメール
+  ~t USER         USER宛のメール
+  ~U              未読のメール
+  ~v              折り畳んだスレッドに含まれるメール
+  ~x EXPR         References フィールドに EXPR を含むメール
+  ~y EXPR         X-Labelフィールドに EXPRを持つメッセージ
+  ~z [MIN]-[MAX]  サイズが MIN から MAX の間のメール *)
+  ~=             重複したメッセージ ($duplicate_threads を見てください)
+
+
+
+  EXPR、USER、ID、SUBJECTは正規表現``regular expressions''です。
+
+  *) <[MAX]、 >[MIN]i、 [MIN]-、-[MAX] という書き方もできます。
+
+  4.2.1.  パターン修飾子
+
+  アドレスのリストに対してパターンマッチングを行う場合は（特に
+  c、C、p、P、t）、リストの中に一つでもパターンにマッチするアドレスがあ
+  ると、そのリスト全体が選ばれてしまうことに注意してください。もしそのリ
+  ストのすべての要素がパターンにマッチするリストを選びたい場合はパターン
+  の前に^を前置する必要があります。次の例はすべての受取人がドイツいる
+  メールにマッチします。
+
+
+  ^~C \.de$
+
+
+
+  4.2.2.  組み合わせて検索する
+
+  AND 検索は一つ以上の基準を記述することで行われます。例えば:
+
+
+  ~t mutt ~f elkins
+
+
+  は受信者のリストに muttという単語を含み、かつ From ヘッダーフィールド
+  に elkins という単語を持つメールを選択します。
+
+  Mutt では次にあげる演算子も利用でき、もっと複雑な検索パターンを指定す
+  ることができます:
+
+
+  o  ! -- 論理 NOT 演算子
+
+  o  | -- 論理 OR 演算子
+
+  o  () -- 論理グループ化演算子
+
+  組合わせ検索の例をいくつか見てみましょう。次のパターンは To もしくは
+  Cc フィールドに mutt を含まず、かつ From が elkins であるメールを選び
+  出します。
+
+
+  !(~t mutt|~c mutt) ~f elkins
+
+
+
+  次の例は空白を正規表現に含める例です（'か "をつかいます）。これはメー
+  ルのサブジェクトに ``Junk +From +Me$''が含まれ、``Jim +Somebody''また
+  は ``Ed +SomeoneElse''から来たメッセージにマッチします。
+
+
+
+  4.2.3.  日付で検索する
+
+  Mutt は絶対的な日付と相対的な日付という二つの日付のタイプをサポートし
+  ています。
+
+  絶対的な日付。 日付は DD/MM/YY という形式で指定しなければなりません(月
+  と年は省略することができます、省略された場合は現在の月と年とみなされま
+  す)。正しい日付の範囲指定の例を挙げます:
+
+
+  Limit to messages matching: ~d 20/1/95-31/10
+
+
+
+  もし選択しようとする日付の範囲の最初の日付を省略して -DD/MM/YYとだけ指
+  定した場合その日付以前のメールが全て選択されます。最後の日付を省略して
+  DD/MM/YY- とのみ指定した場合はその日付以降のメールが選択されます。ダッ
+  シュ(-)なしで一つの日付を指定した場合はその日付に送られたメールだけが
+  選択されます。
+
+  エラーマージン  エラーマージンを絶対的な日付に加えることができます。エ
+  ラーマージンは（+または-の）符号、数字、単位からなっています。使える単
+  位は次の通りです。
+
+
+  y       年
+  m       月
+  w       週
+  d      日。この場合は特別に符号に「*」を使うことができます。これは正と負に同じだけのエラーマージンを与えます。
+
+
+
+  例: 2001年1月15日前後二週間ずつのメッセージを選択するためには、次のよ
+  うなパターンを使います。
+
+
+  Limit to messages matching: ~d 15/1/2001*2w
+
+
+
+  相対的な日付。 このタイプの日付は現在の日付に対する相対的なものです。
+  そして次のような指定の仕方ができます:
+
+
+  o  >offset (offset 単位よりも古いメール)
+
+  o  <offset (offset 単位よりも新しいメール)
+
+  o  =offset (正確に offset 単位の分古いメール)
+
+  offset は次の単位が後に続く正の数です。
+
+
+  y      年
+  m      月
+  w      週
+  d      日
+
+
+
+  例: 一ヵ月以上は古くないメールを選択するには次のようにします。
+
+
+  Limit to messages matching: ~d <1m
+
+
+
+  注意: 検索の時に使われる日付はすべてローカル時間に対する相対的なもので
+  す。ですから ``$index_format'' が %[...] フォーマットを含むように設定
+  を変更しない限りインデックスで表示される日付がこれにマッチするというわ
+  けではありません。
+
+  4.3.  タグを使う
+
+  メールを一度に一通づつよりもまとめて操作をしたい場合があります。例え
+  ば、あるメーリングリスト宛てのメールを別のフォルダーに保存したり、与え
+  た Subject を含む全てのメールを削除する場合などです。パターンにマッチ
+  したメールにタグをつけるには tag-pattern機能を使います(デフォルトで
+  shift-Tに割り当てられています)。もしくは tag-message機能(デフォルトで
+  t に割り当てられています)を使うことで個々のメールを手動でタグをつける
+  こともできます。パターンの文法については検索の章``patterns''を参照して
+  下さい。
+
+  いったん望むメールにタグをつけたら tag-prefix演算子(デフォルトでセミコ
+  ロン(;)キー)を使います。tag-prefix 演算子が使われると、その次の操作で
+  タグをつけたすべてのメールに対して(その操作が正しい操作であれば)その操
+  作が行われます。``$auto_tag''変数がセットされていると、tag-prefix演算
+  子を使うこと無しに次の操作が自動的にタグつけされたメールに施されます。
+
+  4.4.  フックを使う
+
+  フックの概念は EMACSエディターから借りてきたもので、これを使うことでな
+  んらかの操作をする前に任意のコマンドを実行することができるようになりま
+  す。例えば、読んでいるメールボックスや送るメールのあて先に応じてなんら
+  かの設定を変えたいような場合です。Muttの世界ではフックは正規表
+  現``regular expression''かパターン``pattern''と設定オプション/コマンド
+  で構成されます。使うことができるフックコマンドの詳細は次のセクションを
+  見てください。
+
+
+  o  ``folder-hook''
+
+  o  ``send-hook''
+
+  o  ``message-hook''
+
+  o  ``save-hook''
+
+  o  ``mbox-hook''
+
+  o  ``fcc-hook''
+
+  o  ``fcc-save-hook''
+
+  Note: もしフックが設定に変更を加えた場合には、その変更は今動かしている
+  muttセッションの終りまで有効になります。これを避けて、設定をデフォルト
+  に戻すためにはすべてフックの前にデフォルトフックを置く必要があります。
+  次の例は send-hookと my_hdrを使った例です。
+
+
+  send-hook . 'unmy_hdr From:'
+  send-hook ~Cb@b.b my_hdr from: c@c.c
+
+
+
+  4.4.1.  フックコマンドでメールにマッチさせる
+
+  メールに応じて実行するフックコマン
+  ド(send-hook、save-hook、fcc-hook、message-hook)は他のフックコマンドと
+  少し違った方法で評価されます。他のタイプのフックコマンドは正規表
+  現``regular expression''で十分です。しかしメールを扱うときはもう少しき
+  めの細かいマッチングが必要になります。というのも、さまざまな基準で、ま
+  たさまざまな目的でマッチさせたい場合があるからです。
+
+  Muttではフックコマンドでメールをマッチさせるには検索パターン言
+  語``search pattern''を使うことができます。これは、メールのへッダに関す
+  る情報にマッチする演算子に制限されること以外は、メールボックスを絞り込
+  んだり検索したりするのと全く同じように動作します。
+
+  例えば、返信先のアドレスを特定の宛先に対してセットしたい場合は次のよう
+  にすることができます:
+
+
+  send-hook '~t ^me@cs\.hmc\.edu$' 'my_hdr From: Mutt User <user@host>'
+
+
+
+  これは me@cs.hmc.edu 宛てにメールを送るときに実行されます。
+
+  しかしながら、マッチさせるパターンを書くときに検索言語を完全な形式で書
+  くことが要求されるわけではありません。他のフックコマンドのように単純に
+  正規表現で指定することもできます。そうされた場合 Mutt は
+  ``$default_hook''変数に指定されている値を元にパターンの完全な形を推測
+  して実行します。パターンの完全な形への変換はフックコマンドが宣言された
+  ときに行われますので、その時に有効な ``$default_hook''の値が使われま
+  す。
+
+  4.5.  外部にアドレスを問い合わせる
+
+  Mutt は LDAP や ph/qi や bbdb や NIS といった外部のディレクトリーデー
+  タベースへ、単純なインターフェイスを使ったラッパースクリプトを通して接
+  続できます。``$query_command''変数を使って利用するラッパースクリプトを
+  指定します。例えば:
+
+
+  set query_command = "mutt_ldap_query.pl '%s'"
+
+
+  ラッパースクリプトは問い合わせをコマンドラインから受け付けるようにして
+  一行のメッセージを返すようにしてください。マッチした応答はそれぞれ一つ
+  の行になり、それぞれの行はタブで区切られたアドレス、それから名前、それ
+  から他の付加的な情報という風に並べます。エラーが起きたりマッチしたアド
+  レスがなかった場合は0以外のコードを返すようにして一行のエラーメッセー
+  ジを返すようにしてください。
+
+  複数の応答の出力の例:
+
+
+  Searching database ... 20 entries ... 3 matching:
+  me@cs.hmc.edu           Michael Elkins  mutt dude
+  blong@fiction.net       Brandon Long    mutt and more
+  roessler@guug.de        Thomas Roessler mutt pgp
+
+
+
+  Mutt では問い合わせ機能を利用するのに2つの仕組みが用意されています。一
+  つはインデックスメニューから問い合わせ機能(初期値: Q)を使う方法です。
+  これを使うとまず問い合わせのプロンプトを表示し、それからマッチした応答
+  のリストを問い合わせメニューに表示します。問い合わせメニューでエイリア
+  スを作成する宛先や今からメールを出す宛先を選択することができます。また
+  複数にメッセージを送るためにタグつけすることも、新たに問い合わせを始め
+  ることも、今の応答に加えてさらに問い合わせをすることもできます。
+
+  もう一つの問い合わせ機能を利用する仕組みはアドレスの補完で、エイリアス
+  の補完によく似ています。アドレスを入力するすべてのプロンプトで今タイプ
+  しようとしているアドレスに基づいて問い合わせを実行し、問い合わせ補完
+  (complete-query function / 初期値: ^T)を使うことができます。エイリアス
+  の時と同じように Mutt は最後にスペースかコンマを打った場所まで戻ってタ
+  イプされたアドレスを検索します。問い合わせに対して一つだけの応答があっ
+  た場合その場でそのアドレスが展開されます。複数の応答があった場合は問い
+  合わせメニューを呼び出します。問い合わせメニューで一つもしくは複数のア
+  ドレスを選択してプロンプトに追加することができます。
+
+  4.6.  メールボックスの形式
+
+  Muttは mbox、MMDF、MH、Maildirの4つの異なるメールボックスの形式をサ
+  ポートし、読み書きできます。メールボックスのタイプは自動的に判定される
+  ので異なるメールボックスのタイプを指定するフラグを使う必要はありませ
+  ん。新しいメールボックスを作成するときは ``$mbox_type''変数で指定され
+  ているタイプがデフォルトとして使われます。
+
+
+     mbox
+        これは UNIX でもっとも広く使われているメールボックスの形式です。
+        すべてのメールは一つのファイルに格納されます。それぞれのメールは
+        次の形式の行を含み、この行が区切りとなり新しいメールが始まりま
+        す。
+
+        From me@cs.hmc.edu Fri, 11 Apr 1997 11:44:56 PST
+
+
+
+     この行はよく From_ 行と呼ばれます。
+
+     MMDF
+        これは mbox 形式の変形で、それぞれのメールは ^A^A^A^A (4つの
+        Ctrl-A)を含む行で囲まれます。
+
+     MH mbox と MMDF を大幅に革新したものです。メールボックスはディレク
+        トリーからなりそれぞれのメールは別々のファイルに格納されます。
+        ファイル名はメール番号を示します(しかし、この番号は Muttが表示す
+        る番号とは一致しない場合もあります)。削除されたメールはファイル
+        名の先頭にコンマ(,)がつけられます。注意: Mutt は .mh_sequences
+        か .xmhcache というファイルがあるかどうかで MHメールボックスであ
+        ると判断します(これらのファイルは普通のディレクトリと MHメール
+        ボックスを区別するのに必要です)。これらのファイルは muttによって
+        アップデートはされません。
+
+     Maildir
+        最新のメールボックスの形式で、Qmail という MTA で使われていま
+        す(Qmail は sendmail を置き換える MTA です)。MH とよく似ています
+        が、メールボックスのサブディレクトリーとして、tmp、new、curとい
+        う3つのディレクトリが加えられます。ファイル名は、たとえ他のプロ
+        グラムが NFS を通して書き込んでも唯一であるような方法でつけられ
+        ます。つまりファイルをロックする必要がありません。
+
+  4.7.  メールボックスへのショートカット
+
+  特定のメールボックスを参照するために定義済みのショートカットがたくさん
+  あります。これらのショートカットはファイルやメールボックスのパスを入力
+  するところならばどこでも使うことができます。
+
+
+  o  !  -- ``$spoolfile''メールボックスを参照します
+
+  o  >  -- ``$mbox''ファイルを参照します
+
+  o  < -- ``$record''ファイルを参照します
+
+  o  -または!! -- 最後に訪れたファイルを参照します
+
+  o  ~ -- ホームディレクトリを参照します
+
+  o  =または + -- ``$folder''ディレクトリを参照します
+
+  o  @alias -- エイリアスのアドレスで定義される「セーブを行うデフォルト
+     のフォルダー」``default save folder''を参照します。
+
+  4.8.  メーリングリストを扱う
+
+  Muttには大量のメールを扱うための設定オプションがいくつかあります。まず
+  第一に Muttにどれがメーリングリストのアドレスであるか(技術的にはメーリ
+  ングリストのアドレスである必要はありませんが、そういった用途で一番よく
+  使われます)、どれが購読しているメーリングリストであるか教えてやりま
+  す。これは ``lists and subscribe''コマンドを muttrc に書いて設定 しま
+  す。
+
+  そうして Mutt にどれがメーリングリストであるか教えてやるといくつかのこ
+  とが可能になります。まず第一にそのリスト名をインデックスメニューで表示
+  させることができるようになります。これは個人的なメールとメーリングリス
+  ト宛てのメールが同じメールボックスにあるときに区別するのに役立ちます。
+  それから ``$index_format''変数での %L というエスケープはメーリングリス
+  トがあった場合は To <list> という文字列を返します。そして CC フィール
+  ドにリスト名があった場合は Cc <list> という文字列を返します(そうでなけ
+  ればメー ルの著者の名前を返します)。
+
+  しばしばメーリングリストのメールは To と Cc フィールドが膨大になってい
+  る傾向があります。ほとんどの人はメーリングリストで返信するときにわざわ
+  ざ元の著者のアドレスを削除しようとはしません。結果として二つもしくはそ
+  れ以上のコピーがその人に送られてしまうことになります。インデックスメ
+  ニューとページャーでデフォルトでは L キーに割り当てられている list-
+  reply 機能 はすべての受信者に返信するのではなくメーリングリストのアド
+  レスにのみ返信することで混乱を減らすことを手助けしてくれます。
+  （Mail-Followup-Toで指定した場合は例外です。以下を見てください）。
+
+  Muttは Mail-Followup-Toへッダもサポートしています。``$followup_to''変
+  数がセットしてあれば、メールを（メーリングリストへも含めて）何人もの人
+  へ送る場合 Mail-Followup-Toへッダがメールに追加され、それにはすべての
+  そのメールの受取人が含まれますがあなたのメールアドレスは含まれません。
+  これによってそのメールへの group-repliesまたは list-replies（つまり
+  followupです）は元々のメールの受取人に送られるのですが、あなたに別に送
+  られることはありません。あなたには、購読しているメーリングリストを通し
+  て送られます。
+
+  反対に Mail-Followup-Toへッダがついているメッセージに対して
+  group-replyまたは list-replyをする場合には、``$honor_followup_to''変数
+  がセットされている場合にのみこのへッダを使います。この場合に
+  はMail-Followup-Toの受取人のリストに含まれていなくても list-replyは
+  メーリングリストへも返信します。
+
+  へッダの編集が可能になっている場合には、自分で Mail-Followup-Toへッダ
+  をつけることができます。Muttは送信時にこのへッダが無い場合のみ、この
+  へッダを自動生成します。
+
+  もう一つの方法は Reply-To フィールドをメールの著者に設定するのではな
+  く、メーリングリストのアドレスに設定することです。いくつかのメーリング
+  リストの管理者はこの方法を採用しています。この方法はメールの著者に個人
+  的に返信しようとするときに問題が生じます。というのはほとんどのメールク
+  ライアントは返信の動作を行うときには自動的に Reply-To フィールドに設定
+  してあるアドレスを拾ってくるからです。Mutt では ``$reply_to''変数を利
+  用することでどのアドレスに返信するかどうかを決めるのを楽にすることがで
+  きます。もしセットされていれば Reply-Toフィールドに指定されているアド
+  レスに返信するか、 Fromフィールドのアドレスに返信するかを問い合わせて
+  くれます。セットされていない場合は Reply-Toフィールドがあればそれが使
+  われます。
+
+  X-Labelフィールドを使ってさらにメーリングリストや話題を特定することが
+  できます。``$index_format''変数の %yと %Yは X-Label:フィールドをイン
+  デックスに展開するのに使えます。また Muttの正規表現を使ったパターン
+  マッチは標準的なへッダフィールドにしか使えませんが、procmailなどのメー
+  ルフィルタを使えば簡単に標準的なフィールドに挿入できます。
+
+  最後に、Muttはメールボックスをスレッド``threads''でソート``sort''する
+  ことができます。一つのスレッドは同じ主題で関連するすべてのメールの一ま
+  とまりです。普通は一つのメールとそれに返信したすべてのメールが図形的に
+  木のような構造で構成されます。もしスレッド機能を持ったニュースクライア
+  ントを使ったことがあるならばわかると思いますがそれと同じコンセプトで
+  す。これを利用すると、興味のない話題はスレッド毎に削除でき、また素早く
+  話題の重要性を判断できるのでかなりの流量があるメーリングリストを簡単に
+  扱えるようになります。
+
+  4.9.  配送状態の通知(DSN)のサポート
+
+  RFC1894 では電子メールのメッセージの状態に関する情報の伝えるための
+  MIME コンテントタイプが定められています。これらは「受取証が戻ってく
+  る」と考えることができます。バークレー sendmail 8.8.x はメールクライア
+  ントがどのタイプの状態メッセージを返させるか要求できるようにいくつかの
+  コマンドラインオプションを備えています。
+
+  これをサポートするために二つの変数が用意されています。 ``$dsn_notify''
+  は通常と異なったことが起ったことを通知する受取証を要求するのに使われま
+  す(メールが失敗した旨の通知、メールが配送された旨の通知等々)。
+  ``$dsn_return''は受取証とともに戻ってくる元のメールの量を限定するよう
+  に要求できます(ヘッダーもしくはすべてのメール)。DSN に関するさらに詳し
+  い情報に関しては sendmailの man ページをご覧下さい。
+
+  4.10.  POP3 サポート(オプション)
+
+  Mutt が POP3 のサポート付きでコンパイルされていた場合(configure スクリ
+  プトを --enable-pop フラグをつけて走らせていた場合)、リモート POP3サー
+  バーにあるメールボックスを操作し、またローカルで閲覧するためにこちらに
+  メッセージを取得することができるようになります。
+
+  フォルダ pop://popserver/を選択するとリモート POP3メールボックスにアク
+  セスできます。
+  通常とちがうポートを使っている場合にはサーバとともにポートも指定しま
+  す。つまり pop://popserver:port/という形です。
+
+  各々のフォルダにちがうユーザ名でアクセスすることもできま
+  す。pop://username@popserver[:port]/としてください。
+
+  新しいメールが届いているかどうかを確かめるのは POP3経由ではローカルの
+  場合よりも資源を使います。このため Muttはリモートでメールチェックする
+  間隔を ``$pop_checkinterval''変数でコントロールします。デフォルトは60
+  秒です。
+
+  もし Muttが SSLサポートつきでコンパイルされていた場合（--with-sslフラ
+  グをつけて configureスクリプトを走らせます）、POP3サーバへの接続を暗号
+  化できます。フォルダに POP3/SSLでアクセスするには popsという接頭辞をつ
+  けます。pops://[username@]popserver[:port]/ としてください。
+
+  これ以外の POP3メールにアクセスする方法は fetch-mail機能（デフォルトで
+  は Gに割り当てられています）です。これは``pop_host''で指定されているホ
+  ストに接続して、すべての新着メールを取ってきてそれをローカル
+  の``spoolfile''に格納します。この後 Mutt はメールがずっとローカルに
+  あったかのように正確に振る舞うことができるようになります。
+
+  注意: もしすべてのメッセージをローカルメールボックスに持ってきたいだけ
+  なら、fetchmailなどのそれに特化したプログラムを使うことを考えた方がい
+  いでしょう。
+
+  4.11.  IMAP サポート(オプション)
+
+  Muttが IMAPサポート付きでコンパイルされていれば(configure スクリプトを
+  --enable-imap フラグをつけて走らせていた場合)、リモート IMAP サーバー
+  上にあるフォルダーを扱うことができるようになります。
+
+  imap://imapserver/INBOX フォルダーを選択することでリモートのインボック
+  スにアクセスすることができます。ここで imapserver は IMAP サーバーの名
+  前で INBOX は IMAP サーバーのスプールメールボックスの特別な名前です。
+  もし IMAP サーバー上の他のメールフォルダーにアクセスしたい場合は、
+  imap://imapserver/path/to/folder と指定しなければなりません。ここで
+  path/to/folder はアクセスしたいフォルダのバスです。
+
+  デフォルトではないポートを選ぶこともできま
+  す。imap://imapserver:port/INBOXのように指定してください。
+
+  また各々のフォルダを別のユーザー名でアクセスすることもできます。次のよ
+  うに指定してください。imap://username@imapserver[:port]/INBOX.
+
+
+  SSLのサポートつきで Muttをコンパイルした場合（configureスクリプトに
+  --enable-sslフラグをつけた場合）IMAPサーバへの接続を暗号化できます。当
+  然サーバ側も SSLで暗号化した接続をサポートしている必要がありま
+  す。IMAP/SSLを使ってフォルダにアクセスする場合はフォルダパスに
+  imaps://[username@]imapserver[:port]/path/to/folderと指定しなければな
+  りません。
+
+  Pineの場合と同じ書き方も使うことができま
+  す。{[username@]imapserver[:port][/ssl]}path/to/folder というような書
+  き方です。
+
+  すべてのサーバで / が階層を分けるのに使われているわけではないことに注
+  意してください。Muttはサーバで使われているセパレータが何かを認識してそ
+  れに応じてフォルダパスを変換してくれるはずです。
+
+  一つの IMAPサーバ上のフォルダを見る場合、購読しているフォルダだけを見
+  ることもすべてのフォルダを見ることも toggle-subscribedコマンドを使って
+  できます。``$imap_list_subscribed''変数も参照してください。
+
+
+  新しいメールが来たかどうかを IMAPを通して確かめるのはかなりの遅れが生
+  じます。そのために ``$mail_check''変数と``$timeout''変数を注意深く設定
+  する必要があるかもしれません。私は個人的には
+
+
+  set mail_check=90
+  set timeout=15
+
+
+
+  という設定を遅い電話線経由で使ってますが、まあまあよい結果を得ていま
+  す。
+
+  UWサーバの v12.250より前のバージョンでメールを保存するのに mboxを使っ
+  ている場合には他のクライアントが同じフォルダを選ぶと今そのフォルダを
+  使っているクライアントの接続を切るようにサーバに通知されます。注意して
+  ください。
+
+  4.11.1.  フォルダブラウザ
+
+  Muttはバージョン 1.2から IMAPサーバ上のメールボックスのブラウズをサ
+  ポートしました．これはほとんどローカルの場合と同じですが、以下のような
+  違いがあります。
+
+
+  o  ファイルの属性の代わりに IMAPという文字列を表示します。これの後ろに
+     プラス(+)サインがつく場合がありますが、これはこの中にメッセージとサ
+     ブフォルダの両方が含まれていることを意味します。Cyrus またはそれに
+     似たサーバの場合にはしばしばフォルダの中にメッセージとサブフォルダ
+     が入っています。
+
+  o  フォルダにメッセージとサブフォルダの両方が含まれている場合には、
+     （デフォルトではenterに割り当てられている）selectionキーを押すとそ
+     の下のサブフォルダに入ります。もしそのフォルダのメッセージを見たい
+     場合には（デフォルトでは spaceに割り当てられている）view-fileを使わ
+     なければなりません。
+
+  o  メールボックスを消すには delete-mailboxコマンド（デフォルトでは d）
+     を使います。subscribe、unsubscribeコマンドを使ってメールボックスの
+     購読、購読の取り消しができます。デフォルトではこれらのコマンドは s
+     と uに割り当てられています。
+
+  4.11.2.  認証
+
+  Muttは IMAPサーバの認証形式として SASL、GSSAPI、CRAM-MD5、 LOGINをサ
+  ポートしています（Grant Edwardsがかわいそうな exchange ユーザのために
+  NTLM認証を加えるパッチを書いてくれましたが、まだメインツリーには統合さ
+  れていません）。また疑似プロトコル ANONYMOUSもサポートしています。これ
+  は自分のアカウントがない公開 IMAPサーバにログインするためのもの
+  で、ANONYMOUSを使うにはユーザ名を空白、または anonymousにしてくださ
+  い。
+
+  SASLは特別な認証形式で、これはあなたのホストとサーバで利用可能ないくつ
+  かのプロトコル（GSSAPI、CRAM-MD5、ANONYMOUS、 DIGEST-MD5を含みます）の
+  中から一番安全な方法を選びます。これらのうちのいくつかの方法
+  （DIGEST-MD5と多分 GSSAPI）では、セッション全体が暗号化され通信を覗か
+  れても大丈夫になります。SASLが使えるならできるだけこれを使いましょう。
+  これを使うには Cyrus SASLライブラリが必要で、muttをコンパイルするとき
+  に --with-saslフラグをつけてください。
+
+  Muttは SASL、 ANONYMOUS、 GSSAPI、 CRAM-MD5、 LOGINの順番でどの方法が
+  利用可能なのかを調べます。
+
+  認証形式をコントロールするいくつかの変数があります。
+
+
+  o  ``$imap_user'' - すべての認証形式で認証に使うユーザ名です。この設定
+     よりもメールボックスのパスに明示的に含まれるユーザ名（つまり
+     {user@host}の形のメールボックスの指定です）の方が優先します。
+
+  o  ``$imap_pass'' - パスワードを必要とするすべての認証形式で認証に使う
+     パスワードを設定します。
+
+  o  ``$imap_authenticators'' - コロンで区切られた IMAPサーバへの認証方
+     法のリストです。この順に認証方法を試していきます。この変数が設定さ
+     れている場合は muttのデフォルト（上で書いた順序ですべての方法で試
+     す）を上書きします。
+
+  4.12.  複数の IMAP/POP アカウントを使う (OPTIONAL)
+
+  いくつもの IMAPや POPサーバにアカウントを持っていると、認証のための設
+  定が面倒で間違いを起こしやすくなります。そんなときは、account-hookを使
+  えばいいでしょう。account-hookコマンドは folder-hookコマンドと同じよう
+  に働きますが、メールボックスを開くときだけでなく、リモートのメールボッ
+  クスにアクセスするときはいつも呼び出されます（フォルダブラウザ内も含み
+  ます）。
+
+  いくつかの例を見てください。
+
+
+  account-hook . 'unset imap_user; unset imap_pass; unset tunnel'
+  account-hook imap://host1/ 'set imap_user=me1 imap_pass=foo'
+  account-hook imap://host2/ 'set tunnel="ssh host2 /usr/libexec/imapd"'
+
+
+
+  4.13.  WWW ブラウザーを起動して URL の場所に行く
+
+  メールに URL(unified resource locator = http://www.mutt.org/ のような
+  WWW空間の住所)が含まれている場合は、それらすべての URL を含むメニュー
+  を表示させてそこから一つ選んで WWW ブラウザーを起動してそこに行くのが
+  効率的ですよね。この機能は外部の urlviewプログラムによって提供されま
+  す。 urlviewプログラムは ftp://ftp.guug.de/pub/mutt/contrib/で手に入れ
+  ることができます。またこれを使うための設定コマンドは:
+
+
+  macro index \cb |urlview\n
+  macro pager  \cb |urlview\n
+
+
+
+  です。
+
+  5.  Mutt の MIME サポート
+
+  Mutt を最高のテキストベースの MIME MUA にするための多大な努力が払われ
+  てきました。すべての努力は眼識のある MIMEユーザーの要望を実装するよう
+  に、また可能な限り標準に従うようにするために払われてきました。MIMEの設
+  定を Muttで行うために Muttが使う2つの別のタイプのファイルがあります。
+  一つは mime.types ファイルでこのファイルはファイルの拡張子と IANA MIME
+  タイプとの対応付けが書かれています。もう一つは mailcap ファイルでこれ
+  は特定の MIME タイプを扱うのにどの外部コマンドを利用するかを指定しま
+  す。
+
+  5.1.  Mutt で MIME を使う
+
+  Mutt には MIME を扱う3つの場所/メニューがあります。ページャー(メールを
+  閲覧する間)、ファイル添付メニュー、メール作成メニューです。
+
+
+
+  5.1.1.  ページャーで MIME メールを閲覧する
+
+  インデックスでメールを選択してページャーで閲覧するときに Mutt はメール
+  をテキストとして表示するようにデコードします。Mutt は自身でいくつかの
+  MIMEタイプをサポートしていま
+  す。text/plain、text/enriched、message/rfc822、 message/news に加え、
+  輸出管理されたバージョンの Mutt では PGP/MIME と application/pgp を含
+  めさまざまな PGP MIME タイプを理解できます。
+
+  Mutt は添付ファイルをそれらを記述する二つの行とともに示します。これら
+  の行は次の形式です:
+
+
+  [-- Attachment #1: Description --]
+  [-- Type: text/plain, Encoding: 7bit, Size: 10000 --]
+
+
+
+  Descriptionは添付ファイルに関する説明やファイル名です。Encodingは
+  7bit、8bit、quoted-printable、base64、binary のうちのどれかです。
+
+  もし Mutt がある MIME タイプを自分自身では扱うことができない場合次のよ
+  うなメッセージが表示されます:
+
+
+  [-- image/gif is unsupported (use 'v' to view this part) --]
+
+
+
+  5.1.2.  添付ファイルメニュー
+
+  添付ファイルを見る機能(view-attachments)へのデフォルトのキー割り当ては
+  `v' でそのメールの添付ファイルメニューを表示します。添付ファイルメ
+  ニューはメールの添付ファイルのリストを表示し、そこから添付ファイルを保
+  存したり印刷したりパイプに通したり削除したり閲覧したりできます。tag-
+  prefix 演算子を用いて複数の添付ファイルに対してタグつけを行い、これら
+  の操作を複数の添付ファイルにたいして一度にまとめて行うこともできます。
+  また、このメニューで読んでいるメールに対して返事を書くこともでき、その
+  場合はカーソルのある(もしくはタグ付けされている)添付ファイルのみが返事
+  の中で引用されます。添付ファイルをテキストとして閲覧でき、メイルキャッ
+  プを使ってビューワーを定義して閲覧することもできます。
+
+  また、添付ファイルのタイプが message/rfc822なら（``resend-message''、
+  リプライ、転送機能のような）普通のメッセージに関連する機能が使えます
+
+  詳しい情報に関しては添付ファイルメニューでのヘルプをご覧下さい。
+
+  5.1.3.  メール作成メニュー
+
+  メール作成メニューはメールを送る前に現れるメニューのことです。このメ
+  ニューではそのメールに関する受信者のリストを編集したりサブジェクトを編
+  集したりそして他のものも編集することができます。本文やメールの添付ファ
+  イルのリストを編集することもできます。印刷したり、フィルターをかけた
+  り、パイプに通したり、編集したり、作成したり、もう一度確認のために閲覧
+  したり、一つの添付ファイルもしくはタグ付けされた添付ファイルのリストの
+  名前を変更したりすることが可能です。また添付ファイルに関する情報(特に
+  タイプ、エンコード方式、属性)を変更することもできます。
+
+  添付ファイルは次のよう表示されます。
+
+
+  -   1 [text/plain, 7bit, 1K]             /tmp/mutt-euler-8082-0 <no description>
+      2 [applica/x-gunzip, base64, 422K]   ~/src/mutt-0.85.tar.gz <no description>
+
+
+
+  がそのファイルを削除することを示してい ます。リンクを外す/つなぐを切り
+  替える(toggle-unlink/初期値: u)コマンドを使うことで '-' のオン/オフを
+  切り替えることができます。次のフィールドは MIMEのコンテントタイプを示
+  しておりこれはタイプを編集する(edit-type/ 初期値: ^T)コマンドで変更す
+  ることができます。次のフィールドはファイルのエンコード方式を示してお
+  り、バイナリーメールを 7bit で配送するためにエンコードすることができま
+  す。エンコード方式を変更する(edit-encoding/初期値: ^E)コマンドを使って
+  変更することができます。次のフィールドはファイルサイズでキロバイトかメ
+  ガバイトに切り捨てられて表示されます。次のフィールドはファイル名でファ
+  イル名を変更する (rename-file/初期値: R)コマンドで変更することができま
+  す。最後のフィールドは添付ファイルの説明で、説明を編集す
+  る(edit-description/初期値: d)コマンドで変更することができます。
+
+  5.2.  mime.typesファイルを使って MIME タイプの設定を行う
+
+  メールにファイルの添付を行った場合、Muttは MIMEタイプファイルを
+  ${HOME}/.mime.typesに探しに行きそれからシステムの MIMEタイプファイルを
+  /usr/local/share/mutt/mime.types か /etc/mime.types に探しに行きます
+
+  MIME タイプファイルは MIME タイプとスペースで隔てられた拡張子のリスト
+  からなる行で構成されます。例えば:
+
+
+  application/postscript          ps eps
+  application/pgp                 pgp
+  audio/x-aiff                    aif aifc aiff
+
+
+
+  MIMEタイプファイルのサンプルは Muttの配布物に含まれており、使いたい
+  MIME タイプのほとんどは含まれているはずです。
+
+  Muttが添付されたファイルの拡張子から MIMEタイプを判断できなければ実際
+  にファイルを見て確認します。ファイルがバイナリーの情報を含んでいなけれ
+  ば Muttはファイルをプレインテキストだとみなし、text/plainとマークしま
+  す。ファイルがバイナリーの情報を含んでいれば application/octet-stream
+  とマークします。Mutt が割り振る添付ファイルの MIME タイプを edit-type
+  コマンド(初期値: T)を使って変更することができます。MIMEタイプはメ
+  ジャー MIMEタイプとサブタイプが /で区切られてできていま
+  す。application、 text、 image、 video、 audio、それにインターネットで
+  の議論の末あとから加えられた modelが6つのメジャータイプです。Muttはこ
+  れらすべてを mine.typesファイルに適当な項目があるかぎり認識します。ま
+  たこれ以外のメジャータイプも認識します。例えば chemicalタイプは様々な
+  フォーマットの分子データを色々な分子ビューアに渡すために分子モデルを作
+  る集団ではよく使われています。ただし非標準的な MIMEタイプを使うのは
+  メッセージの受取り手がそのような添付ファイルがくるとわかっている場合だ
+  けにしてください。
+
+  5.3.  メールキャップファイルを編集して MIME ビューワーを設定する
+
+  Muttは RFC 1524の MIMEコンフィギュレーションを特に Unixに特有のフォー
+  マットとして RFC 1524の Appendix Aで定義されるものに関してサポートして
+  います。このファイルフォーマットは一般にメールキャップフォーマットと呼
+  ばれます。多くの MIME 対応プログラムはメールキャップフォーマットを利用
+  しており、すべてのプログラムでのすべてのMIME タイプの扱いを一か所で指
+  定することができるようになっていま
+  す。Netscape、XMosaic、lynx、metamail等がこのフォーマットを使っていま
+  す。
+
+  Mutt が内部で扱うことができない様々な MIME タイプを扱うために Mutt は
+  一連の外部のコンフィギュレーションファイルを解析して、扱うことができる
+  外部のプログラムを探します。デフォルトのこれらのファイルを検索するため
+  の文字列はコロンで分けられたリストで次のようにセットされています。
+
+
+
+  ${HOME}/.mailcap:/usr/local/share/mutt/mailcap:/etc/mailcap:\
+  /etc/mailcap:/usr/etc/mailcap:/usr/local/etc/mailcap
+
+
+
+  $HOME はホームディレクトリです。
+
+  特に、metamailの配布物にはメールキャップファイルが含まれており、普通は
+  /usr/local/etc/mailcapにインストールされ、これにはいくつかの基本的なエ
+  ントリーが含まれています。
+
+  5.3.1.  メールキャップファイルの基本
+
+  メールキャップファイルはコメント行、空行、定義行からなる一連の行で構成
+  されます。
+
+  コメント行は # 文字とそれに続く任意の文字で構成されます。
+
+  空行は空の行です。
+
+  定義行はコンテントタイプ、閲覧コマンド、任意の数のオプショナルなフィー
+  ルドから構成されます。定義行のそれぞれのフィールドはセミコロン(;)文字
+  で分けられます。
+
+  コンテントタイプは MIME で標準的な タイプ/サブタイプ 方式で指定しま
+  す。例えば、text/plain、text/html、image/gif等とします。さらに、メール
+  キャップの形式はワイルドカードを二つの形式で記述することができます。一
+  つはもしくは video はすべての画像タイプとビデオタイプにそれぞれマッチ
+  します。
+
+  閲覧コマンドは指定されたタイプを閲覧するための Unixコマンドです。2つの
+  異なるタイプのコマンドがサポートされています。デフォルトでは MIMEメッ
+  セージのボディー部をコマンドに標準入力として渡します。閲覧コマンドの変
+  数に %sを使うことでこの動作を変更することができます。%sを使うと Muttは
+  MIMEメッセージのボディー部を一時的なファイルに保存し、それから閲覧コマ
+  ンドを呼び出します。この時 %s は一時的なファイルの名前で置き換えられま
+  す。どちらの場合でも Mutt は閲覧プログラムが終了するまでそのプログラム
+  に端末を渡します。閲覧プログラムが終了したときに一時的なファイルも(存
+  在すれば)削除されます。
+
+  一番単純な形では、text/plain のメールを外部ページャープログラムの more
+  に標準入力として渡すことができます:
+
+
+  text/plain; more
+
+
+
+  もしくは、メールを一つのファイルとして渡すこともできます:
+
+
+  text/plain; more %s
+
+
+
+  たぶん text/html のメールを閲覧するのに lynx を呼び出したいでしょう:
+
+
+  text/html; lynx %s
+
+
+
+  この場合 lynx は標準入力からファイルを閲覧することをサポートしてません
+  から %s 構文を使わなければなりません。
+
+
+  注意: いくらか古いバージョンの lynx には text/html ファイルを閲覧する
+  ためにメールキャップファイルをチェックするところにバグがありました。こ
+  れらのバージョンでは lynx を呼び出す行を探してそれを実行します。このた
+  め対象を閲覧するために絶え間なく自分自身を起動していたのです。
+
+  一方、lynx を対話的には使いたいのではなく、単に text/html を
+  text/plain に変換したいだけかもしれません。そうであれば次のようにして
+  ください:
+
+
+  text/html; lynx -dump %s | more
+
+
+
+  あるいは text/html ファイルを閲覧する場合は lynx を使って、そのほかの
+  テキスト形式を閲覧するにはページャーを使いたいと思うかもしれません。そ
+  うであれば次のようにしてください:
+
+
+  text/html; lynx %s
+  text/*; more
+
+
+
+  これはメールキャップファイルのもっとも単純な形式です。
+
+  5.3.2.  メールキャップの安全な使い方
+
+  MIMEパラメータの中にあるシェルのメタキャラクタの解釈は一般にセキュリ
+  ティの問題を引き起こす可能性があります。Muttは %s構文の展開で正しくパ
+  ラメータを引用して危険な文字を代替して取り除こうとしま
+  す。``mailcap_sanitize''変数を見てください。
+
+  Muttはメールキャップからプログラムを実行するのに安全な方法をとっている
+  のですが、他のメールキャップを使うプログラムはそれほど安全性に気をつけ
+  ていないかも知れません。したがって次のようなことに注意する必要がありま
+  す。
+
+  %変数を引用符で囲まないこと。引用符(' )、ダブルクオート(")で%変数を囲
+  まないでください。Muttがメールキャップを使う他のプログラムと同様に正し
+  い方法で行ないます。またバッククオートを使った展開も使わないでくださ
+  い。eval 文を使うときには特に注意して使うこと。できれば使わないでくだ
+  さい。問題を直そうと思ってクオートを導入すると別の問題を引き起こしま
+  す。
+
+  もし%変数の値がクオートやバッククオートの中に入れなければならない場合
+  は、その値をシェル変数に代入して必要ならその変数を使うようにしてくださ
+  い。次の例では $charsetというシェル変数に代入して、それをバッククオー
+  トの中で使ってます。こうするとそれ自身がそれ以上の展開の対象にならない
+  ので安全です。
+
+
+  text/test-mailcap-bug; cat %s; copiousoutput; test=charset=%{charset} \
+          && test "`echo $charset | tr '[A-Z]' '[a-z]'`" != iso-8859-1
+
+
+
+  5.3.3.  メールキャップの進んだ使い方
+
+  5.3.3.1.  オプショナルフィールド
+
+  コンテントタイプと閲覧コマンドのフィールドは最低限必要ですが、それに加
+  えてセミコロンは次のフィールドをサポートしています:
+
+
+
+     copiousoutput
+        このフラグは Mutt にそのコマンドがたくさんの量のテキストを標準出
+        力に渡し得るということを教えます。これによって Mutt は閲覧コマン
+        ドの出力に対してページャーを起動します(内蔵のページャーを使うか
+        外部のページャーを使うかは pager 変数の設定によります)。もしこの
+        フラグがなければ Mutt はそのコマンドが対話的な操作が必要だと判断
+        します。これは基本セクションで示した lynx -dump の例での more コ
+        マンドへのパ イプを置き換えることができます:
+
+        text/html; lynx -dump %s ; copiousoutput
+
+
+
+  こうすることで lynx は text/html の出力を text/plain の形式に変換し、
+  Mutt はその結果を表示するのに標準のページャーを用います。
+
+
+     needsterminal
+        Mutt は自動閲覧機能``autoview''で添付ファイルを閲覧する時に
+        ``$wait_key''変数の設 定を使うかどうかを決定するためにこのフラグ
+        を使います。もし対話的なプログラムを使って添付ファイルを閲覧し、
+        そして対応するメールキャップエントリーに needsterminal フラグが
+        あれば、Mutt は ``$wait_key''変数を使い、そして外部プログラムを
+        終了するときに終了状態によって何かのキーを押すように要求するかど
+        うかを決めます。そのほかのすべての場合では何かのキーを押すように
+        促したりはしません。
+
+     compose=<command>
+        このフラグは指定した MIME タイプで新たな添付ファイルを作成する時
+        のコマンドを指定します。Mutt はこれをメール作成メニューでサポー
+        トしています。
+
+     composetyped=<command>
+        このフラグは指定した MIME タイプで新たな添付ファイルを作成する時
+        のコマンドを指定します。composeコマンドとの違いはこのコマンドで
+        は Muttがそのデータに標準的な MIMEタイプを期待することです。これ
+        は特定のパラメーターやファイル名や説明書きなどで使うことができま
+        す。 Muttはこれをメール作成メニューでサポートしています。
+
+     print=<command>
+        このフラグは指定した MIMEタイプを印刷するときに使うコマンドを指
+        定します。Muttはこのコマンドをファイル添付メニューとメール作成メ
+        ニューでサポートしています。
+
+     edit=<command>
+        このフラグは指定した MIME タイプを編集する時に使うコマンドを指定
+        します。Mutt はこのコマンドをメール作成メニューでサポートしてお
+        り、また新しい添付ファイルを作成する時にそれを使います。Muttはこ
+        こで定義されたエディタをテキストの添付ファイルのためのデフォルト
+        にします。
+
+     nametemplate=<template>
+        このフィールドはコマンドフィールドで %sで示されるファイルの形式
+        を指定します。なんらかのプログラムは、例えば正しく閲覧するのに特
+        定の拡張子を持つファイルであることを要求します。例えば、lynx は
+        ファイルが .html で終わっている場合のみファイルを text/html とし
+        て解釈します。ですから lynx を text/html を閲覧するコマンドに指
+        定する場合 はメールキャップファイルに次のようにします:
+
+        text/html; lynx %s; nametemplate=%s.html
+
+
+
+     test=<command>
+        このフィールドは使おうとするメールキャップエントリーを本当に使う
+        べきかどうかを試すコマンドを指定します。コマンドは次のセクション
+        で定義されているコマンド展開ルールで定義します。コマンドが0を返
+        した場合はテストに通ったとされ、Mutt はそのエントリーを使いま
+        す。もしコマンドが0以外の値を返した場合はテストに通らなかったと
+        され、Mutt は正しいエントリーを探し続けます。注意: まずコンテン
+        トタイプがマッチしていた場合のみにテストは実行されます。例えば:
+
+        text/html; netscape -remote 'openURL(%s)' ; test=RunningX
+        text/html; lynx %s
+
+
+
+  この例では Muttは RunningXプログラムを走らせます。このプログラムは X
+  Window managerが起動していれば0を返し、そうでなければ0以外の値を返しま
+  す。RunningX が0を返せば Mutt は text/html オブジェクトを表示するのに
+  Netscapeを呼び出し、0以外の値を返せば Mutt は次のエントリーに行
+  き、text/html オブジェクトを表示するのに lynx を使います。
+
+  5.3.3.2.  検索順序
+
+  メールキャップファイルの中のエントリーを検索する時、Muttはもっとも目的
+  にかなったエントリーを探します。例えば、もし image/gif を印刷しようと
+  していて次のようなエントリーがメールキャップファイルにあれば Mutt は
+  printコマンドを含んでいるエントリーを検索します:
+
+
+  image/*;        xv %s
+  image/gif;      ; print= anytopnm %s | pnmtops | lpr;  \
+                  nametemplate=%s.gif
+
+
+
+  Mutt は image/* エントリーをスキップして print コマンドを含む
+  image/gif エントリーを使います。
+
+  また、添付ファイルを閲覧するために2つのコマンドを指定することでこれを
+  自動閲覧機能``Autoview''といっしょに使うことができます。1つは自動的に
+  閲覧するためのコマンドでもう1つは添付ファイルメニューで対話的に閲覧す
+  るためのコマンドです。さらにそれから test 機能を利用することで環境にあ
+  わせて対話的にビューワー を決めることができます。
+
+
+
+  text/html;      netscape -remote 'openURL(%s)' ; test=RunningX
+  text/html;      lynx %s; nametemplate=%s.html
+  text/html;      lynx -dump %s; nametemplate=%s.html; copiousoutput
+
+
+
+  copiousoutput タグがついているので自動閲覧``Autoview''するのに Mutt
+  は3番目のエントリーを選択します。対話的に閲覧するのに Mutt はまず1番目
+  のエントリーを使うべきかどうか RunningX プログラムを走らせ、もし0以外
+  の値をプログラムが返せば2番目のエントリーを使います。
+
+  5.3.3.3.  コマンドの展開
+
+  メールキャップファイルで定義されている様々なコマンドは system() 関数を
+  通して /bin/sh シェルに渡されます。コマンドが /bin/sh -c に渡される前
+  に情報を持つ様々な特殊なパラメーターは Mutt によって展開されます。Mutt
+  が展開するキーワードは:
+
+
+
+     %s メールキャップファイルの基本の章でみたように、この変数は呼び出す
+        プログラムによって指定されたファイル名に展開されます。このファイ
+        ルは閲覧/印刷/編集するメッセージのボディを含んでおり、もしくは作
+        成プログラムが作成結果に置き換えるメッセージのボディを含んでいま
+        す。さらに、このキーワードを使うことで Mutt がメッセージのボディ
+        を閲覧/印刷/編集するプログラムに標準入力として渡さないようにする
+        ことができます。
+
+     %t Mutt は %t をメッセージのコンテントタイプのテキスト表示に置き換
+        えます。形式はメールキャップ定義行の始めのパラメーターと同じで、
+        text/htmlとか image/gif とかです。
+
+     %{<parameter>}
+        Mutt はこれをメールの Content-Type: 行の中の指定されたパラメータ
+        の値に展開します。例えば、メールが次の行を含んでいると:
+
+        Content-Type: text/plain; charset=iso-8859-1
+
+
+
+  Mutt は %{charset} を iso-8859-1 に展開します。デフォルトの metamail
+  のメールキャップファイルはこの機能をメールを閲覧するのに正しい文字セッ
+  トを使って xterm を起動するために文字セットをチェックするのに使ってい
+  ます。
+
+
+     \% は % に置き換えられます。 Mutt は今のところ RFC 1524 で定義され
+        ている %F と %n キーワードはサポートしていません。これらパラメー
+        ターの主な目的は Mutt の内部でマルチパートメールを扱うことです。
+
+  5.3.4.  メールキャップファイルの例
+
+  このメールキャップファイルはかなり単純でそして標準的なものです:
+
+
+  ______________________________________________________________________
+  # 常に X を起動しています :)
+  video/*;        xanim %s > /dev/null
+  image/*;        xv %s > /dev/null
+  # 常に Netscape を起動しています(多くのメモリーがある場合だけでしょう)
+  text/html;      netscape -remote 'openURL(%s)'
+  ______________________________________________________________________
+
+
+
+  このメールキャップファイルはたくさんの例を示しています:
+
+
+
+  ______________________________________________________________________
+  # すべてのビデオを閲覧するのに xanim を使い、xanim が起動時に生成するヘ
+  # ッダーをみたくないのでそれを /dev/null に送ります。
+  video/*; xanim %s > /dev/null
+  # HTML をリモートを使って動いている Netscape に送ります。
+  text/html; netscape -remote 'openURL(%s)'; test=RunningNetscape
+  # X は起動していても Netscape は起動していない場合は Netscape を起動して
+  # オブジェクトを閲覧します。
+  text/html; netscape %s; test=RunningX
+  # それ以外は lynx を使ってテキストとして閲覧します。
+  text/html; lynx %s
+  # この書き方では text/html を text/plain に変換します。
+  text/html; lynx -dump %s; copiousoutput
+  # enriched.sh は text/enriched を text/html に変換します。それから lynx
+  # -dump を使って text/plain に変換します。
+  text/enriched; enriched.sh ; copiousoutput
+  # テキストを印刷するのに enscript コマンドを使って1ページを2列にします
+  text/*; more %s; print=enscript -2Gr %s
+  # Netscape は JPEG を内部で閲覧するためにフラグを加えます。
+  image/jpeg;xv %s; x-mozilla-flags=internal
+  # X を起動していれば画像を閲覧するのに xv を使います。
+  # さらに \ を使って行を分割し、画像を編集するコマンドを指定しています。
+  image/*;xv %s; test=RunningX; \
+  edit=xpaint %s
+  # 画像を netpbm ツールを使ってテキストに変換しています。
+  image/*; (anytopnm %s | pnmscale -xysize 80 46 | ppmtopgm | pgmtopbm |
+  pbmtoascii -1x2 ) 2>&1 ; copiousoutput
+  # Excel のスプレッドシートを NT に送っています。
+  application/ms-excel; open.pl %s
+  ______________________________________________________________________
+
+
+
+  5.4.  MIME 自動閲覧
+
+  メールキャップファイルで添付ファイルを閲覧するための MIME 閲覧コマンド
+  を Mutt に明示的に教えてやる他に、Mutt はページャーの中で MIME 添付
+  ファイルを自動的に閲覧する機能を備えています。
+
+  機能させるにはメールキャップファイルの中で、対話的でないコマンドである
+  ことを示す copiousoutput オプションを含む閲覧コマンドを指定しなければ
+  なりません。また一般的には、ページャーで閲覧できるように添付ファイルを
+  テキスト表示に変換するエントリーを指定することになります。
+
+  それから muttrc で auto_view コマンドを使って自動的に閲覧したいコンテ
+  ントタイプをリストします。
+
+  例えば、次のように auto_view を指定していると:
+
+
+  auto_view text/html text/enriched application/x-gunzip applic
+  ation/postscript image/gif application/x-tar-gz
+
+
+
+  Mutt は(もしあれば)次のようなメールキャップエントリーをこれらのタイプ
+  の添付ファイルを自動的に閲覧するのに使います。
+
+
+  text/html;      lynx -dump %s; copiousoutput; nametemplate=%s.html
+  text/enriched;  enriched.sh  ; copiousoutput
+  image/*;        anytopnm %s | pnmscale -xsize 80 -ysize 50 | ppmtopgm | pgmtopbm | pbmtoascii ; copiousoutput
+  application/x-gunzip;   gzcat; copiousoutput
+  application/x-tar-gz; gunzip -c %s | tar -tf - ; copiousoutput
+  application/postscript; ps2ascii %s; copiousoutput
+
+  5.5.  MIME Multipart/Alternative
+
+  Mutt は multipart/alternative タイプの添付ファイルを表示するのにいくら
+  か発見的な手法を用いています。まず第一に Mutt alternative_order リスト
+  をチェックして可能なタイプのうちの一つが設定されていればそれに決めま
+  す。alternative_orderはたくさんの MIMEタイプを順に並べたリストで、明示
+  的/暗示的なワイルドカードのサポートも含みます。例:
+
+
+  alternative_order text/enriched text/plain text application/postscript image/*
+
+
+
+  次に Mutt はタイプが ``auto_view''のうちのどれかのタイプで定義されてい
+  ないかどうかをチェックし、それを使います。それに失敗すると Muttはなん
+  らかのテキストタイプを探します。最後に Muttはそれを扱うことができるな
+  んらかのタイプを探そうとします。
+
+  6.  Reference
+
+  6.1.  コマンドラインオプション
+
+  引数なしに muttを実行すると Mutt はスプールメールボックスを読みに行き
+  ます。しかし、コマンドラインから指定してやることで他のメールボックスを
+  読んだりコマンドラインから直接メールを送ったりすることも可能です。
+
+
+  -a      メールにファイルを添付する
+  -b      BCCのアドレスを指定
+  -c      カーボンコピー (Cc) の宛先を指定する
+  -e      初期化ファイルが読まれた後に実行する設定コマンドを指定
+  -f      読み込むメールボックスを指定
+  -F      指定したファイルから初期化コマンドを読み込む
+  -h      コマンドラインオプションについてのヘルプを表示
+  -H      ドラフトとしてヘッダと本文を読み出すファイルを指定
+  -i      メッセージ作成時に取り込むファイルを指定
+  -m      デフォルトのメールボックスの種類を指定
+  -n      システムの Muttrc を読まない
+  -p      延期していたメールを呼び出す
+  -R      メールボックスを読み取り専用で開く
+  -s      subject を指定 (空白を含むときは引用符で囲む)
+  -v      バージョンとコンパイル時の定義を表示
+  -x      mailx(1) の作成モードを真似る
+  -y      mailboxes コマンドで指定されたファイルを含んだメニューを表示させる
+  -z      メールボックスにメッセージが存在しないなら直ちに終了する
+  -Z      新しいメッセージのある最初のフォルダを開く、無いなら直ちに終了する
+
+
+
+  メールボックス内のメッセージを読むには
+
+  mutt [ -nz ] [ -F muttrc ] [ -m type ] [ -f mailbox ]
+
+  新規にメッセージを作成するには
+
+  mutt [ -n ] [ -F muttrc ] [ -a file ] [ -c address ] [ -i filename ] [
+  -s subject ] address [ address ... ]
+
+  Mutt は準備されたメッセージを送信する batch モードにも対応しています。
+  単に、送信したいファイルから入力をリダイレクトしてください。例えば、
+
+  mutt -s "data set for run #2" professor@bigschool.edu < /run2.dat
+
+  このコマンドにより data set for run #2 という subjectのメールが
+  professor@bigschool.edu宛に送信されます。そのメッセージの本文はファイ
+  ル ~/run2.dat の内容になります。
+  6.2.  設定コマンド
+
+  mutt は以下のようなコマンドを理解します。
+
+
+  o  ``account-hook'' pattern command
+
+  o  ``alias'' key address [ , address, ... ]
+
+  o  ``unalias'' [ * | key ... ]
+
+  o  ``alternative_order'' mimetype [ mimetype ... ]
+
+  o  ``auto_view'' mimetype [ mimetype ... ]
+
+  o  ``bind'' map key function
+
+  o  ``charset-hook'' alias charset
+
+  o  ``color'' object foreground background [ regexp ]
+
+  o  ``uncolor'' index pattern [ pattern ... ]
+
+  o  ``exec'' function [ function ... ]
+
+  o  ``fcc-hook'' pattern mailbox
+
+  o  ``fcc-save-hook'' pattern mailbox
+
+  o  ``folder-hook'' pattern command
+
+  o  ``hdr_order'' header [ header ... ]
+
+  o  ``unhdr_order'' header [ header ... ]
+
+  o  ``iconv-hook'' charset local-charset
+
+  o  ``ignore'' pattern [ pattern ... ]
+
+  o  ``unignore'' pattern [ pattern ... ]
+
+  o  ``lists'' address [ address ... ]
+
+  o  ``unlists'' address [ address ... ]
+
+  o  ``macro'' menu key sequence [ description ]
+
+  o  ``mailboxes'' filename [ filename ... ]
+
+  o  ``mbox-hook'' pattern mailbox
+
+  o  ``message-hook'' pattern command
+
+  o  ``mono'' object attribute [ regexp ]
+
+  o  ``unmono'' index pattern [ pattern ... ]
+
+  o  ``my_hdr'' string
+
+  o  ``unmy_hdr'' field [ field ... ]
+
+  o  ``pgp-hook'' pattern key-id
+
+  o  ``push'' string
+
+
+  o  ``reset'' variable [variable ... ]
+
+  o  ``save-hook'' regexp filename
+
+  o  ``score'' pattern value
+
+  o  ``unscore'' pattern [ pattern ... ]
+
+  o  ``send-hook'' regexp command
+
+  o  ``set'' [no|inv]variable[=value] [ variable ... ]
+
+  o  ``source'' filename
+
+  o  ``subscribe'' address [ address ... ]
+
+  o  ``unsubscribe'' address [ address ... ]
+
+  o  ``toggle'' variable [variable ... ]
+
+  o  ``unhook'' hook-type
+
+  6.3.  設定用変数
+
+  6.3.1.  abort_nosubject
+
+
+  Type: quadoption
+  Default: ask-yes
+
+
+
+  yes にセットしてあると、メッセージ作成時に subjectプロンプトで subject
+  を与えなかった場合、作成を中断します。 no に設定してあると中断されませ
+  ん。
+
+  6.3.2.  abort_unmodified
+
+
+  Type: quadoption
+  Default: yes
+
+
+
+  yesにセットされていると、メッセージの本文の編集を終えたときに何も変更
+  が加えられていなかった場合、作成は自動的に破棄されます(そのファイルの
+  編集を行った最初の時にのみチェックされます)。no にセットされていると変
+  更を加えていない場合にも作成は破棄されません。
+
+  6.3.3.  alias_file
+
+
+  Type: path
+  Default: "~/.muttrc"
+
+
+
+  ``create-alias''機能で生成されたエイリアスを保存するデフォルトファイル
+
+  注意: Mutt はこのファイルを自動的には読み込みません。実行するには明示
+  的に ``source''コマンドを用いてください。
+
+  6.3.4.  alias_format
+
+
+
+  Type: string
+  Default: "%4n %2f %t %-10a   %r"
+
+
+
+  alias メニューで表示されるデータの書式を設定します。以下の printf(3)
+  スタイルのシークエンスが使用可能です。
+
+
+  %a      エイリアス名
+  %f      フラグ - 今のところ d は削除マークをつけられたエイリアス
+  %n      インデックス番号
+  %r      展開されるアドレス
+  %t      選択されたエイリアスを示す記号
+
+
+
+  6.3.5.  allow_8bit
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  メールを送るときに、Quoted-Printableもしくは Base64 エンコードで 8-bit
+  データを 7-bit に変換するかどうかを指定します。
+
+  6.3.6.  allow_ansi
+
+
+  Type: boolean
+  Default: no
+
+
+
+  メッセージの中の ANSIカラーコード(とリッチテキストメッセージのカラータ
+  グ)を解釈するかどうかをコントロールします。これらのコードを含むメッ
+  セージを受け取ることははほとんどないでしょうが、受け取った場合はこのオ
+  プションがセットされているとそれに応じて色がつきます。ただし、あなたの
+  色の設定を上書きしてしまう可能性がありますし、また安全性の問題もありま
+  す。例えば、メッセージ中に [-- PGP output follows ... というような文が
+  あって、それにあなたの添付ファイル用の色と同じ色が使われているような場
+  合には、区別できなくなります。
+
+  6.3.7.  alternates
+
+
+  Type: regular expression
+  Default: ""
+
+
+
+  メールを受け取る別の(alternate)アドレスを指定することができるようにす
+  るための正規表現です。どのメッセージが自分からのもので、どのメッセージ
+  が自分宛であるのかを Mutt が区別するのに使います。
+
+  6.3.8.  arrow_cursor
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットしてあると、現在のエントリを示すのに、その行全体をハイライトする
+  代わりに矢印 (->) が使われます。遅いネットワークやモデムでの接続の場
+  合、これにより反応がはやくなるでしょう。メニューの前後のエントリに移動
+  する際の再描画に要する時間が短縮されるためです。
+
+  6.3.9.  ascii_chars
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットしてあると、スレッドや添付ファイルのツリーを表示する際に ASCII
+  文字を使います。デフォルトでは ACS 文字を使って表示します。
+
+  6.3.10.  askbcc
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットしてあると、送るメッセージを編集する前に、ブラインド・カーボン・
+  コピー(Bcc)の送信先を聞いてきます。
+
+  6.3.11.  askcc
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットしてあると、送るメッセージの本文を編集する前に、カーボン・コ
+  ピー(Cc)の送信先を聞いてきます。
+
+  6.3.12.  assumed_charset
+
+
+  Type: string
+  Default: "us-ascii"
+
+
+
+  （jaパッチの拡張機能）文字符号化方式の指定が行われていないへッダフィー
+  ルドやボディはデフォルトでは us-ascii とみなされます。 このオプション
+  を設定すると、設定した文字符号化方式であると推定します。推定に使う文字
+  符号化方式はコロンで区切られた複数のものを設定できます。例えば、日本語
+  の場合では次のように設定するとよいでしょう。
+
+
+  set assume_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
+
+
+
+  ただし、メッセージボディの場合は最初のものしか有効ではありません。な
+  お、このオプションは strict_mime=no を設定しないと有効になりません。
+
+  6.3.13.  attach_format
+
+
+  Type: format string
+  Default: "%u%D%I %t%4n %T%.40d%> [%.7m/%.10M, %.6e%?C?, %C?, %s] "
+
+  この変数で添付ファイルメニュー(attachment menu)での表示形式を記述しま
+  す。つぎの printf スタイルのシーケンスが解釈されます。
+
+
+  %D      削除フラグ
+  %d      説明書き
+  %e      MIME content-transfer-encoding
+  %f      ファイル名
+  %I      配置 (I=inline, A=attachment)
+  %m      MIME タイプのメジャータイプ
+  %M      MIME タイプのサブタイプ
+  %n      添付ファイル番号
+  %s      サイズ
+  %t      タグつけされていることを示すフラグ
+  %u      アンリンク(= 削除予定)フラグ
+  %>X     残りの文字列を右寄せにして間を "X" で埋める
+  %|X     行末まで "X" で埋める
+
+
+
+  6.3.14.  attach_sep
+
+
+  Type: string
+  Default: "\n"
+
+
+
+  タグつけされた複数の添付ファイルになんらかの演算(セーブ、印刷、パイプ
+  に通すなど)を施すときに添付ファイルの間に挿入する区切り。
+
+  6.3.15.  attach_split
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数がセットされていない場合、タグつけされた複数の添付ファイルにな
+  んらかの演算(セーブ、印刷、パイプに通すなど)を施すときに、Mutt は添付
+  ファイルを結合してそれらをまとめて1つの添付ファイルとしてそれに演算を
+  施します。それぞれの添付ファイルの後には ``$attach_sep''区切りが挿入さ
+  れます。セットされている場合は Mutt はそれぞれの添付ファイルに一つづつ
+  演算を施します。
+
+  6.3.16.  attribution
+
+
+  Type: string
+  Default: "On %d, %n wrote:"
+
+
+
+  返信の際に、引用したメッセージの前につける文です。printf()に似たシーク
+  エンスの完全なリストは ``$index_format''の節を参照してください。
+
+  6.3.17.  autoedit
+
+
+  Type: boolean
+  Default: no
+
+
+
+  ``$edit_headers''変数といっしょにセットしてある場合は他のメッセージに
+  返信する際に、最初の send-menu を飛ばし、直ちにメッセージ本文の編集を
+  はじめます。ただし、本文編集後には send-menu にいく場合もあります。
+
+  ``fast_reply''も見てください。
+
+  6.3.18.  auto_tag
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットしてある場合は、インデックスメニューにある一つのメッセージに働く
+  コマンドが、タグの付いた全てのメッセージに適用されます。セットされてい
+  ない場合は、すべてのタグづけされたメッセージにコマンドを適用するには、
+  tag-prefix コマンド（デフォルトは ;）を適用するコマンドの前につけなけ
+  ればなりません。
+
+  6.3.19.  beep
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数が set してあると、エラーが起こったときに音を鳴らします。
+
+  6.3.20.  beep_new
+
+
+  Type boolean
+  Default: no
+
+
+
+  この変数がセットしてあると、新しいメールが来たことを知らせるメッセージ
+  を表示する際にビープ音を鳴らします。これは ``beep''変数の設定とは独立
+  しています。
+
+  6.3.21.  bounce_delivered
+
+
+  Type boolean
+  Default: yes
+
+
+
+  この変数がセットされているとメッセージを中継するときに Delivered-To
+  へッダをつけます。Postfixのユーザーはこの変数を unsetしたほうがいいで
+  しょう。
+
+  6.3.22.  charset
+
+
+  Type: string
+  Default: ""
+
+
+
+  テキストデータを表示したり入力するときに使う端末の文字セットです。
+
+
+
+  6.3.23.  check_new
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  注意: このオプションは maildir および MH 形式のメールボックスに対して
+  のみ効果を持ちます。
+
+  セットしてあると、メールボックスを開くときに新しいメールをチェックしま
+  す。とくに MH 形式のメールボックスに対しては、この操作はディレクトリと
+  各ファイルが既に読んだものかどうか調べるのに、しばらくの時間を要しま
+  す。check_new がセットされていない場合は、メールボックスを開くときに、
+  新しいメールのチェックはされません。
+
+  6.3.24.  collapse_unread
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットされていない場合は、Muttはスレッドに未読のメールが含まれている場
+  合はそのスレッドを折り畳みません。
+
+  6.3.25.  create_rfc2047_parameters
+
+
+  Type: boolean
+  Default: no
+
+
+
+  （jaパッチの拡張機能）この変数を設定すると、Muttは添付ファイルのファイ
+  ル名として次のようなRFC2047形式で符号化されたパラメータを Content-Type
+  フィールドに追加します。
+
+
+  name="試験.txt"
+
+
+
+  注記: このようなRFC2047形式の符号化の使用は規格により明示的に禁止され
+  ています。受信者のメイラーがRFC2231形式のパラメータを解析できない場合
+  のみ、この変数を設定してください。なお、このオプションは
+  strict_mime=no を設定しないと有効になりません。
+
+  6.3.26.  uncollapse_jump
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットしてある場合は、カーソルのあるスレッドが折り畳まれてい
+  ない場合のみ、次のまだ読んでいないメッセージにジャンプします。
+
+  6.3.27.  compose_format
+
+
+
+  Type: string
+  Default: "-- Mutt: Compose  [Approx. msg size: %l   Atts: %a]%>-"
+
+
+
+  メール作成（Compose）メニューのステータスラインのフォーマットを設定し
+  ます。これらの文字列は ``atatus_format''と似たものですが、次の独自の
+  printf()に似た文字列も使えます。
+
+
+  %a     添付ファイルの総数
+  %h     ローカルホスト名
+  %l     メッセージのバイト数で表したおおよそのサイズ
+  %v     Muttのバージョン
+
+
+
+  ``compose_format''をどのように設定するかについてのより詳しい説明
+  は``status_format''を見てください。
+
+  6.3.28.  confirmappend
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットしてあると、すでに存在するメールボックスにメッセージを追加しよう
+  とした時にも確認のプロンプトを出します。
+
+  6.3.29.  confirmcreate
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットしてあると、まだ存在していないメールボックスにメッセージを保存し
+  ようとした時に、その作成の前に確認のプロンプトを出します。
+
+  6.3.30.  connect_timeout
+
+
+  Type: number
+  Default: 30
+
+
+
+  IMAPや POPを使う場合に、この変数で設定した秒数が過ぎても接続が確立され
+  ない場合はネットワークコネクションをタイムアウトします。負の値が与えら
+  れた場合は、Muttは接続が確立するまでいつまでも待ちます。
+
+  6.3.31.  copy
+
+
+  Type: quadoption
+  Default: yes
+
+
+
+  この変数は、後の参照のために送信するメッセージのコピーをとっておくかど
+  うかを制御します。参照: ``$record'', ``$save_name'', ``$force_name'',
+  ``$fcc-hook''
+
+  6.3.32.  date_format
+
+
+  Type: string
+  Default: "!%a, %b %d, %Y at %I:%M:%S%p %Z"
+
+
+
+  この変数は、``$index_format''において %d シークエンスにより日時を表示
+  する際の書式を制御します。これは、strftimeコールに渡されて、日時を返し
+  ます。正確な書式は strftime(3) のマニュアルを参照してください。
+
+  文字列中の最初の文字が感嘆符(!)でないなら、月と曜日の名前は
+  ``$locale''変数で指定されたロケールによって展開されます。もし文字列中
+  の最初の文字が感嘆符なら、感嘆符は捨てられて以下の文字列中の月と曜日の
+  名前は Cロケール(US English)で展開されます。
+
+  6.3.33.  default_hook
+
+
+  Type: string
+  Default: "f %s !P | (P C %s)"
+
+
+
+  この変数は send-hook, message-hooks, save-hook, fcc-hookを記述するとき
+  に、完全な検索パターンを指定するかわりに単に正規表現のみを指定した場合
+  に、どのように解釈するかをコントロールします。フックの展開は宣言された
+  ときに行われます。ですから、なんらかのフックを宣言した場合は、その時の
+  この変数の値によって解釈されます。デフォルトの値がマッチするのは、正規
+  表現にマッチするユーザーからのメッセージか、自分で出したメッセージ（も
+  しくは ``$alternates''で指定したアドレスからのメッセージ）であれば正規
+  表現にマッチするユーザーが To: フィールドか CC: フィールドに指定されて
+  いるメッセージです。
+
+  6.3.34.  delete
+
+
+  Type: quadoption
+  Default: ask-yes
+
+
+
+  メールボックスを閉じたり同期させたりしたときに、メッセージを本当に削除
+  するかどうかを指定します。 yes にセットしてあると、削除マークされた
+  メッセージは、問い合わせなしに自動的に消去されます。 no にセットしてあ
+  ると、削除マークされたメッセージはメールボックスに残されます。
+
+  6.3.35.  delete_prefix
+
+
+  Type: boolean
+  Default: unset
+
+
+
+  （jaパッチの拡張機能）設定するとメーリングリストにおける Subjectフィー
+  ルドのプレフィックス（[prefix:0123]のようなもの）をインデックス画面お
+  よび返信時のメッセージで削除します。削除するプレフィックスのパターンは
+  ``$delete_regexp''で記述できます。
+
+  6.3.36.  delete_regexp
+
+
+
+  Type: regular expression
+  Default: "^(\[[A-Za-z0-9_.: \-]*\][ ]*)"
+
+
+
+  （jaパッチの拡張機能）``$delete_prefix'' で用いられる正規表現です.
+
+  6.3.37.  delete_untag
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  このオプションがセットされていると削除のマークがつけられたときにメッ
+  セージのタグが消されます。これは明示的に削除されるときや、または他の
+  フォルダに保存するときに適用されます。
+
+  6.3.38.  digest_collapse
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  このオプションを設定すると、revattachメニューでダイジェストの各々の
+  メッセージのサブパートが表示されません。サブパートを見る場合は、vを押
+  してください。
+
+  6.3.39.  display_filter
+
+
+  Type: path
+  Default: ""
+
+
+
+  この変数はメッセージ用のフィルタに使うコマンドを設定します。メッセージ
+  が読まれる場合は、メッセージが標準入力として``$display_filter''に渡さ
+  れフィルタ後のメッセージを標準出力から読み取ります。
+
+  6.3.40.  dotlock_program
+
+
+  Type: path
+  Default: "/usr/local/bin/mutt_dotlock"
+
+
+
+  Muttで使われる mutt_dotlock (8)のバイナリのあるパスを指定します。
+
+  6.3.41.  dsn_notify
+
+
+  Type: string
+  Default: ""
+
+
+
+  注意: Sendmail 8.8.x かそれ以降を使っているのでなければ、これを使わな
+  いでください。
+
+  送信通知が返されたときのリクエストを設定する変数です。文字列は以下のう
+  ちのいくつかをコンマで区切ったリスト(スペースを入れてはいけません)から
+  成ります: never は通知をリクエストしません。failureは伝達が失敗したと
+  きに通知をリクエストします。delay はメッセージが遅延したときに通知され
+  ます。success は伝達成功の通知をします。
+
+  例: set dsn_notify="failure,delay"
+
+  6.3.42.  dsn_return
+
+
+  Type: string
+  Default: ""
+
+
+
+  注意: Sendmail 8.8.x かそれ以降を使っているのでなければ、これを使うべ
+  きではありません。
+
+  この変数は DSN メッセージの中に含まれて戻ってくる自分のメッセージの量
+  をコントロールします。hdrs にセットしているとメッセージのヘッダーのみ
+  が戻り、 full にセットしているとすべてのメッセージが戻ってきます。
+
+  例: set dsn_return=hdrs
+
+  6.3.43.  duplicate_threads
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数はスレッド単位でソートしているときに同じメッセージ IDをもつ
+  メッセージをどのように扱うかを決めます。この変数が設定されている場合に
+  は、同じメッセージ IDをもったメッセージはお互い同一のものとして考えら
+  れ、スレッドダイアグラムの中で等号(=)をつけて表示されます。
+
+  6.3.44.  edit_headers
+
+
+  Type: boolean
+  Default: no
+
+
+
+  このオプションにより、メッセージの本文を編集するときに同時にヘッダも編
+  集できるようにできます。
+
+  6.3.45.  editor
+
+
+  Type: path
+  Default: ""
+
+
+
+  この変数でメッセージを作成するときに使うエディタを指定します。デフォル
+  トは環境変数 $VISUAL, $EDITORの値、または "vi"
+
+  6.3.46.  encode_from
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると始めに Fromがついている行を含んだメッセー
+  ジを quoted-printableに符号化します。メッセージの伝送中にトランスポー
+  トエージェントによってメールが変形されるのを防ぐのに有効です。
+
+  6.3.47.  envelope_from
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると muttは From: へッダに書かれた人をメッセー
+  ジの封筒（envelope）の送り手とします。これはこの情報を sendmailの -fオ
+  プションにつけることを意味します。したがってすでに自分で -fオプション
+  を ``$sendmail''のコマンドラインオプションで使っている場合や、あなたが
+  使っている sendmailがこのオプションをサポートしていない場合にはこの変
+  数をセットしないでください。
+
+  6.3.48.  escape
+
+
+  Type: string
+  Default: "~"
+
+
+
+  内蔵エディタの機能を使うのに用いるエスケープ文字。
+
+  6.3.49.  fast_reply
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットしてあると、メッセージに返信するときの受取人と subjectの入力プロ
+  ンプトを省略します。転送のときは、subject のプロンプトが省略されます。
+
+  注意: この変数は ``$autoedit''変数がセットされていると無効です。
+
+  6.3.50.  fcc_attach
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数は、送信するメッセージの添付ファイルを本文とともに保存するかど
+  うかを制御します。
+
+  6.3.51.  fcc_clear
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると、実際のメッセージが暗号化されたり署名され
+  たりしている場合でも FCCは暗号化も署名もされずに保存されます。
+
+
+
+  6.3.52.  file_charset
+
+
+  Type: string
+  Default: null
+
+
+
+  （jaパッチの拡張機能）テキストファイルを添付する場合の想定される文字符
+  号化方式を設定します。コロンで区切られたリストとして記述できます。例え
+  ば、日本語を使う場合は次のように設定します。
+
+
+  set file_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
+
+
+
+  iso-2022-* を使う場合は必ずリストの先頭に持ってきてください。このオプ
+  ションが設定されていない場合は、``$charset'' で指定したものが代わりに
+  想定されます。
+
+  6.3.53.  folder
+
+
+  Type: path
+  Default: "~/Mail"
+
+
+
+  メールボックスのデフォルトの場所を指定します。パス名の最初の `+' もし
+  くは `=' はこの変数の値へと展開されます。もし、この値をデフォルトの値
+  から変更する場合は、`+' もしくは `=' を他の変数で使う前にこの割り当て
+  が行われるように注意する必要がある、ということに気をつけてください。な
+  ぜなら展開は `set' コマンドの時点で起きるからです。
+
+  6.3.54.  folder_format
+
+
+  Type: string
+  Default: "%2C %t %N %F %2l %-8.8u %-8.8g %8s %d %f"
+
+
+
+  この変数によりファイル・ブラウザーの表示を自分好みにカスタマイズするこ
+  とができます。この文字列は ``$index_format''に似ていますが、独自の
+  printf()に似たシークエンスのセットがあります。
+
+
+     %C 現在のファイル数
+
+     %d フォルダが最後に変更された日付/時刻
+
+     %f ファイル名
+
+     %F ファイルのパーミッション
+
+     %g グループ名(もしなければ GID の値)
+
+     %l ハードリンク数
+
+     %N フォルダに新しいメールがあるなら N、そうでないなら空白
+
+
+     %s サイズ [bytes]
+
+
+     %t もしファイルがタグづけされていればアステリスク(*)、それ以外は空
+        白
+
+
+     %u 所有者名 (もしなければ UID の値)
+
+     %>X
+        残りの文字列を右寄せにして間を "X" で埋める
+
+     %|X
+        行末まで "X" で埋める
+
+  6.3.55.  followup_to
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  メールを送信するときに自動的に Mail-Followup-Toヘッダーを付加するかど
+  うかをコントロールします。セットされていると、subscribeまたは
+  ``lists''コマンドで指定されているメーリングリストに返信するときは自動
+  的にこのフィールドを生成します。
+
+  このフィールドの目的は、もしメーリングリストに当てられているメッセージ
+  であれば、そのコピーを一つだけ受けとることを指定することで、送信した
+  メッセージへの返信を複数受けとることを避けることです(また、そうしてグ
+  ループ返信を使うときに自分自身のアドレスを含める必要がなくなります)。
+
+  このフィールドには二つの目的があります。一つめはメーリングリストに送っ
+  た自分のメッセージに対する返信のいくつものコピーを受け取らないようにす
+  ること。二つめは購読していないメーリングリストに返信を送った場合にはそ
+  れをメーリングリスト経由ではなく、ちゃんと受け取ることを保証することで
+  す。このへッダは購読しているメーリングリストのアドレスのみを含む場合
+  も、メーリングリストのアドレスと購読していないメーリングリスト用に自分
+  自身のアドレスを含む場合もあります。このへッダを使わずにグループ返信を
+  使うと購読しているメーリングリストに送った自分のメッセージに返信を送っ
+  た場合には自分のアドレスに直接に配送されるのととメーリングリスト経由で
+  配送されるのとの同じメッセージの2つのコピーを受け取ることになります。
+
+  6.3.56.  force_name
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数は ``$save_name''と似ていますが、メールボックスがたとえ存在し
+  なくても、送信するメッセージの受信者のアドレスのユーザー名のメールボッ
+  クスにコピーを格納します。
+
+  ``$record''変数も参照してください。
+
+  6.3.57.  forward_decode
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数はメッセージを転送するときに、複雑な MIMEメッセージを
+  text/plainにデコードするかどうかをコントロールします。メッセージのヘッ
+  ダーも RFC2047に従うデコードが施されます。``$mime_forward''変数がセッ
+  トされていない場合にのみこの変数は使われ、そうでなければ
+  ``$mime_forward_decode''変数がかわりに使われます。
+
+  6.3.58.  forward_format
+
+
+  Type: string
+  Default: "[%a: %s]"
+
+
+
+  この変数は転送するメッセージのデフォルトの Subject をコントロールしま
+  す。シークエンスの形式は ``$index_format''変数の形式と同じです。
+
+  6.3.59.  forward_quote
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットされていると(そして ``$mime_forward''が unsetされているなら)転送
+  するメッセージはメールの本文に取り込まれ、``$indent_string''を使って引
+  用符がつけられます。
+
+  6.3.60.  from
+
+
+  Type: e-mail address
+  Default: ""
+
+
+
+  この変数はデフォルトの Fromアドレスを設定します。この設定を（send-hook
+  を使って）my_hdrや ``$reverse_name''で上書きできます。
+
+  デフォルトは EMAIL環境変数で設定されているものです。
+
+  6.3.61.  gecos_mask
+
+
+  Type: regular expression
+  Default: "^[^,]*"
+
+
+
+  muttがエイリアスを展開するときにパスワードファイルの GECOSフィールドを
+  解析するための正規表現を指定します。デフォルトではこの正規表現は
+  "^[^,]*"になっていて、はじめのコンマ(,)までの文字列を返します。もし
+  GECOSフィールドが lastname, firstnameの形で文字列を入れていたな
+  ら、gecos_mask=".*"にした方がいいでしょう。
+
+  例えばユーザIDが stevefで本当の名前が Steve Franklinである人にメールを
+  書くとしましょう。もし muttがこのアドレスを "Franklin" stevef@foo.bar
+  と展開したならば、gecos_maskをフルネームにマッチするように（"Franklin"
+  を "Franklin, Steve"に変えるように）設定する必要があります。
+
+  6.3.62.  hdrs
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットされていないと ``my_hdr''コマンドで普通は追加されるヘッダー
+  フィールドが生成されません。生成させるには、新しくメッセージを作成した
+  り返信したりする前にこの変数のセットを外さなければなりません。セットさ
+  れていると、ユーザーが定義したヘッダーフィールドがすべての新規のメッ
+  セージに追加されます。
+
+  6.3.63.  header
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットされていると、Muttは返信しようとしているメッセージのヘッダーを編
+  集バッファーに含めるようになります。それには ``$weed''の設定が使われま
+  す。
+
+  6.3.64.  help
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットされていると、それぞれのメニューでの主な機能に関するキー・バイン
+  ディングを表示するヘルプ行が、スクリーンの最初の行に表示されます。
+
+  注意: 機能へのキーの割り当てが一つのキー・ストロークではなく、連続した
+  キー・ストロークに割り当てられている場合、バインディングは正しく表示さ
+  れません。また、Muttを起動している際にバインディングを変更しても、その
+  変更は反映されません。この変数は主に初心者のために作られたものですか
+  ら、これら両方とも大きな問題ではないはずです。
+
+  6.3.65.  hidden_host
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされているとアドレスにドメインパートを追加するときに
+  ``$hostname''変数のホストネームのパートをスキップします。この変数は
+  メッセージIDの生成に影響を与えません。また、第一レベルのドメインを切り
+  取ってしまうこともありません。
+
+  6.3.66.  hide_limited
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると、スレッド内に抜けているメッセージがあるこ
+  とを表示しません。
+
+  6.3.67.  hide_missing
+
+
+  Type: boolean
+  Default: yes
+
+
+  この変数がセットされていると、スレッド内に limit を使って隠されている
+  メッセージがあることを表示しません。
+
+  6.3.68.  hide_top_limited
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると、スレッドの一番前のメッセージが抜けている
+  ことを表示しません。ただし、``$hide_limited''がセットされていると、こ
+  の変数は効果を持ちません。
+
+  6.3.69.  hide_top_missing
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数がセットされていると、スレッドの一番前に limit を使って隠され
+  ているメッセージがあることを表示しません。ただし、``$hide_missing''変
+  数がセットされていると、この変数は効果を持ちません。
+
+  6.3.70.  history
+
+
+  Type: number
+  Default: 10
+
+
+
+  この変数は履歴バッファーのサイズ(記憶される文字列の数で)をコントロール
+  します。バッファーは変数がセットされる度にクリアされます。
+
+  6.3.71.  honor_followup_to
+
+
+  Type: quadoption
+  Default: yes
+
+
+
+  この変数はメッセージにグループリプライする場合に Mail-Followup-Toへッ
+  ダを使うかどうかをコントロールします。
+
+  6.3.72.  hostname
+
+
+  Type: string
+  Default: ""
+
+
+
+  ローカルなメールアドレスで使われる @ 以降のホスト名を指定します。これ
+  は、コンパイル時に /etc/resolv.conf から取得された定義を上書きします。
+
+  6.3.73.  ignore_list_reply_to
+
+
+  Type: boolean
+  Default: no
+
+  この変数は、メーリングリストからのメッセージに返信するときの返信の動作
+  に影響します。セットされていると、Reply-To: フィールドの値が To:
+  フィールドの値と同じ場合、Mutt は、Reply-To: フィールドは自動的にその
+  メーリングリストに返信するようにメーリングリストによって設定されている
+  と見做し、このフィールドを無視します。この変数がセットされている時に、
+  直接メーリングリストに返信する際は list-reply 機能を使ってください。
+  group-replyは Senderとメーリングリスト両方に返信します。
+
+  6.3.74.  imap_authenticators
+
+
+  Type: string
+  Default: ""
+
+
+
+  これは muttが IMAPサーバにログインする場合の認証方法を、使いたい順番に
+  コロンで区切って指定します。認証方法は loginか IMAP 'AUTH=xxx'文字列の
+  右側に来ることのできるもの、つまりdigest-md5、gssapi、cram-md5です。も
+  しこの変数が設定されていない場合は（これがデフォルトです）一番安全な方
+  法から順番に利用可能な方法を試していきます。
+
+  例: set imap_authenticators="gssapi:cram-md5:login"
+
+
+  注意： 前の認証方法が利用可能でない場合のみ、次の認証方法を試します。
+  もしある認証方法が利用可能ではあるが認証に失敗した場合は、IMAPサーバに
+  接続しようとはしません。
+
+  6.3.75.  imap_delim_chars
+
+
+  Type: string
+  Default: "/."
+
+
+
+  これは IMAPのパスを表示するときにフォルダの区切りに使う文字を設定しま
+  す。folder変数にショートカット「=」を使っている場合に便利です。
+
+  6.3.76.  imap_force_ssl
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると、Muttは IMAPサーバに接続するときに常に
+  SSLを使います。
+
+  6.3.77.  imap_home_namespace
+
+
+  Type: string
+  Default: ""
+
+
+
+  普通は IMAPブラウザの中で INBOXのそばに個人用のフォルダを並べて置きた
+  いと思います。もしそれ以外のものを見たい場合には、この変数にあなたの
+  フォルダの IMAPパスを設定してください。
+
+
+
+  6.3.78.  imap_keepalive
+
+
+  Type: number
+  Default: 900
+
+
+
+  この変数は、開いているIMAP接続をサーバー側から切断されないように確かめ
+  に行くまでの最大の時間を秒数で設定します。デフォルトは RFC で決められ
+  たサーバーがクライアントからの要請なしで接続を閉じることのできる最小の
+  時間(30分)になっています。しかし、実際は RFC を守っていないサーバーが
+  多数あるので、IMAPサーバーから短い時間で、通信していないとして接続を切
+  られる場合にはこの変数の値を減らしてください。
+
+  6.3.79.  imap_list_subscribed
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数は IMAPフォルダの一覧を見るときに登録しているフォルダだけを表
+  示するのか、それともすべてのフォルダを表示するのかを設定します。これは
+  IMAPブラウザの中で toggle-subscribedコマンドを使って変えることができま
+  す。
+
+  6.3.80.  imap_pass
+
+
+  Type: string
+  Default: ""
+
+
+
+  IMAPアカウントのパスワードを指定します。セットされていない場
+  合、fetch-mail機能が起動されたときにパスワードを入力するように促しま
+  す。警告: 絶対安全だと確信が持てるマシン上でのみこのオプションを使って
+  ください。たとえ自分だけしか muttrcを読めないようにしておいても、スー
+  パーユーザーは読むことができるからです。
+
+  6.3.81.  imap_passive
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数が設定してあると新しいメールのチェックのために新たに IMAPサー
+  バへの接続をしません。すでに接続している IMAPコネクションだけをメール
+  チェックに使います。これは muttが IMAPコネクションを開くときにユーザ
+  名、パスワードを聞いてくるのがうっとうしい場合や、新しく接続するのに時
+  間がかかる場合に便利です。
+
+  6.3.82.  imap_peek
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数が設定してあると、サーバからメッセージを取ってくるたびに Mutt
+  がメッセージに勝手に既読のマークをつけるのを避けることができます。通常
+  はこの変数を設定しておくといいのですが、これは IMAPフォルダを閉じるの
+  がすこし遅くなるという副作用を持ちます。このオプションはこれを避けてす
+  こしでも早くしたいスピードマニアのためのものです。
+
+  6.3.83.  imap_servernoise
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数をセットしておくと、muttは IMAPサーバからの警告をエラーメッ
+  セージとして表示します。これらIMAPサーバからの警告はほとんどの場合無害
+  であるか、またサーバ側の設定に問題がありユーザがどうにもできない問題な
+  ので、普通は表示させなくてもいいでしょう。
+
+  6.3.84.  imap_user
+
+
+  Type: string
+  Default: ""
+
+
+
+  IMAP サーバーにログインするときのログイン名です。デフォルトはローカル
+  マシン上のあなたのユーザ名です。
+
+  6.3.85.  implicit_autoview
+
+
+  Type: boolean
+  Default: no
+
+
+
+  yes にセットされていると、内蔵のビューワーで定義されていない MIME 添付
+  ファイルすべてに対して、mailcap エントリーで copiousoutput フラグが
+  セットされていないかどうかチェックします。もし、そうしたエントリーが見
+  つかればそのエントリーで定義されているビューワーを使ってボディ部をテキ
+  スト形式に変換します。
+
+  6.3.86.  include
+
+
+  Type: quadoption
+  Default: ask-yes
+
+
+
+  返信する際にもとのメッセージのコピーを返信メッセージに含めるかどうかを
+  コントロールします。
+
+  6.3.87.  indent_string
+
+
+  Type: string
+  Default: "> "
+
+
+
+  返信メッセージの中で、引用する行それぞれに前置する文字列を指定します。
+  デフォルトの値から変更しないことを強く勧めます。なぜなら、これ以外の文
+  字列を使った場合、狂信的なネットの住人を扇動する可能性が高いからです。
+
+
+  6.3.88.  index_format
+
+
+  Type: format string
+  Default: "%4C %Z %{%b %d} %-15.15L (%4l) %s"
+
+
+
+  この変数を使うことで、メッセージ・インデックスの表示を自分好みにカスタ
+  マイズできるようになります。
+
+  表示用の文字列は C の printf 関数で出力の整形するのに使われる文字列に
+  似ています(詳しくは man ページをご覧下さい)。Mutt では次の文字列が定義
+  されています。
+
+
+     %a 著者のアドレス
+
+     %b オリジナルのメッセージフォルダーのファイル名(メールボックスだと
+        考えてください)
+
+
+     %B 手紙が送られたリスト、もしくはフォルダー名 (%b)
+
+
+     %c メッセージの文字数(バイト数)
+
+     %C 現在のメッセージ番号
+
+     %d メッセージの日付と時刻。Senderのタイムゾーンに変換さ
+        れ、date_formatで指定されるフォーマットで表示されます。
+
+
+     %D メッセージの日付と時刻。ローカル・タイムゾーンに変換さ
+        れ、date_formatで指定されるフォーマットで表示されます。
+
+
+     %e スレッドの中での現在のメッセージ番号
+
+     %E スレッドの中のメッセージ数
+
+     %f 完全な From: 行 (アドレス + 名前)
+
+     %F 送り手の名前。もしくは自分が出したメッセージであれば受信者の名前
+
+
+     %i 現在のメッセージの Message-ID
+
+     %l メッセージの行数
+
+     %L もし To または CCへッダフィールドのアドレスがユーザーの lists コ
+        マンドで設定されている場合には To <list-name>と表示される。それ
+        以外の場合は %Fと同じ。
+
+     %m メールボックスにあるメッセージの合計数
+
+     %M スレッドが折り畳まれている場合、隠れているメッセージの数
+
+
+     %N メッセージのスコア
+
+     %n 送り手の本当の名前(ない場合は、アドレス)
+
+     %O (オリジナルのセーブフォルダー) メッセージが以前にこっそりとおか
+        れていた場所: リスト名、もしくは受信者の名前
+
+     %s メッセージの Subject
+
+     %S メッセージのステータス (N/D/d/!/*/r)
+
+     %t To: フィールド (受信者)
+
+     %T ``$to_chars''文字列から得られる適切な文字
+
+     %u 送り手のユーザー(ログイン)名
+
+     %v 送り手のファーストネームか、もしくは自分が出したメッセージであれ
+        ば受信者の名前
+
+
+     %y (もしあれば) x-labelフィールド
+
+     %Y x-labelフィールドがある場合、次の条件を満たせば x-labelを表
+        示。(1)スレッドツリーの一部でない、(2)スレッドツリーの一番上にあ
+        る、または (3)前のメッセージの x-labelと異なる x-labelを持つ。
+
+     %Z メッセージの状態を示すフラグ
+
+     %{fmt}
+        日付と時刻は Senderのタイムゾーンに変換されます。fmtは strftime
+        システムコールによって展開されます。ビックリマーク(!)を前置する
+        ことでロケールを無視させることができます。
+
+
+     %[fmt]
+        日付と時刻はローカルのタイムゾーンに変換されます。fmtは strftime
+        システムコールによって展開されます。ビックリマーク(!)を前置する
+        ことでロケールを無視させることができます。
+
+
+     %(fmt)
+        メッセージを受信したときのローカルの日付と時刻です。fmtは
+        strftimeシステムコールによって展開されます。ビックリマーク(!)を
+        前置することでロケールを無視させることができます。
+
+
+     %<fmt>
+        ローカルの現在の時刻です。fmtは strftimeシステムコールによって展
+        開されます。ビックリマーク(!)を前置することでロケールを無視させ
+        ることができます。
+
+
+     %>X
+        残りの文字列を右寄せにして間を "X" で埋める
+
+     %|X
+        行末まで "X" で埋める
+
+  参照: ``$to_chars''
+
+  6.3.89.  ispell
+
+
+  Type: path
+  Default: "/usr/bin/ispell"
+
+
+
+  ispell(GNU のスペルチェックソフトウェア)を起動する方法
+
+
+
+  6.3.90.  keep_flagged
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると、フラグがついた既読のメッセージまた
+  は``mbox-hook''コマンドの結果としてマークされた既読のメールはスプール
+  メールボックスから``$mbox''に移動されません。
+
+  6.3.91.  locale
+
+
+  Type: string
+  Default: "C"
+
+
+
+  日付の形式を整える strftime(3) でつかわれるロケールを指定します。有効
+  な値は、システムが LC_TIME に受け付ける文字列です。
+
+  6.3.92.  mail_check
+
+
+  Type: number
+  Default: 5
+
+
+
+  この変数はどのくらいの頻度で Mutt が新着のメールをチェックするかを(秒
+  単位で)指定します。
+
+  6.3.93.  mailcap_path
+
+
+  Type: string
+  Default: ""
+
+
+
+  この変数は、Mutt が直接サポートしていない MIME ボディを表示しようとす
+  る時に、どのファイルに問い合わせるのかを指定します。
+
+  6.3.94.  mailcap_sanitize
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットされていると、mailcap での "%" の展開可能文字を、正しく定義され
+  ている安全な文字セットになるように制限します。これは安全性の高い設定で
+  はありますが、もしかすると複雑な MIME 設定がうまく動作しなくなることも
+  あるかもしれません。
+
+  注意!! 自分が何をやろうとしているのか、よく分からないままこの設定を変
+  更しないでください!
+
+  6.3.95.  maildir_trash
+
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数が設定されていると、削除マークのついたメッセージを消すかわりに
+  maildirの (T)rashedフラグをつけて保存します。注意：このオプションは
+  maildirスタイルのメールボックスでのみ有効です。それ以外のメールボック
+  スでは何の効果も持ちません。
+
+  6.3.96.  mark_old
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数は、新着のメッセージと古い未読のメッセージを区別するかどうかを
+  コントロールします。デフォルトでは、新着のメッセージを読まずにメール
+  ボックスを出た場合、Mutt はそれらを古い未読のメッセージとマークしま
+  す。次に Mutt を起動した時、それらのメッセージはインデックスメニューで
+  後ろに "O" マーク付きで表示されます。これは、それらが古いメッセージで
+  あることを意味します。Muttが未読メッセージをすべて新着メッセージとして
+  扱うようにするには、この変数をアンセット(unset)してください。
+
+  6.3.97.  markers
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  内蔵のページャーで、折り返される行の表示をコントロールします。セットさ
+  れていると、折り返される行の最初に "+" マーカーが表示されま
+  す。``$smart_wrap''変数も参照してください。
+
+  6.3.98.  mask
+
+
+  Type: regular expression
+  Default: "!^\.[^.]"
+
+
+
+  ファイルブラウザーで使われる正規表現です。オプションとして、NOT 演算子
+  "!" が前置されています。このマスクにマッチするもののみが表示されます。
+  また、マッチは常に大文字小文字を区別して行われます。
+
+  6.3.99.  mbox
+
+
+  Type: path
+  Default: "~/mbox"
+
+
+
+  この変数で、``$spoolfile''フォルダで読みこんだメールを格納するフォルダ
+  を指定します。
+
+  6.3.100.  mbox_type
+
+
+
+  Type: folder magic
+  Default: mbox
+
+
+
+  新しいフォルダを作成する際のデフォルトのメールボックスのタイプを指定し
+  ます。mbox, MMDF, MH, Maildir のどれかです。
+
+  6.3.101.  metoo
+
+
+  Type: boolean
+  Default: no
+
+
+
+  アンセット(unset)になっていると、メッセージに返信する際に受信者のリス
+  トから自分のアドレスを削除します。
+
+  6.3.102.  menu_scroll
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットされているとスクリーンの境界を越えようとした時に、メニューは1行
+  ずつ上下にスクロールされるようになります。アンセットになっていると、メ
+  ニューのスクリーンはいったんクリアされ、次や前のページが表示されます(
+  遅い接続を使っている場合に、なんども再描画されるのを避けることができま
+  す)。
+
+  6.3.103.  meta_key
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットしていると、Muttがハイビット(8ビット)セットのキーストロークを解
+  釈するようになります。ユーザーがまず ESC キーを押し、それからその8ビッ
+  ト目を削除したときに残るなんらかのキーを押したように振る舞います。例え
+  ば、押されたキーが ASCII 表示で 0xf4 の値を持っているとすると、まず
+  ESC キーを押しそれから "x" を押したように振る舞います。これは "0xf4"
+  のハイビットを削除した残りは "0x74" になり、つまり "x" という ASCII 文
+  字になるからです。
+
+  6.3.104.  mh_path
+
+
+  Type:string
+  Default: unset
+
+
+
+  (jaパッチの拡張機能) mh_path で ~/Mailなどと指定しておくと
+  .mh_sequences がなくても ~/Mail以下の subdirectory で他の folder 条件
+  に引っ掛からず、 なおかつ、さらにその下に subdirectory を持たない
+  directory は MH folder として解釈するようになります。 他の MH tool で
+  生成した folder を mutt で扱う際の "xxx はメールボックスではありませ
+  ん" の誤判定を減らせます。
+
+
+
+  6.3.105.  mh_purge
+
+
+  Type: boolean
+  Default: no
+
+
+
+  アンセットされていると、Mutt は MH の振る舞いをまねるようになります。
+  つまり MHフォルダで削除されたメッセージは、実際に削除されるかわりに
+  ,<old file name> という名前にリネームされて残されます。セットされてい
+  ると、メッセージはそのまま削除されます。
+
+  6.3.106.  mh_seq_flagged
+
+
+  Type: string
+  Default: "flagged"
+
+
+
+  フラグがつけられたメッセージに使う MHシークエンスの名前
+
+  6.3.107.  mime_forward
+
+
+  Type: quadoption
+  Default: no
+
+
+
+  セットされていると、転送するメッセージは本文に含まれるのではなく、MIME
+  パートとしてわけて添付されます。MIME メッセージを転送する際に、受信者
+  がもともとの送信者からあなたに配送されたとおりのメッセージの形で適切に
+  閲覧することができるという点で便利です。もしMIME メールであるかどうか
+  によって振る舞いを変更したければ、 "ask-no" もしくは "ask-yes" をこの
+  変数にセットしてください。
+
+  ``$forward_decode''と``$mime_forward_decode''も参照してください。
+
+  6.3.108.  mime_forward_decode
+
+
+  Type: boolean
+  Default: no
+
+
+
+  ``$mime_forward''がセットされている時に、複雑な MIMEメッセージを
+  text/plainにデコードするかどうかをコントロールします。それ以外はかわり
+  に ``$forward_decode''を使います。
+
+  6.3.109.  mime_forward_rest
+
+
+  Type: quadoption
+  Default: yes
+
+
+
+  いくつもの MIMEメッセージの添付ファイルがついたメールをフォワードする
+  場合に、このオプションがセットされているとうまくデコードできない添付
+  ファイルは新しく編集しているメッセージに添付されます。
+
+
+
+  6.3.110.  mix_entry_format
+
+
+  Type: string
+  Default: "%4n %c %-16s %a"
+
+
+
+  この変数は mixmastar用のチェーンを選ぶ画面のリメイラ行のフォーマットを
+  指定します。次の printfに似た文字をサポートしています。
+
+
+     %n メニュー上での番号
+
+     %c リメイラの能力
+
+     %s リメイラの短い名前
+
+     %a リメイラのメイルアドレス
+
+  6.3.111.  mixmaster
+
+
+  Type: path
+  Default: "mixmaster"
+
+
+
+  この変数であなたのシステムの Mixmasterのバイナリへのパスを指定します。
+  ここで指定されたバイナリが様々なパラメータを使って既存のリメイラのリス
+  トを得たり、最終的に mixmasterのチェーンを通してメッセージを送るのに使
+  われます。
+
+  6.3.112.  move
+
+
+  Type: quadoption
+  Default: ask-no
+
+
+
+  既読のメッセージをスプールメールボックスから ``$mbox''、もしく
+  は、``mbox-hook''コマンドによって指定されるメールボックスに移動するか
+  という問い合わせを行うかどうかをコントロールします。
+
+  6.3.113.  message_format
+
+
+  Type: string
+  Default: "%s"
+
+
+
+  この文字列は ``attachment''メニューで message/rfc822 タイプの添付ファ
+  イルに対して用いられます。定義されているすべてのエスケープシーケンスの
+  リストに関しては ``$index_format''をご覧下さい。
+
+  6.3.114.  msgid
+
+
+  Type: boolean
+  Default: set
+
+
+
+  (jaパッチの拡張機能) この変数がセットされていると、メール送信時に Mutt
+  自身が Message-Id: を生成します。MTAに Message-Id: を生成させたい場合
+  は設定を解除します。
+
+  6.3.115.  msgid_use_from
+
+
+  Type: boolean
+  Default: set
+
+
+
+  （jaパッチの拡張機能）このオプションが設定されていると, Message-ID
+  フィールドに使う文字列を ``$hostname'' の代わりに ``$from''で設定した
+  文字列（メールアドレス）を使います。そのため, Message-ID のユニーク性
+  が高まります。例えば、次のように設定してある場合,
+
+
+  set msgid_use_from=yes
+  set realname="D Vader"
+  set from="vader@deathstar.empire"
+
+
+
+  次のような From と Message-ID を生成します。
+
+
+  Message-ID: <20000907080905.A5250%vader@deathstar.empire>
+  From: D Vader <vader@deathstar.empire>
+
+
+
+  6.3.116.  pager
+
+
+  Type: path
+  Default: "builtin"
+
+
+
+  この変数はメッセージを閲覧するときにどのページャーを使うのかを指定しま
+  す。 builtinは内蔵ページャーを使うことを意味します。それ以外は、この変
+  数で使いたい外部ページャーのパスを指定します。
+
+  外部ページャーを使うとちょっと不便なところもあるかもしれません。Muttの
+  機能を直接ページャーから呼び出すことができないため、余分なキーストロー
+  クが必要になります。また、スクリーンの幅を変更するとヘルプメニューの
+  フォーマットがおかしくなります。
+
+  6.3.117.  pager_context
+
+
+  Type: number
+  Default: 0
+
+
+
+  この変数は、内蔵ページャーで次のページや前のページを表示するときに前後
+  をどれだけの行見せてスクロールするかをコントロールします。デフォルトで
+  はスクリーンの最下行の1行下の行を最上行として表示します(つまり、値は0
+  です)。
+
+  6.3.118.  pager_format
+
+
+
+  Type: string
+  Default: "-%Z- %C/%m: %-20.20n   %s"
+
+
+
+  この変数は内蔵ページャーもしくは外部ページャーの中でそれぞれのメッセー
+  ジの前の1行メッセージ "status"の形式をコントロールします。有効なシーケ
+  ンスは ``$index_format''の章にリストされています。
+
+  6.3.119.  pager_hdrs_only
+
+
+  Type: boolean
+  Default: unset
+
+
+
+  （jaパッチの拡張機能）インデックスからメッセージを選択したときに、すぐ
+  に本文を表示するかを決めます。セットされていると最初はヘッダ部しか表示
+  せず、ページ送りや行送り動作を行なった時点で本文が表示されます。
+
+  6.3.120.  pager_index_lines
+
+
+  Type: number
+  Default: 0
+
+
+
+  ページャーを表示しているときに表示される小インデックスの行数を指定しま
+  す。現在のメッセージは、フォルダーの最上行もしくは最下行に近い位置以外
+  の場所では、この小インデックスで約 1/3の位置に表示されます。これは現在
+  のメッセージの前後のいくつかのメッセージを知ることができるようにするた
+  めです。これは、例えば現在のスレッドに未読のメッセージがいくつ残ってい
+  るのかを知りたいときに便利です。指定する行数のうちの1行はインデックス
+  のステータスバーに使われますので、"pager_index_lines"を 6に指定したと
+  すると実際のインデックスは 5行表示されることになります。値を 0に設定す
+  ると小インデックスは表示されません。現在のフォルダーにあるメッセージ数
+  が "pager_index_lines" の値より少ない場合は、全て表示します。
+
+  6.3.121.  pager_spoil
+
+
+  Type: boolean
+  Default: unset
+
+
+
+  （jaパッチの拡張機能）``$pager_hdrs_only'' がセットされているときの本
+  文の表示の仕方を決めます。セットされていると、本文の文字を
+  ``$pager_spoiler'' に指定されたキャラクタで置き換えます。セットされて
+  いなければ本文の行数だけ空行を出力します.
+
+  注意: セットされていないとき、本文の行数は実際のメールの行数をもとに計
+  算します。ファイルが添付されている場合や本文が折り返されて表示される場
+  合には、出力される空行数と本文を表示したときの行数とが合わなくなりま
+  す。
+
+  6.3.122.  pager_spoiler
+
+
+  Type: string
+  Default: "*"
+
+
+
+  （jaパッチの拡張機能）``$pager_hdrs_only''と ``$pager_spoil'' がセット
+  されているときに本文の文字を置き換えるキャラクタを指定します。
+
+  6.3.123.  pager_stop
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットされていると、内蔵ページャーを使っていてメッセージの終わりの位置
+  を表示している場合 "next-page"機能を起動したときに、次のメッセージに移
+  動しなくなります。
+
+  6.3.124.  pgp_autosign
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数をセットしていると、出ていくメッセージに常に PGP/MIME署名しよ
+  うとします。署名が要求されない場合や、暗号化が必要な場合に、"pgp-menu"
+  を使って変更することができます。
+
+  6.3.125.  pgp_autoencrypt
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数をセットしていると、出ていくメッセージを常に PGP/MIME暗号化し
+  ようとします。おそらく、"send-hook"コマンドと組み合わせて使うと便利で
+  しょう。暗号化が要求されない場合や署名が必要な場合に、"pgp-menu"を使っ
+  て変更することができます。
+
+  6.3.126.  pgp_ignore_subkeys
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数を設定すると Muttは OpenPGPのサブキーを無視します。そしてその
+  代わりに第一キー(principal key)がサブキーに継承されます。キーセレク
+  ションで色々遊びたいならこの変数を設定しない方がいいでしょう。
+
+  6.3.127.  pgp_entry_format
+
+
+  Type: string
+  Default: "%4n %t%f %4l/0x%k %-4a %2c %u"
+
+
+
+  この変数で PGP鍵の選択メニューを自分用に設定できます。使うことのできる
+  文字列は ``$index_format''と似てますが、それ以外にも printfに似た命令
+  を使えます。
+
+
+
+     %n 番号
+
+     %k 鍵のID
+
+     %u ユーザID
+
+     %a アルゴリズム
+
+     %l 鍵の長さ
+
+     %f フラグ
+
+     %c 能力(capabilities)
+
+     %t key-uidの伴う鍵の信用度
+
+     %[<s>]
+        鍵の日付、<s>は strftime(3)で使われる表現
+
+  6.3.128.  pgp_good_sign
+
+
+  Type: regular
+  expression Default: ""
+
+
+
+  この変数にテキストを設定すると、``$pgp_verify_command''がそのテキスト
+  を含んでいた場合には PGP署名は常に正しいと考えます。この変数は正しくな
+  い署名の場合でもコマンドの exit codeが 0の場合に使ってください。
+
+  6.3.129.  pgp_long_ids
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットされていると64ビット PGP キー ID を使います。アンセットだと普通
+  の32ビットキー ID を使います。
+
+  6.3.130.  pgp_replyencrypt
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットされていると、暗号化されているメッセージに返信すると自動的に PGP
+  暗号化するようになります。
+
+  6.3.131.  pgp_replysign
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セットされていると、PGP 署名されているメッセージに返信すると自動的に
+  PGP 署名するようになります。
+
+  注意: 暗号化されていて、かつ署名されているメッセージに対しては動作しま
+  せん。
+  6.3.132.  pgp_replysignencrypted
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると暗号化されたメッセージに返信する場合に自動
+  的に PGP署名します。これは ``$pgp_replyencrypt''といっしょに使うといい
+  でしょう。これを使うことで自動的に暗号化されたメッセージのすべてに署名
+  をできるからです。これは pgp_replysign``$pgp_replysign''の持つ問題、つ
+  まりmuttが暗号化されたメッセージが署名されているかどうかを判別できない
+  という問題に対する一つの解決法です。
+
+  6.3.133.  pgp_retainable_sigs
+
+
+  Type: boolean
+  Default: no
+
+
+
+  これをセットすると署名され、暗号化されたメッセージは入れ子になったマル
+  チパートメッセージとして multipart/signed と multipart/encryptedになり
+  ます。
+
+  この設定は暗号化され署名されたメーリングリストなどのアプリケーションは
+  便利でしょう。外側の (multipart/encrypted)レイヤーは内側の
+  multipart/signedのパートを残して簡単に取り去れます。
+
+  6.3.134.  pgp_show_unusable
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  これがセットされていると PGP鍵の選択メニューに使うことのできない鍵も表
+  示します。この使うことのできない鍵には取り消された鍵、有効期限がすぎた
+  鍵、使用不可とマークされた鍵が含まれます。
+
+  6.3.135.  pgp_sign_as
+
+
+  Type: string
+  Default: ""
+
+
+
+  1つ以上のキーペアを持っている場合に、どのプライベートキーを用いるかを
+  このオプションで指定します。キーを指定する際はキーIDの形式で指定するこ
+  とが推奨されています(例: "0x00112233")。
+
+  6.3.136.  pgp_strict_enc
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットされていると、PGP/MIME署名されたメッセージは自動的に
+  quoted-printableでエンコードされます。この変数をアンセットにすると、そ
+  の署名が正しいものかどうかを確認できないような PGP 署名を生成するとい
+  う問題を引き起こすかもしれないということに注意してください。ですから、
+  自分が何をやっているかを正確にわかっている場合にのみ、変更を行ってくだ
+  さい。
+
+  6.3.137.  pgp_timeout
+
+
+  Type: number
+  Default: 300
+
+
+
+  指定された秒数の後、使われていないキャッシュされているパスフレーズを消
+  します。
+
+  6.3.138.  pgp_verify_sig
+
+
+  Type: quadoption
+  Default: yes
+
+
+
+  この変数が yesになっていると、つねに PGP/MIME署名が正しいかどうかを確
+  かめます。この変数が ask-yesまたは ask-noになっていた場合は確かめるか
+  どうかをたずねます。noになっていた場合は PGP/MIME署名を確かめません。
+
+  6.3.139.  pgp_sort_keys
+
+
+  Type: sort order
+  Default: address
+
+
+
+  どのように PGP鍵メニューで項目を並べるかを指定します。使うことのできる
+  のは、
+
+
+     address
+        ユーザーIDによってアルファベット順に並べます
+
+     keyid
+        キーIDによってアルファベット順に並べます
+
+     date
+        鍵の製作日時の順に並べます
+
+     trust
+        鍵の信用度に応じてならべます
+
+  並べ方を逆順にしたい場合には、'reverse-'を前につけてください。
+
+  6.3.140.  pgp_create_traditional
+
+
+  Type: quadoption
+  Default: no
+
+
+
+  このオプションはある特定の状況で古いスタイルの PGP暗号化や PGP証明をす
+  るかどうかをコントロールします。Muttは us-ascii以外の文字セットが使わ
+  れた場合と１つ以上の MIMEパートを含んでいる場合には自動的に PGP/MIMEを
+  使うことに注意してください。それともう一つ、古いスタイルの PGPメッセー
+  ジフォーマットを使うことはできる限りやめてください。
+  6.3.141.  pgp_decode_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  このフォーマット用の文字列は application/pgpアタッチメントをデコードす
+  るコマンドを指定します。
+
+  この PGPコマンド用のフォーマットは printfに似た形をしています。
+
+
+     %p パスフレーズが必要な場合は PGPPASSFD=0に展開され、それ以外の場合
+        は空の文字列に展開されます。注意: これは %?といっしょに使うのが
+        いいでしょう。
+
+     %f メッセージを含んだファイルのファイル名に展開されます。
+
+     %s 証明を確認する場合に multipart/signedアタッチメントの署名のパー
+        トを含むファイル名に展開されます。
+
+     %a ``$pgp_sign_as''の値
+
+     %r 一つまたはそれ以上のキーID
+
+  あなたが使っている PGPのバージョンに合わせて、どのようにこれらの文字列
+  を設定するかについては samples/サブディレクトリに入っている pgp*.rcや
+  gpg.rcファイルを見てください。
+
+  6.3.142.  pgp_getkeys_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  muttが公開鍵の情報が必要なときに呼び出されるコマンドを指定します。%rが
+  このフォーマットで使われるただひとつの printfのような文字列です。
+
+  6.3.143.  pgp_verify_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  PGP/MIME署名が正しいかどうかを確認するためのコマンドです。
+
+  6.3.144.  pgp_decrypt_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  これは PGP/MIME暗号化されたメッセージを復号するコマンドです。
+
+  6.3.145.  pgp_clearsign_command
+
+
+
+  Type: string
+  Default: ""
+
+
+
+  このフォーマットは古いスタイルの"clearsigned"PGPアタッチメントをつくる
+  のに使われます。注意: このフォーマットはできるだけ使わないでください。
+
+  6.3.146.  pgp_sign_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  このコマンドは multipart/signed PGP/MIMEの本文パートのための切り離され
+  た(detached)PGP署名をつくるのに使います。
+
+  6.3.147.  pgp_encrypt_sign_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  これは結合したまま本文パートを署名、暗号化するコマンドを指定します。
+
+  6.3.148.  pgp_encrypt_only_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  これは署名なしで本文パートを暗号化するのに使うコマンドを指定します。
+
+  6.3.149.  pgp_import_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  ここで指定したコマンドで鍵をメッセージからユーザの公開鍵リングに入れま
+  す。
+
+  6.3.150.  pgp_export_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  ユーザのキーリングから公開鍵をエクスポートするコマンドを指定します。
+
+  6.3.151.  pgp_verify_key_command
+
+
+  Type: string
+  Default: ""
+
+  これは鍵選択メニューから鍵の情報を確認するのに使うコマンドを指定しま
+  す。
+
+  6.3.152.  pgp_list_secring_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  これは秘密鍵リングの内容をリストするコマンドです。出力のフォーマットは
+  gpg --list-keys --with-colons で使われているのと同じようでなければなり
+  ません。
+
+  このフォーマットは muttについてくるユーティリティ pgpringも使っていま
+  す。
+
+  6.3.153.  pgp_list_pubring_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  これは公開鍵リングの内容をリストするコマンドです。出力のフォーマットは
+  gpg --list-keys --with-colons で使われているのと同じようでなければなり
+  ません。
+
+  このフォーマットは muttについてくるユーティリティ pgpringも使っていま
+  す。
+
+  6.3.154.  forward_decrypt
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  メッセージを転送する際に暗号化されたメッセージをどう扱うかをコントロー
+  ルします。この変数がセットされていると、暗号化の外側のレイヤーが取り除
+  かれます。この変数は ``$mime_forward''がセットされ、そして
+  ``$mime_forward_decode''がアンセットされている場合のみ使われます。
+
+  6.3.155.  ssl_starttls
+
+
+  Type: quadoption
+  Default: yes
+
+
+
+  この変数がセットされていると（これがデフォルトです）、サーバの能力を調
+  べるのに STARTTLSを使います。設定されていないとサーバの能力に関わら
+  ず、STARTTLSを使いません。
+
+  6.3.156.  certificate_file
+
+
+  Type: path
+  Default: ""
+
+
+
+  この変数はあなたが信用する証明書(certificates)を保存するファイルを指定
+  します。もし未知の証明書と出会った場合は、その証明書を受け入れるかどう
+  かを聞いてきます。それを受け入れる場合にはこのファイルに保存され、それ
+  以降は自動的に受け入れられます。
+
+  また自分で手動で CA 証明書(certificate)をこのファイルに加えることがで
+  きます。これらの CA証明書のひとつで署名されたサーバ証明書も自動的に受
+  け入れられます。
+
+  例: set certificate_file=/.mutt/certificates
+
+  6.3.157.  ssl_usesystemcerts
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数が yesになっていると、muttはサーバ証明書が信用できる CAによっ
+  て証明されてかどうかを確かめるのにシステム全体の証明書置き場の CA証明
+  書を使います。
+
+  6.3.158.  entropy_file
+
+
+  Type: path
+  Default: ""
+
+
+
+  SSLライブラリ関数を初期化するために使われるランダムデータを含むファイ
+  ル。
+
+  6.3.159.  ssl_use_sslv2
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数で SSL認証プロセスで SSLv2を使うかどうかを指定する。
+
+  6.3.160.  ssl_use_sslv3
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数で SSL認証プロセスで SSLv3を使うかどうかを指定する。
+
+  6.3.161.  ssl_use_tlsv1
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数で SSL認証プロセスで TLS v1を使うかどうかを指定する。
+
+
+
+  6.3.162.  pipe_split
+
+
+  Type: boolean
+  Default: no
+
+
+
+  pipe-messageコマンド、tag- prefixオペレータといっしょに使います。この
+  変数がセットされていない場合は、タグ付されたメッセージをパイプで送ると
+  きにメッセージを連結して一つのフォルダとして送ります。この変数がセット
+  されていると、Muttはメッセージを一つずつ送ります。どちらの場合でもメッ
+  セージはいま並んでいる順番でパイプに送られ、各々のメッセージの後ろには
+  ``$pipe_sep''セパレータが付け加えられます。
+
+  6.3.163.  pipe_decode
+
+
+  Type : boolean
+  Default: no
+
+
+
+  pipe-messageコマンドとともに使います。もしセットされていないと Muttは
+  前処理をしません。セットされている場合はへッダを取り除き、メッセージの
+  PGP/MIMEデコードを前処理として行ないます。
+
+  6.3.164.  pipe_sep
+
+
+  Type: string
+  Default: "/n"
+
+
+
+  タグ付けされた一連のメッセージを外部の Unixコマンドにパイプするときの
+  セパレータを指定します。
+
+  6.3.165.  pop_authenticators
+
+
+  Type: string
+  Default: ""
+
+
+
+  この変数には POPサーバにログインするための認証方法を試していく順序でコ
+  ロンで区切って書いていきます。認証方法は user、apop、それに SASLの
+  digest-md5、gssapi、cram-md5です。この変数は大文字、小文字を区別しま
+  す。この変数が設定されていない場合は（これがデフォルトです）使える方法
+  を一番安全なものから順に試していきます。
+
+  例: set pop_authenticators="digest-md5:apop:user"
+
+  6.3.166.  pop_auth_try_all
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数がセットされていると、Muttはすべての利用可能な方法を使います。
+  セットされていないと前の方法が利用可能で無い場合のみ次の方法を使いま
+  す。つまりある方法が利用可能だが認証が失敗する場合には、POPサーバに接
+  続されません。
+  6.3.167.  pop_checkinterval
+
+
+  Type: number
+  Default: 60
+
+
+
+  この変数でどれくらいの間隔（秒数）で POPサーバに新着メールを見に行くか
+  を設定します。
+
+  6.3.168.  pop_delete
+
+
+  Type: quadoption
+  Default: ask-no
+
+
+
+  もしセットされていれば fetch-mail機能を使った場合ダウンロードに成功し
+  たメッセージはPOPサーバから消します。もしセットされていない場合は POP
+  サーバにメッセージを残しておきます。
+
+  6.3.169.  pop_host
+
+
+  Type: string
+  Default: ""
+
+
+
+  fetch-mail機能を使うために POPサーバの名前を設定します。また標準とは異
+  なるポート、ユーザ名、パスワードも指定できます。例：
+
+  [pop[s]://][username[:password]@]popserver[:port]
+
+  6.3.170.  pop_last
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされている場合は fetch-mail機能を使って POPサーバから
+  未読のメッセージを取り寄せるのに "LAST" POPコマンドを使おうとします。
+
+  6.3.171.  pop_reconnect
+
+
+  Type: quadoption
+  Default: ask-yes
+
+
+
+  POPサーバへの接続が切れた場合に再接続するかどうかを設定します。
+
+  6.3.172.  pop_user
+
+
+  Type: string
+  Default: ""
+
+
+
+  POPサーバへのログイン名を指定します。デフォルトはローカルシステムでの
+  ログイン名です。
+
+  6.3.173.  pop_pass
+
+
+  Type: string
+  Default: ""
+
+
+
+  POPアカウントのパスワードを指定します。この変数が設定されていない場合
+  は、POPメールボックスを開けるときにパスワードの入力が求められます。注
+  意：このオプションは確実に安全なマシンでのみ使ってください。スーパー
+  ユーザはあなたの muttrcファイルをあなたの許可無しで読むことができま
+  す。
+
+  6.3.174.  post_indent_string
+
+
+  Type: string
+  Default: ""
+
+
+
+  ``$attribution''変数と同じように、返信の際に引用したメッセージの後ろに
+  この文を入れます。
+
+  6.3.175.  postpone
+
+
+  Type: quadoption
+  Default: ask-yes
+
+
+
+  すぐにメッセージを送信しない場合にメッセージを``$postponed''メイルボッ
+  クスに保存するかどうかをコントロールする変数です。
+
+  6.3.176.  postponed
+
+
+  Type: string
+  Default: "~/postponed"
+
+
+
+  Muttは編集したメッセージの送信を延期することができます（``postpone
+  sending a message''）。この変数は送信を延期したメールを保存するメール
+  ボックスを指定します。``$postpone''変数も参照してください。
+
+  6.3.177.  preconnect
+
+
+  Type: string
+  Default: ""
+
+
+
+  この変数は muttがサーバへの接続に失敗した場合に実行するシェルコマンド
+  を指定します。これは ssh(1)を使って安全な接続経路を得るのに有効です。
+  もしこのコマンドがゼロ以外の状態を返した場合、muttはサーバへの接続をあ
+  きらめます。例：
+
+  preconnect="ssh -f -q -L 1234:mailhost.net:143 mailhost.net sleep 20 <
+  /dev/null > /dev/null"
+  この例では mailhost.net上の fooというメールボックスは
+  {localhost:1234}fooで見えるようになります。
+
+  注意： この例がちゃんと動くには、リモートマシンにパスワードなしで接続
+  できる必要があります。
+
+  6.3.178.  print
+
+
+  Type: quadoption
+  Default: ask-no
+
+
+
+  印刷の前に確認のメッセージを出すかどうかをコントロールする変数です。間
+  違ってよくp を押してしまう人に役立つでしょう。
+
+  6.3.179.  print_command
+
+
+  Type: path
+  Default: "lpr"
+
+
+
+  メッセージを印刷するために使うコマンドパイプを設定します。
+
+  6.3.180.  print_decode
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  print-messageコマンドといっしょに使います。このオプションがセットされ
+  ている場合には ``$print_command''で指定した外部コマンドに渡す前にメッ
+  セージをデコードします。このオプションがセットされていない場合には、印
+  刷のときに前処理はされません。後者の設定はあなたが正しく e-mailを
+  ファーマットすることができる優秀なプリンタフィルタを使っている場合には
+  役に立つかも知れません。
+
+  6.3.181.  print_split
+
+
+  Type: boolean
+  Default: no
+
+
+
+  これは print-messageコマンドの振る舞いを変えます。このオプションが設定
+  されていると ``$print_command''で設定したコマンドが印刷するメッセージ
+  ごとに実行されます。設定されてない場合は ``$print_command''で設定した
+  コマンドは一度しか実行されず、それに form feedをメッセージセパレータと
+  して結合したすべての印刷するメールが送り込まれます。
+
+  enscript(1)プログラムのメール印刷モードを使っている人はこのオプション
+  を設定した方がいいでしょう。
+
+  6.3.182.  prompt_after
+
+
+  Type: boolean
+  Default: yes
+
+
+  この変数をセットすると、外部のぺ-ジャー（``$pager''）を使っている場
+  合、ぺ-ジャーを終了するときにすぐにインデックスメニューに戻るのではな
+  く、実行するコマンドを聞いてくるようになります。セットしないと外部ぺ-
+  ジャーを終了するとすぐにインデックスメニューに戻ります。
+
+  6.3.183.  query_command
+
+
+  Type: string
+  Default: ""
+
+
+
+  外部にアドレスを問い合わせるコマンドを指定します。その中には %sという
+  文字列が含まれている必要があり、これにユーザーが入力した問い合わせの文
+  字列が代入されます。詳しくは``query''を見てください。
+
+  6.3.184.  quit
+
+
+  Type: quadoption
+  Default: yes
+
+
+
+  この変数は quitと exitが実際に muttを終了するかどうかをコントロールし
+  ます。もし yesに設定してあるとすぐに終了し、noに設定してあると終了しま
+  せん。そして ask-yesまたは ask-noに設定してある場合は終了する前に確認
+  します。
+
+  6.3.185.  quote_regexp
+
+
+  Type: regular expression
+  Default: "^([\t]*[|>:}#])+"
+
+
+
+  内蔵ぺ-ジャーがメッセージの本文の中のどこが引用部分かを決めるための正
+  規表現です。
+
+  注意: 内蔵ぺ-ジャーが quotedxパターンを使うためには、引用部分の行頭の
+  文字に正確に一致するように正規表現を設定する必要があります。
+
+  6.3.186.  read_inc
+
+
+  Type: number
+  Default: 10
+
+
+
+  この変数が 0より大きい値をとっていた場合、メールボックスの今読み込んで
+  いるメッセージの番号を表示します。この変数で設定した数ごとにどこまで読
+  み込んだかを表示します (つまり25に設定されていれば、始めの25のメッセー
+  ジを読み込んだときに25と表示され、次の25メッセージを読み込むと50と表示
+  されます)。この変数は大きなメールボックスを読み込むのに時間がかかる場
+  合にその進展状況を示すためのものです。
+
+  0に設定されている場合はメールボックスを読む前にメッセージがでるだけで
+  す。
+
+  ``$write_inc''変数も参照してください。
+
+
+
+  6.3.187.  read_only
+
+
+  Type: boolean
+  Default: no
+
+
+
+  もしセットしてあると、すべてのフォルダーは read-onlyモードで開きます。
+
+  6.3.188.  realname
+
+
+  Type: string
+  Default: ""
+
+
+
+  メッセージを送るときにつける名前を設定します。デフォルトではこれは
+  /etc/passwdのGCOS フィールドです。この変数はユーザが ``$from''変数で名
+  前を設定した場合には使われません。注意してください。
+
+  6.3.189.  recall
+
+
+  Type: quadoption
+  Default: ask-yes
+
+
+
+  新しいメッセージを編集するときに、送るのを延期したメッセージを読み込む
+  かどうかの確認をコントロールします。``$postponed''も参照してください。
+
+  この変数を yesにすることは一般的には役に立たず、お薦めできません。
+
+  6.3.190.  record
+
+
+  Type: path
+  Default: ""
+
+
+
+  送信したメッセージをどのファイルに追加するかを指定します。(これは送信
+  したメッセージを保存するための方法の1つです。他の方法は ``my_hdr''コマ
+  ンドを使って自分のメールアドレスの入った Bcc: フィールドをつくることで
+  す。)
+
+  ``$record''の値は``$force_name''、``$save_name''変数、 ``fcc-hook''コ
+  マンドで上書きされます。
+
+  6.3.191.  reply_regexp
+
+
+  Type: regular expression
+  Default: "^(re([\[0-9\]+])*|aw):[ \t]*"
+
+
+
+  返信されてきたメッセージを認識するための正規表現です。デフォルトでは英
+  語の Re: とドイツ語の Aw: が使われます。
+
+  6.3.192.  reply_self
+
+
+
+  Type: boolean
+  Default: no
+
+
+
+  もしセットされていなくて自分からのメッセージに返信する場合、Muttはあな
+  た以外にそのメッセージの受取人にメッセージを送りたいのだと仮定します。
+
+  6.3.193.  reply_to
+
+
+  Type: quadoption
+  Default: ask-yes
+
+
+
+  もし設定されていれば、Muttはメッセージを返信する際に Reply-To: に書か
+  れたアドレスのリストにメッセージを送りたいのかどうかを尋ねます。このオ
+  プションは Reply-To:がメーリングリストの宛先になっているなっているメー
+  リングリストを読んでいて個人的なメッセージを送りたいような場合に便利で
+  す。
+
+  6.3.194.  resolve
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  これが設定されていると今カーソルのあるメッセージを変更するコマンドを実
+  行した場合、自動的に(削除されてない)次のメッセージにカーソルを移動しま
+  す。
+
+  6.3.195.  reverse_alias
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数はエイリアスにメッセージの送り主があった場合、インデックスメ
+  ニューにエイリアスの個人名を表示するかどうかをコントロールします。例え
+  ば、もし次のようなエイリアスがあり
+
+
+  alias juser abd30425@somewhere.net (Joe User)
+
+
+
+  次のようなへッダーを持つメッセージを受け取ると、
+
+
+  From: abd30425@somewhere.net
+
+
+
+  インデックスメニューに abd30425@somewhere.netのかわりに Joe Userが表示
+  されます。これはある人のメールアドレスが(Compu$erveのアドレスのように)
+  人間にわかりにくい場合に便利です。
+
+  6.3.196.  reverse_name
+
+
+
+  Type: boolean
+  Default: no
+
+
+
+  あるコンピュータでメールを受け取り、それを別のコンピュータに移動し、別
+  のコンピュータで返信するを場合があります。この変数をセットしておくとデ
+  フォルトの From: フィールドがメッセージを受け取ったコンピュータのもの
+  になります。セットしなければ From: は今いるコンピュータのものになりま
+  す。
+
+  6.3.197.  reverse_realname
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数は ``reverse_name''機能の振る舞いを調整します。この変数がセッ
+  トされている場合は来たメールが本当の名前を含んでいるとして、そのアドレ
+  スをそのまま使います。これがセットされていない場合は、``realname''変数
+  の設定を使いそのような名前を上書きします。
+
+  6.3.198.  rfc2047_parameters
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると、muttは RFC-2047-encoded MIMEパラメータを
+  デコードします。muttが添付ファイルを
+  =?iso-8859-1?Q?file=5F=E4=5F991116=2Ezip?=のようなファイル名で保存しま
+  すかときいてくるような場合は、この変数をセットしたくなるでしょう。
+
+  この変数を（muttの中で）対話的に設定した場合には、フォルダを変わるまで
+  効果がでてきません。
+
+  RFC 2047のこの使用法は明示的に規格では禁止されているにも関わらず、使わ
+  れているということに注意してください。。またこの変数をセットしても
+  muttがそのような種類のエンコードを生成するようなことはありません。mutt
+  は無条件で RFC 2231において指定されるエンコーディングを使います。
+
+  6.3.199.  sanitize_ja_chars
+
+
+  Type: boolean
+  Default: unset
+
+
+
+  （jaパッチの拡張機能）このオプションを設定すると、日本語の機種依存文字
+  を〓に置き換え、また、JIS X 0201 kana ( "ESC ) I" の場合のみ) を ? に
+  置き換えて表示が乱れるのを防ぎます。ただし、JIS X 0201 kana が 8bit の
+  ままでてきた場合は処理しません。また、``$charset'' が EUC-JP に設定し
+  ている場合は、EUC-JP には JIS X 0201 roman が含まれないため、受け取っ
+  たメッセージの ISO-2022-JP の文字列にそのエスケープシーケンスが含まれ
+  ている場合、EUC-JP には変換できません。逆に、Shift_JIS には ASCII が含
+  まれないため、受け取ったメッセージの ISO-2022-JP の文字列にそのエス
+  ケープシーケンスが含まれている場合は Shift_JIS には変換できません。そ
+  のため、 このようなケースの場合には文字化けが生じます。このオプション
+  を設定すると、JIS X 0201 roman と ASCII のエスケープシーケンスを互いに
+  置き換え、文字化けを防ぐことができます。
+
+  6.3.200.  save_address
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされているとメールを保存するフォルダを選ぶときに mutt
+  は送り手のフルアドレスを使います。もし``$save_name''や``$force_name''
+  がセットされていると fccフォルダの選択も同じように変更されます。
+
+  6.3.201.  save_empty
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  もしセットされない場合には保存されたメッセージの無いメールボックスはそ
+  のメールボックスを閉じるときに削除されます。(例外は``$spoolfile''でこ
+  れは決して削除されません)。もしセットされていれば、メールボックスは削
+  除されません。
+
+  注意: これは mboxと MMDFフォルダのみに適応されます。MHと Maildirディレ
+  クトリは削除されません。
+
+  6.3.202.  save_name
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数は送信したメッセージのコピーをどのように保存するかをコントロー
+  ルします。もしセットされていればメッセージの受取人のアドレスの名前のつ
+  いたメールボックスがあるかどうかを確かめます (これは ``$folder''ディレ
+  クトリ内に受取人のアドレスのユーザネームと同じ名前のついたメールボック
+  スがあるかどうかを確かめます)。もしあれば送信したメッセージのコピーが
+  そのメールボックスに保存されます。そうでない場合には ``$record''メール
+  ボックスに保存されます。
+
+  ``$force_name''も参照してください。
+
+  6.3.203.  score
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数をアンセットするとスコアが使えなくなりま
+  す。``$score_threshold_delete''変数などを使っている場合には、特定の
+  フォルダでスコアを使えないようにするのがいい場合があるでしょう。
+
+  6.3.204.  score_threshold_delete
+
+
+  Type: number
+  Default: -1
+
+
+
+  この変数と等しいかより低いスコアを持つメッセージは自動的に削除の対象に
+  選ばれます。muttはつねにゼロ以上のスコアをつけるので、デフォルトの設定
+  ではどのメッセージも削除の対象になりません。
+
+  6.3.205.  score_threshold_flag
+
+
+  Type: number
+  Default: 9999
+
+
+
+  この変数の値よりも大きいスコアを持つメッセージは自動的にフラグが立てら
+  れます。
+
+  6.3.206.  score_threshold_read
+
+
+  Type: number
+  Default: -1
+
+
+
+  この変数の値と等しい、またはより低いスコアを持つメッセージは自動的に既
+  読のマークがつきます。muttはつねにゼロ以上のスコアをつけるので、デフォ
+  ルトの設定ではどのメッセージも既読のマークはつきません。
+
+  6.3.207.  send_charset
+
+
+  Type: string
+  Default: "us-ascii:iso-8859-1:utf-8"
+
+
+
+  メッセージを送信するときに使う文字セットのリストです。Muttはテキストを
+  正確に変換できる最初の文字セットを使います。もしあなたが使っている
+  ``$charset''が iso-8859-1ではなく受取り手が UTF-8を使えるかどうかわか
+  らないような場合には、よく使われている標準的な文字セット（例えば
+  iso-8859-2、koi8-r、 iso-2022-jp）を iso-8859-1のかわりに使う
+  か、iso-8859-1の後ろに挿入した方がいいでしょう。
+
+  6.3.208.  sendmail
+
+
+  Type: string
+  Default: "/usr/sbin/sendmail -oem -oi"
+
+
+
+  Muttから送信したメッセージを配送するプログラムと引数を指定します。Mutt
+  はその指定したプログラムが追加的なオプションを受取人のアドレスと解釈す
+  ると仮定しています。
+
+  6.3.209.  sendmail_wait
+
+
+  Type: number
+  Default: 0
+
+
+
+  ``$sendmail''プロセスがすぐに送るのをあきらめて配送をバックグランドに
+  まわすまでの秒数を指定します。
+
+
+  Muttはこの変数を次のように解釈します。
+
+
+  >0      sendmailの終了まで待つ時間
+  0       sendmailの終了まで永遠に待つ
+  <0      常に待つこと無くバックグランドで sendmailを動かす
+
+
+
+  もし 0以外の値を選んだ場合には、子プロセスからのアウトプットは一時ファ
+  イルに保存されます。何かエラーがあった場合にはどのファイルに子プロセス
+  からの出力が入っているかを知らせます。
+
+  6.3.210.  shell
+
+
+  Type: path
+  Default: ""
+
+
+
+  サブシェルをつくるときのコマンドを指定します。デフォルトでは
+  /etc/passwdのログインシェルが使われます。
+
+  6.3.211.  sig_dashes
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  これがセットされていると``$signature''の前に「--」を含んだ行が挿入され
+  ます。できるだけこの変数をアンセットしないでください。多くのプログラム
+  が「-- \n」をシグニチャを探すために使っているからです。Muttもこの行を
+  使って内蔵ぺ-ジャーでシグニチャに別の色を付けています。
+
+  6.3.212.  sig_on_top
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数を設定すると ``$signature''が引用文や転送メッセージよりも前に
+  挿入されます。この変数はできるだけ設定しないでください。ネチケット違反
+  として多くの人に非難されます。
+
+  6.3.213.  signature
+
+
+  Type: path
+  Default: "~/.signature"
+
+
+
+  送信するメッセージの最後につけるシグニチャ用のファイル名を指定します。
+  もしファイル名がパイプ(|)で終わっている場合にはファイル名はシェルコマ
+  ンドだと解釈され、その標準出力からインプットが読み込まれます。
+
+  6.3.214.  simple_search
+
+
+
+  Type: string
+  Default: "~f %s | ~s %s"
+
+
+
+  どのようにシンプルサーチを本当のサーチパターンに展開するかを指定しま
+  す。シンプルサーチは ~オペレータを含まないものです。サーチパターンにつ
+  いて詳しくは``patterns''を参照してください。
+
+  例えば単に joeを検索した場合、それを自動的にどのように展開するかをこの
+  変数で指定します。デフォルトでは次のように展開されます。
+
+  ~f joe | ~s joe
+
+  6.3.215.  smart_wrap
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  一行が内蔵ぺ-ジャーの横幅より長い場合にどのように表示するかをコント
+  ロールする変数です。もしセットすると、長い行は単語の区切りで折り返さ
+  れ、セットされてない場合にはスクリーンの端で折り返されます。
+
+  ``$markers''変数も参照してください。
+
+  6.3.216.  smileys
+
+
+  Type: regular expression
+  Default: "(>From )|(:[-^]?[][)(><}{|/DP])"
+
+
+
+  この変数はぺ-ジャーが``$quote_regexp''の失敗をなくすために使います。一
+  番多い原因は行頭のスマイリです。
+
+  6.3.217.  sleep_time
+
+
+  Type: number
+  Default: 1
+
+
+
+  フォルダからフォルダへ移動したり、メッセージを削除した場合に、画面に情
+  報を表示するために一時停止する時間を秒数で指定します。デフォルトでは 1
+  秒です。この値をゼロに設定すると一時停止しなくなります。
+
+  6.3.218.  sort
+
+
+  Type: sort order
+  Default: date
+
+
+
+  インデックスメニューの中でどのようにメッセージを並べ替えるかを設定しま
+  す。使うことのできる値は次のものです。
+
+
+  o  dateまたは date-sent
+
+
+  o  date-received
+
+  o  from
+
+  o  mailbox-order (ソートしない)
+
+  o  score
+
+  o  size
+
+  o  subject
+
+  o  threads
+
+  o  to
+
+  また reverse-という接頭辞をつけて順序を逆にすることができます(例: set
+  sort=reverse-date-sent)
+
+  6.3.219.  sort_alias
+
+
+  Type: sort order
+  Default: alias
+
+
+
+  エイリアスメニューの項目をどのように並べ替えるかを設定します。使うこと
+  のできる値は次のものです。
+
+
+  o  address (メールアドレスのアルファベット順)
+
+  o  alias (別名のアルファベット順)
+
+  o  unsorted (.muttrcの中の順)
+
+  6.3.220.  sort_aux
+
+
+  Type: sort order
+  Default: date
+
+
+
+  スレッドをソートするときに、この変数はスレッド間の順序やスレッドツリー
+  内のサブスレッドをどのように並べ替えるかをコントロールします。この変数
+  は ``$sort''がとることのできる値をすべて使うことができますが、 threads
+  だけは使うことができません(threadsが設定された場合は date-sentが使われ
+  ます)。また reverse-接頭辞以外に last-という接頭辞を使うことができます
+  が、これを reverse-といっしょに使う場合は reverse-の後ろにつける必要が
+  あります。これは最新の孫スレッドの sort_auxの順で子スレッドを並べ替え
+  ます。例えば、set sort_aux=last-date-receivedは新しいメッセージがス
+  レッド内に受け取られるとそのスレッドが一番最後に表示されることを意味し
+  ます（もし set sort=reverse-threadsが設定されている場合には、一番初め
+  です）。注意:``$sort''を逆順にしている場合は ``$sort_aux''も逆順になり
+  ます（これはおかしな設定なのですが、既存の設定をこわさないようにこのよ
+  うにしています）。
+
+  6.3.221.  sort_browser
+
+
+  Type: sort order
+  Default: subject
+
+
+  ファイルブラウザで項目をどうやって並べ替えるかを設定します。デフォルト
+  ではアルファベット順で並べられます。使うことのできる値は次のものです。
+
+
+  o  alpha (アルファベット順)
+
+  o  date
+
+  o  size
+
+  o  unsorted
+
+  また reverse-接頭辞をつけて順序を逆にすることができます (例: set
+  sort_browser=reverse-date)
+
+  6.3.222.  sort_re
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数は ``$strict_threads''がアンセットされた状態でスレッドをソート
+  する場合にのみ効果があります。その場合、この変数はサブジェクトを使って
+  メッセージをスレッドに分類する方法を変えます。もし sort_reがセットされ
+  ている場合はサブジェクトの先頭が``$reply_regexp''で設定される文字列の
+  一部と一致しなければそのメッセージのスレッドには分類されませ
+  ん。sort_reがアンセットされている場合はサブジェクトの``$reply_regexp''
+  に含まれない部分が一致しているとそのメッセージのスレッドに入ります。
+
+  6.3.223.  spoolfile
+
+
+  Type: path
+  Default: ""
+
+
+
+  もしスプールメールボックスが標準の場所になく、Muttが探し出せないときに
+  この変数で場所を指定します。この変数が設定されていない場合には自動的に
+  環境変数 $MAILの値がこの変数に設定されます。
+
+  6.3.224.  status_chars
+
+
+  Type: string
+  Default: "-*%A"
+
+
+
+  ``$status_format''の %rの表示に使う文字を設定します。一番初めの文字は
+  メールボックスに変化が無い場合に使われ、2番目の文字はメールボックスに
+  変化があり同期する必要がある場合に使います。3番目の文字はメールボック
+  スがリードオンリまたはそのメールボックスを閉じるときに書き込みができな
+  い場合に使われます (書き込みの禁止のオン、オフは toggle-writeオペレー
+  タで行なえます。これは %キーに割り当てられています)。4番目の文字は今い
+  るフォルダが添付メッセージモードで開かれている場合に使われます (この
+  モードではある種の操作、例えば新しいメールの編集、返信、転送等ができま
+  せん)。
+
+  6.3.225.  status_format
+
+
+
+  Type: string
+  Default: "-%r-Mutt: %f [Msgs:%?M?%M/?%m%?n? New:%n?%?o? Old:%o?%?d? Del:%d?%?F?
+  Flag:%F?%?t? Tag:%t?%?p? Post:%p?%?b? Inc:%b?%?l? %l?]---(%s/%S)-%>-(%P)---"
+
+
+
+  この変数はインデックスメニューに表示されるステータス行のフォーマットを
+  設定します。ここで使う文字列は``$index_format''のものと似ています
+  が、printf()のような文字列を使えます。
+
+
+  %b      新着メールの入ったメールボックスの数 *
+  %d      削除されたメッセージの数 *
+  %h      ローカルホスト名
+  %f      今いるメールボックスのフルパス名
+  %F      フラグのついたメールの数 *
+  %l      (bytesで表した)今のメールボックスのサイズ *
+  %L      (bytesで表した)表示されているメッセージのサイズ (つまり今の制限を満たしているもの) *
+  %m      メールボックス内のメッセージの数 *
+  %M      表示されているメッセージの数 (つまり今の制限を満たしているもの) *
+  %n      メールボックス内の新しいメッセージの数 *
+  %o      古い未読メッセージの数
+  %p      送信を延期しているメッセージの数 *
+  %P      インデックス内で何パーセントの位置にいるか
+  %r      <ref id="status_chars" name="$status_chars" >による modified/read-only/won't-write/attach-message インディケータ
+  %s      今の並べ替えのモード （<ref id="sort" name="$sort" >）
+  %S      今の aux並べ替えのモード （<ref id="sort_aux" name="$sort_aux" >）
+  %t      タグ付けされたメッセージの数 *
+  %u      未読メッセージの数
+  %v      Muttのバージョン
+  %V      もし設定されていれば今有効になっている制限(limit)のパターン *
+
+  %>X     残りの文字列を右揃し、Xで埋める
+  %|X     行末まで Xで埋める
+
+  * = ゼロで無い場合だけ表示するようにすることができる
+
+
+
+  上のいくつかのものは値がゼロ以外の場合のみ表示するようにすることができ
+  ます。例えば、フラグのつけられたメッセージの数が 0以外の場合のみ表示さ
+  せたいということがあるでしょう。そういう場合は次のような構文を使いま
+  す。
+
+
+  %?<sequence_char>?<optional_string>?
+
+
+
+  ここで sequence_charは前の表の文字で、optional_stringは status_charが0
+  以外の場合に表示させたい文字列です。optional_stringは普通のテキスト以
+  外に前の表の文字列を使うことができますが、別の optional_stringをネスト
+  することはできません。
+
+  次の例はメールボックス内の新着メッセージがゼロでない場合だけ表示されま
+  す。
+
+
+          %?n?%n new messages.?
+
+
+
+  また2つの文字列を状態に応じて使い分けることもできます。もし値がゼロの
+  場合は始めの文字列が表示され、ゼロ以外の場合は2番目の文字列が表示され
+  ます。次のような構文を使います。
+
+  %?<sequence_char>?<if_string>&<else_string>?
+
+
+
+  またこの文字列の前にアンダースコア(_)を接頭辞としてつけることによっ
+  て、強制的に小文字で出力できるようになります。例えばローカルホスト名を
+  小文字で表示したい場合は %_hを使ってください。
+
+  6.3.226.  status_on_top
+
+
+  Type: boolean
+  Default: no
+
+
+
+  ステータス行を画面の下にではなく一行目に表示します。
+
+  6.3.227.  strict_mime
+
+
+  Type: boolean
+  Default: set
+
+
+
+  （jaパッチの拡張機能）このオプションを解除すると、MIME に従っていない
+  メッセージなど表示できるようになります。具体的には, ``charset'' の指定
+  がないメッセージを表示します。``$assumed_charset''も見てください。さら
+  に、 encoded-word と *text の 間の linear-white-space を space に置き
+  換えます。これにより、MIME符号化された Subjectフィールドの表示が複数行
+  にわかれることを防ぐことがで きます。
+
+  6.3.228.  strict_threads
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数をセットするとメッセージをスレッドで``$sort''する場合に
+  In-Reply-Toと Referencesフィールドだけが使われます。デフォルトではこの
+  変数はセットされていなくて、その場合は同じサブジェクトを持つメッセージ
+  も同じスレッドに集められます。ただしこの設定がいつも望ましいわけではな
+  く、例えば個人的なメールボックスでは多くの「hi」というサブジェクトを
+  持った関係のないメッセージが集められることになります。
+
+  6.3.229.  suspend
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数をアンセットすると、ユーザが通常 control-Zに割り当てられている
+  suspキーを押してもmuttはサスペンドしません。これは xterm -e muttのよう
+  なコマンドで muttを xtermの中で動かしているような場合に便利でしょう。
+
+  6.3.230.  text_flowed
+
+
+  Type: boolean
+  Default: no
+
+  この変数がセットされると、muttは text/plain; format=flowedである添付
+  ファイルをつくります。このフォーマットはいくつかのメールソフトで扱いが
+  簡単であり、通常は普通のテキストと同じように見えます。実際にこのフォー
+  マットの機能を使う場合には、エディターでのサポートが必要になります。
+
+  このオプションがセットされると``$indent_string''は無視されるので注意し
+  てください。
+
+  6.3.231.  thread_received
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされていると、メッセージのスレッドをつくるのにメッセー
+  ジを受け取った日付ではなく、メッセージを送った日付が使われる。
+
+  6.3.232.  thorough_search
+
+
+  Type: boolean
+  Default: no
+
+
+
+  セクション``patterns''で説明した ~bと ~hサーチオペレータに影響を与えま
+  す。セットされていた場合は検索されるメッセージのへッダ、本文、添付ファ
+  イルがサーチの前にデコードされます。セットされていない場合はメッセージ
+  はフォルダの中に表示された形で検索されます。
+
+  6.3.233.  tilde
+
+
+  Type: boolean
+  Default: no
+
+
+
+  この変数がセットされると、内蔵ぺ-ジャーは画面の空白行を画面の下まで(~)
+  で表します。
+
+  6.3.234.  timeout
+
+
+  Type: number
+  Default: 600
+
+
+
+  この変数はタイムアウトして新しいメールをチェックする前にメインメニュー
+  でキー入力を待つ時間を秒数でコントロールします。この値が 0以下の場合は
+  永遠にタイムアウトしません。
+
+  6.3.235.  tmpdir
+
+
+  Type: path
+  Default: ""
+
+
+
+  メッセージの表示や編集のためにつくる一時ファイルを置くディレクトリを設
+  定します。
+
+  6.3.236.  to_chars
+
+
+  Type: string
+  Default: " +TCFL"
+
+
+
+  メッセージの宛先の状態を表示する文字を設定します。1番始めの文字はあな
+  た宛ではないメールの場合に使われます (デフォルトはスペースです)。2番目
+  の文字はあなただけがそのメッセージの受取人である場合に使われます。3番
+  目の文字はあなたのアドレスが TO へッダフィールドにあるがあなた以外にも
+  受取人がいる場合に使われます (デフォルトは T)。4番目の文字はあなたのア
+  ドレスが CC へッダフィールドにあるがあなた以外にも受取人がいる場合に使
+  われます (デフォルトは C)。5番目の文字はそのメッセージはあなたが送信し
+  たことを表します。6番目の文字はあなたが購読しているメーリングリストに
+  あてられたメールを表すものです（デフォルトは L）。
+
+  6.3.237.  tunnel
+
+
+  Type: string
+  Default: ""
+
+
+
+  この変数を設定すると socketを開くかわりにコマンドにパイプを開きます。
+  これを使って IMAP/POP3サーバへの認証前の接続をどのようにするかを設定す
+  ることができます。
+
+  例:
+
+  tunnel="ssh -q mailhost.net /usr/local/libexec/imapd"
+
+
+  注意: この例がちゃんと作動するにはリモートマシンにパスワードなしで入れ
+  なければなりません。
+
+  6.3.238.  tree_chars
+
+
+  Type: boolean
+  Default: unset
+
+
+
+  （jaパッチの拡張機能）vt-100 非互換端末 では ACS 文字を表示できませ
+  ん。このオプションを設定すると、スレッドや添付ファイルのツリーを表示す
+  る際に任意の文字を設定することができます。例えば, 日本語であれば、JIS
+  0208の罫線を用いることもできます。文字の設定は
+  ``$tree_llcorner''、``$tree_ulcorner''、``$tree_ltee''、``$tree_hline''、``$tree_vline''
+  で行います。ただし、設定ファイルの記述で用いられる文字符号化方式と
+  ``$charset'' に設定したものを同じにしてください。デフォルトでは
+  ``$ascii_chars''をセットしたときに使われる文字を使って表示します。設定
+  例：JIS X 0208 の罫線を用いた例
+
+
+  set tree_chars=yes
+  set tree_llcorner="└"
+  set tree_ulcorner="┌"
+  set tree_ltee="│"
+  set tree_hline="─"
+  set tree_vline="│"
+
+
+
+  6.3.239.  tree_llcorner
+
+
+  Type: string
+  Default: "`"
+
+
+
+  （jaパッチの拡張機能）``$tree_chars''を参照。
+
+  6.3.240.  tree_ulcorner
+
+
+  Type: string
+  Default: ","
+
+
+
+  （jaパッチの拡張機能）``$tree_chars''を参照。
+
+  6.3.241.  tree_ltee
+
+
+  Type: string
+  Default: "|"
+
+
+
+  （jaパッチの拡張機能）``$tree_chars''を参照。
+
+  6.3.242.  tree_hline
+
+
+  Type: string
+  Default: "-"
+
+
+
+  （jaパッチの拡張機能）``$tree_chars''を参照。
+
+  6.3.243.  tree_vline
+
+
+  Type: string
+  Default: "|"
+
+
+
+  （jaパッチの拡張機能）``$tree_chars''を参照。
+
+  6.3.244.  use_8bitmime
+
+
+  Type: boolean
+  Default: no
+
+
+
+  警告: -B8BITMIMEフラグをサポートする sendmail (つまりsendmail 8.8.x)を
+  使っているか、メールを送信できない場合にのみこの変数をセットしてくださ
+  い。
+
+  これをセットすると 8-bitメッセージを送る場合、``$sendmail''に
+  -B8BITMIMEフラグをつけて起動し ESMTPネゴシエーションができるようにしま
+  す。
+
+  6.3.245.  use_domain
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数がセットされていると muttはすべてのローカルアドレス(@hostパー
+  トがつかないもの)に``$hostname''変数を修飾します。unsetされた場合には
+  修飾しません。
+
+  6.3.246.  use_from
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数がセットされるとメッセージを送信するときに From: へッダフィー
+  ルドがつくられます。unsetされている場合には ``my_hdr''コマンドで明示的
+  に設定しない限り From: へッダフィールドがつくられません。
+
+  6.3.247.  user_agent
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  この変数がセットされていると送信するメッセージに User-Agentへッダがつ
+  き、どのバージョンの muttがそのメッセージを書くのに使われたかを知らせ
+  ます。
+
+  6.3.248.  visual
+
+
+  Type: path
+  Default: ""
+
+
+
+  内蔵エディタで ~vコマンドが与えられたときに実行するビジュアルエディタ
+  を指定します。
+
+  6.3.249.  wait_key
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  shell-escape、 pipe-message、 pipe-entry、print-message、 print-entry
+  コマンドの後で Muttがキーを入力するようにたずねるかどうかをコントロー
+  ルします。
+
+  また ``auto_view''で添付ファイルを見る場合、対応する mailcapの項目に
+  needsterminalフラグがついていて外部プログラムを対話的に使う場合にも使
+  われます。
+
+  この変数がセットされていると Muttは常にキー入力を求めます。unsetされて
+  いる場合には外部コマンドがゼロ以外の値を返した場合のみキー入力を待ちま
+  す。
+  6.3.250.  weed
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  セットされているとメッセージを表示、転送、印刷、返信するときにへッダを
+  取り除きます。
+
+  6.3.251.  wrap_search
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  メールボックスの最後で検索を終えるかどうかをコントロールします。
+
+  この変数がセットされている場合には、検索は最初の(または最後の)メッセー
+  ジで終わりますが、unsetされた場合には終わりません。
+
+  6.3.252.  wrapmargin
+
+
+  Type: number
+  Default: 0
+
+
+
+  muttのページャが文章の右揃えをするときにターミナルの右にどれだけのマー
+  ジンを残しておくかをコントロールします。
+
+  6.3.253.  write_inc
+
+
+  Type: number
+  Default: 10
+
+
+
+  メールボックスに書き込む際に進行の状況を知らせるために終わったメッセー
+  ジの数をいくつごとに表示するかを設定します。0の場合にはメールボックス
+  に書き込む前にメッセージがでるだけです。
+
+  ``$read_inc''変数も参照してください。
+
+  6.3.254.  write_bcc
+
+
+  Type: boolean
+  Default: yes
+
+
+
+  送信用のメッセージを書いているときに Bccへッダを muttが書くかどうかを
+  コントロールします。Eximユーザに便利な機能です。
+
+  6.4.  Functions
+
+  この章ではメニューごとに使うことのできる関数を一覧表にしています。デ
+  フォルトでのキーへの割り当てとその関数の説明が関数名の後に書いてありま
+  す。これらの関数のキーの割り当ては ``bind''コマンドを使って変えること
+  ができます。
+  6.4.1.  generic
+
+  genericは本当のメニューではなく、ここではぺ-ジャーとエディタ以外のすべ
+  てのメニューで共通に使える関数(移動等)をまとめてあります。このセクショ
+  ンの関数のキーの割り当てを変えるとすべてのメニューに影響します。
+
+
+  bottom-page               L   最後のページに行く
+  current-bottom    not bound   スクリーンの最下位置エントリに移動
+  current-middle    not bound   スクリーンの中央位置エントリに移動
+  current-top       not bound   スクリーンの最上位置エントリに移動
+  enter-command             :   muttrcの命令を入力
+  exit                      q   このメニューから抜ける
+  first-entry               =   最初のエントリに移動
+  half-down                  ]  ページを半分下にスクロール
+  half-up                   [   ページを半分上にスクロール
+  help                       ?  このスクリーン
+  jump                  number   インデックス番号に飛ぶ
+  last-entry                 *   最後のエントリに行く
+  middle-page                M   ページのまん中に行く
+  next-entry                 j   次のエントリに行く
+  next-line                  >   一行スクロール・ダウン
+  next-page                  z   次ページへ行く
+  previous-entry             k  前のエントリに行く
+  previous-line              <  一行スクロール・アップ
+  previous-page              Z  前のページに行く
+  refresh                   ^L  画面をクリアして描き直す
+  search                     /  正規表現検索
+  search-next                n  次のマッチを検索
+  search-opposite    not bound  逆順にパターンを検索
+  search-reverse         Esc /  逆順の正規表現検索
+  select-entry             RET  このエントリを選ぶ
+  shell-escape               !  サブシェルでコマンドを起動
+  tag-entry                  t  メッセージにタグを付ける
+  tag-prefix                 ;  タグ付メッセージに次の関数を適用
+  top-page                   H  ページの最初に行く
+
+
+
+  6.4.2.  index
+
+
+
+  bounce-message            b   メッセージを他のユーザに再送する
+  change-folder             c   別のフォルダをオープン
+  change-folder-readonly <Esc>c リード・オンリーモードで別のフォルダを開く
+  check-traditional-pgp  ESC P   古い pgp をチェックする
+  clear-flag                W   メッセージのステータス・フラグをクリア
+  collapse-all           <Esc>V   すべてのスレッドを collapse/uncollapse
+  collapse-thread      <Esc>v   このスレッドを collapse/uncollapse
+  copy-message              C   メッセージをファイルやメールボックスにコピー
+  create-alias              a   メッセージの送信者をエイリアスに
+  decode-copy          <Esc>C   text/plainにデコードしてコピー
+  decode-save          <Esc>s   text/plainにデコードしてコピー、かつ削除
+  delete-message            d   このエントリを削除
+  delete-pattern            D   パターンにマッチしたメッセージを削除
+  delete-subthread     <Esc>d   サブスレッドのメッセージをすべて削除
+  delete-thread            ^D   スレッドのメッセージをすべて削除
+  display-address           @   送信者のフル・アドレスを表示する
+  display-toggle-weed       h   へッダを取り除いてメッセージを表示するかどうかのトグル
+  display-message    <Return>   メッセージを表示する
+  edit                       e   現在のメッセージを編集
+  edit-type                 ^E   現在のメッセージの Content-Typeを編集
+  exit                      x   このメニューから抜ける
+  extract-keys             ^K   PGP公開鍵を取り出す
+  fetch-mail                G   POPサーバからメールを取ってくる
+  flag-message              F  「重要な」フラグのトグル
+  forget-passphrase        ^F   メモリーから PGPパスフレーズを消去
+  forward-message           f   コメント付でメッセージをフォワード
+  group-reply               g   すべての受信者にリプライ
+  limit                     l   パターンにマッチしたメッセージだけ表示
+  list-reply                L   メーリング・リスト宛てにリプライ
+  mail                      m   新たなメッセージ作成
+  mail-key              ESC k   PGP公開鍵をメールする
+  next-new              <Tab>   次の新着メッセージへ飛ぶ
+  next-subthread       <Esc>n   次のサブスレッドへ飛ぶ
+  next-thread              ^N   次のスレッドへ飛ぶ
+  next-undeleted            j   削除マークのない次のメッセージ行く
+  next-unread       not bound   次の未読メッセージに移動
+  parent-message           P   スレッド内で親メッセージにジャンプする
+  pipe-message             |   メッセージ/添付文書を shellコマンドにパイプする
+  previous-new     <Esc><Tab>   前の新着メッセージへ飛ぶ
+  previous-page             Z   move to the previous page
+  previous-subthread   <Esc>p   前のサブスレッドへ飛ぶ
+  previous-thread          ^P   前のスレッドへ飛ぶ
+  previous-undeleted        k   削除マークのない最後のメッセージ行く
+  previous-unread    not bound   前の未読のメッセージに移動
+  print-message             p   このエントリを印刷
+  query                     Q   外部プログラムにアドレスを問い合わせる
+  quit                      q   変更をメールボックスにセーブ後終了
+  read-subthread       <Esc>r   このサブスレッドを読んだことにする
+  read-thread              ^R   このスレッドを読んだことにする
+  recall-message            R   書きかけのメッセージを使う
+  reply                     r   メッセージにリプライする
+  resend-message         ESC e   MIME構造を保存したメッセージの再送
+  save-message              s   メッセージや添付文書をファイルにセーブ
+  set-flag                  w   メッセージのステータス・フラグをセット
+  show-limit           <Esc>l   active limit pattern の現在の値を表示
+  show-version              V   Muttのバージョンと日付を表示
+  sort-mailbox              o   メッセージをソートする
+  sort-reverse              O   メッセージを逆順にソートする
+  sync-mailbox              $   変更をメールボックスにセーブ
+  tag-pattern               T   パターンにマッチしたメッセージにタグを付ける
+  tag-thread            <Esc>t   このスレッドにタグを付ける
+  toggle-new                  N   メッセージの「新着」フラグをトグル
+  toggle-write               %   メールボックスを書き戻すかどうかトグル
+  undelete-message           u   エントリの削除マークを取る
+  undelete-pattern           U   patternにマッチしたmessageの削除マークを取る
+  undelete-subthread    <Esc>u   サブスレッドの削除マークをすべて取る
+  undelete-thread           ^U   スレッドの削除マークをすべて取る
+  untag-pattern             ^T   パターンにマッチしたメッセージのタグを取る
+  view-attachments           v   MIMEの添付文書を表示
+
+
+
+  6.4.3.  pager
+
+
+
+  bottom                 not bound   メッセージの最後に飛ぶ
+  bounce-message            b   メッセージを他のユーザに再送する
+  change-folder             c   別のフォルダをオープン
+  change-folder-readonly <Esc>c リード・オンリーモードで別のフォルダを開く
+  check-traditional-pgp  ESC P   古い pgp をチェックする
+  copy-message              C   メッセージをファイルやメールボックスにコピ ー
+  create-alias              a   メッセージの送信者をエイリアスに加える
+  decode-copy          <Esc>C   text/plainにデコードしてコピー
+  decode-save         <Esc>s   text/plainにデコードしてコピー、かつ削除
+  delete-message            d   このエントリを削除
+  delete-subthread     <Esc>d   サブスレッドのメッセージをすべて削除
+  delete-thread            ^D   スレッドのメッセージをすべて削除
+  display-address           @   送信者のフル・アドレスを表示する
+  display-toggle-weed       h   へッダを取り除いてメッセージを表示するかどうかのトグル
+  edit                      e   このメッセージを再送信のため編集
+  edit-type                ^E   現在のメッセージの Content-Typeを編集
+  enter-command             :   muttrcの命令を入力
+  exit                      i   メインメニューに戻る
+  extract-keys             ^K   PGP公開鍵を取り出す
+  flag-message              F   「重要な」フラグのトグル
+  forget-passphrase        ^F   メモリーから PGPパスフレーズを消去する
+  forward-message           f   コメント付でメッセージをフォワード
+  group-reply               g   すべての受信者にリプライ
+  half-down         not bound   ページを半分下にスクロール
+  half-up           not bound   ページを半分上にスクロール
+  help                      ?   このスクリーン
+  list-reply                L   メーリング・リスト宛てにリプライ
+  mail                      m   新たなメッセージ作成
+  mail-key              ESC k   PGP公開鍵をメールする
+  mark-as-new               N   メッセージの「新着」フラグをトグル
+  next-entry                J   次のエントリに行く
+  next-line          <Return>   一行スクロール・ダウン
+  next-new              <Tab>   次の新着メッセージへ飛ぶ
+  next-page           <Space>   次ページへ行く
+  next-subthread       <Esc>n   次のサブスレッドへ飛ぶ
+  next-thread              ^N   次のスレッドへ飛ぶ
+  next-undeleted            j   削除マークのない次のメッセージ行く
+  next-unread       not bound   次の未読メッセージへ飛ぶ
+  parent-message           P   スレッド内で親メッセージにジャンプする
+  pipe-message              |   メッセージ/添付文書をpipeでshellコマンドに
+  previous-entry            K   前のエントリに行く
+  previous-line   <BackSpace>   一行スクロール・アップ
+  previous-new      not bound   前の新着メッセージへ飛ぶ
+  previous-page             -   前のページに行く
+  previous-subthread   <Esc>p   前のサブスレッドへ飛ぶ
+  previous-thread          ^P   前のスレッドへ飛ぶ
+  previous-undeleted        k   削除マークのない最後のメッセージ行く
+  previous-unread   not bound   前の未読メッセージへ飛ぶ
+  print-message             p   このエントリを印刷
+  quit                      Q   変更をメールボックスにセーブ後終了
+  read-subthread       <Esc>r   このサブスレッドを読んだことにする
+  read-thread              ^R   このスレッドを読んだことにする
+  recall-message            R   書きかけのメッセージを使う
+  redraw-screen            ^L   画面をクリアして描き直す
+  reply                     r   メッセージにリプライする
+  save-message              s   メッセージや添付文書をファイルにセーブ
+  search                    /   正規表現検索
+  search-next               n   次のマッチを検索
+  search-opposite   not bound   逆順にパターンを検索
+  search-reverse       <Esc>/   逆順の正規表現検索
+  search-toggle             \   検索パターンの色をトグル
+  shell-escape              !   サブシェルでコマンドを起動
+  show-version              V   Muttのバージョンと日付を表示
+  skip-quoted               S   引用部テキストをスキップ
+  sync-mailbox              $   メールボックスへの変更を保存
+  tag-message               t   メッセージにタグを付ける
+  toggle-quoted             T   引用部を表示する/しないのトグル
+  top                       ^   メッセージの最初に飛ぶ
+  undelete-message          u   エントリの削除マークを取る
+  undelete-subthread   <Esc>u   サブスレッドの削除マークをすべて取る
+  undelete-thread          ^U   スレッドの削除マークをすべて取る
+  view-attachments          v   MIMEの添付文書を表示
+
+
+
+  6.4.4.  alias
+
+
+  search                     /   正規表現による検索
+  search-next                n   次を検索
+  search-reverse         ESC /   逆方向に正規表現で検索
+
+
+
+  6.4.5.  query
+
+
+  create-alias               a   メッセージの送り主からエイリアスを作成
+  mail                       m   新しいメッセージを作成
+  query                      Q   外部プログラムを使ってのアドレスの問い合わせ
+  query-append               A   今の結果に新しい問い合わせの結果を付け加える
+  search                     /   正規表現による検索
+  search-next                n   次を検索
+  search-opposite    not bound   逆方向に次の検索
+  search-reverse         ESC /   逆方向に正規表現で検索
+
+
+
+  6.4.6.  attach
+
+
+  bounce-message             b   他のユーザーにメッセージを再送する
+  collapse-parts             v   サブパートの表示のトグル
+  delete-entry               d    今いる項目を削除する
+  display-toggle-weed       h   へッダを取り除いてメッセージを表示するかどうかのトグル
+  edit-type                ^E   現在のメッセージの Content-Typeを編集
+  extract-keys              ^K    PGP公開鍵を取り出す
+  forward-message            f   コメントをつけてメッセージをフォワード
+  group-reply                g   すべての受信者にリプライ
+  list-reply                 L   メーリング・リスト宛てにリプライ
+  pipe-entry                 |   メッセージ/添付文書をpipeでshellコマンドにわたす
+  print-entry                p   この項目を印刷
+  reply                      r   メッセージにリプライする
+  resend-message         ESC e   MIME構造を保存したメッセージの再送
+  save-entry                 s   メッセージ/添付文章をファイルに保存
+  undelete-entry             u   項目の削除マークをとる
+  view-attach              RET   必要なら mailcapエントリを使って添付ファイルを表示
+  view-mailcap               m   強制的にmailcapを使って添付文書を読む
+  view-text                  T    添付文書をテキストとして読む
+
+
+
+  6.4.7.  compose
+
+
+
+  attach-file                a   このメッセージにファイルを添付する
+  attach-message             A   このメッセージにメッセージを添付する
+  attach-key             ESC k   PGP公開鍵を添付
+  copy-file                  C   メッセージや添付文書をファイルにセーブ
+  detach-file                D   このエントリを削除
+  display-toggle-weed       h   へッダを取り除いてメッセージを表示するかどうかのトグル
+  edit-bcc                   b   BCCリストを編集する
+  edit-cc                    c   CCリストを編集する
+  edit-description           d   この添付文書の内容説明文を編集
+  edit-encoding            ^E   添付文書のcontent-trasfer-encodingを編集
+  edit-fcc                  f   メッセージをセーブするファイル名を入力
+  edit-file               ^Xe   添付するファイルを編集する
+  edit-from            <Esc>f   fromフィールドを編集する
+  edit-headers              E   メッセージをヘッダとともに編集する
+  edit                      e   メッセージを編集する
+  edit-mime                 m  添付文書をmailcapエントリを使って編集する
+  edit-reply-to             r   Reply-Toフィールドを編集する
+  edit-subject              s   メッセージのサブジェクトを編集
+  edit-to                   t   TOリストを編集する
+  edit-type                ^T  添付文書の attachment type を編集
+  filter-entry             F   shell のコマンドを使って添付文書を filterに
+  forget-passphrase         ^F   メモリから PGPパスフレーズを消去
+  ispell                     i   メッセージに ispellを実行する
+  new-mime                   n   mailcapエントリを使って添付文書を作成する
+  pgp-menu                   p   PGPのオプションを表示
+  pipe-entry                 |   メッセージ/添付文書をpipeでshellコマンドに
+  postpone-message           P   このメッセージ「書きかけ」にする
+  print-entry                l   このエントリを印刷
+  rename-file                R   添付文書をリネーム(移動)する
+  send-message               y   メッセージ送信
+  tag-entry                  T   メッセージにタグを付ける
+  toggle-unlink              u   送信した後ファイルを消すかどうかのトグル
+  view-attach         <Return>   必要ならmailcapエントリを使って添付を表示
+  write-fcc                  w   フォルダにメッセージを書く
+
+
+
+  6.4.8.  postpone
+
+
+  delete-entry               d   この項目を削除
+  undelete-entry             u   この項目の削除マークを消す
+
+
+
+  6.4.9.  browser
+
+
+  change-dir                 c   ディレクトリを変更する
+  check-new                TAB  新着メールのあるメールボックスをチェックする
+  enter-mask                 m   ファイル・マスクを入力
+  search                     /   正規表現による検索
+  search-next                n   次を検索
+  search-reverse         ESC /   正規表現による反対方向の検索
+  select-new                N   このディレクトリ中の新しいファイルを選択する
+  sort                       o   メッセージをソートする
+  sort-reverse               O   メッセージを逆順にソートする
+  toggle-mailboxes         TAB   メールボックスを見るか、すべてのファイルを見るかのトグルスイッチ
+  view-file              SPACE   ファイルを見る
+  subscribe               s いまいる メールボックスを購読(subscribe)する(IMAPのみ)
+  unsubscribe                u   いまいるメールボックスを購読からはずす。(unsubscribe)(IMAPのみ)
+  toggle-subscribed          T   toggle view all/subscribed mailboxes (IMAP Only)
+  toggle-subscribed          T   すべてのメールボックスを見るか購読しているもののみ見るかのトグルスイッチ (IMAPのみ)
+
+
+
+  6.4.10.  pgp
+
+
+  view-name                  %   鍵のユーザ IDを見る
+  verify-key                 c   PGP公開鍵の確認
+
+
+
+  6.4.11.  editor
+
+
+  backspace          BackSpace   カーソルの前の文字を消去
+  backward-char             ^B   カーソルを一文字左に移動
+  backward-word          ESC b   前の単語にカーソルを移動
+  bol                       ^A   行頭へジャンプ
+  buffy-cycle          Space    新着メールのメールボックスの間をまわる。
+  capitalize-word        ESC c   単語の先頭の文字を大文字にする
+  complete                 TAB   ファイル名またはエイリアスを補完
+  complete-query            ^T   問い合わせを使ってアドレスを補完
+  delete-char               ^D   カーソルの下の文字を消去
+  downcase-word         ESC l   カーソルのある単語のすべての文字を小文字にする
+  eol                       ^E   行末にジャンプ
+  forward-char              ^F   カーソルを一文字右の移動
+  forward-word           ESC F  カーソルを次の単語へ移動
+  history-down       not bound   ヒストリリストをスクロールダウン
+  history-up         not bound   ヒストリリストをスクロールアップ
+  kill-eol                  ^K   カーソルから行末までの文字を消去
+  kill-eow               ESC d   カーソルから単語の最後までの文字を削除
+  kill-line                 ^U   一行すべての文字を消去
+  kill-word                 ^W   カーソルの前の単語を消去
+  quote-char                ^V   次にタイプするキーを引用
+  transpose-chars    not bound   カーソルの下の文字を以前のものと置き換える
+  upcase-word             ESC u  カーソルのある単語のすべての文字を大文字にする
+
+
+
+  7.  Miscellany
+
+  7.1.  Acknowledgements
+
+  Kari Hurtta <kari.hurtta@fmi.fi>co-developed the original MIME parsing
+  code back in the ELM-ME days.
+
+  The following people have been very helpful to the development of
+  Mutt:
+
+  Vikas Agnihotri <vikasa@writeme.com>, Francois Berjon
+  <Francois.Berjon@aar.alcatel-alsthom.fr>, Aric Blumer <aric@fore.com>,
+  John Capo <jc@irbs.com>, David Champion <dgc@uchicago.edu>, Brendan
+  Cully <brendan@kublai.com>, Liviu Daia <daia@stoilow.imar.ro>, Thomas
+  E. Dickey <dickey@herndon4.his.com>, David DeSimone
+  <fox@convex.hp.com>, Nickolay N. Dudorov <nnd@wint.itfs.nsk.su>,
+  Ruslan Ermilov <ru@freebsd.org>, Edmund Grimley Evans
+  <edmundo@rano.org>, Michael Finken <finken@conware.de>, Sven Guckes
+  <guckes@math.fu-berlin.de>, Lars Hecking <lhecking@nmrc.ie>, Mark
+  Holloman <holloman@nando.net>, Andreas Holzmann <holzmann@fmi.uni-
+  passau.de>, Marco d'Itri <md@linux.it>, Byrial
+  Jensen<byrial@image.dk>, Byrial Jensen <byrial@image.dk>, David Jeske
+  <jeske@igcom.net>, Christophe Kalt <kalt@hugo.int-evry.fr>, Tommi
+  Komulainen <Tommi.Komulainen@iki.fi>, Felix von Leitner (a.k.a
+  ``Fefe'') <leitner@math.fu-berlin.de>, Brandon Long
+  <blong@fiction.net>, <jmy@flashback.net>, Lars Marowsky-Bree
+  <lmb@pointer.in-minden.de>, Thomas ``Mike'' Michlmayr
+  <mike@cosy.sbg.ac.at>, Andrew W. Nosenko <awn@bcs.zp.ua>, David
+  O'Brien <obrien@Nuxi.cs.ucdavis.edu>, Clint Olsen
+  <olsenc@ichips.intel.com>, Park Myeong Seok <pms@romance.kaist.ac.kr>,
+  Thomas Parmelan <tom@ankh.fr.eu.org>, Ollivier Robert
+  <roberto@keltia.freenix.fr>, Thomas Roessler <roessler@does-not-
+  exist.org>, Roland Rosenfeld <roland@spinnaker.de>, TAKIZAWA Takashi
+  <taki@luna.email.ne.jp>, Allain Thivillon <Allain.Thivillon@alma.fr>,
+  Gero Treuner <gero@faveve.uni-stuttgart.de>, Vsevolod Volkov
+  <vvv@lucky.net>, Ken Weinert <kenw@ihs.com>
+
+  7.2.  この文章について
+
+  この文章は SGMLで書かれ、それを sgml-toolsパッケージを使って翻訳してい
+  ます。
+
+
+

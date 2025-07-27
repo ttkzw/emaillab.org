@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="EUC-JP"?>
+<product name="Datula">
+<basic-information>
+  <name>Datula</name>
+  <version>1.51.08</version>
+  <person-company>(有)オンシステムズ</person-company>
+  <uri>http://www.onsystems.co.jp/</uri>
+  <distribution>shareware</distribution>
+  <price>2,980</price>
+  <release>
+    <year>2000</year>
+    <month>12</month>
+    <day>20</day>
+  </release>
+</basic-information>
+
+<header>
+  <message-id>
+    <is-generated>yes</is-generated>
+    <uniqueness>high</uniqueness>
+    <comment>mail address</comment>
+  </message-id>
+  <date>
+    <is-generated>yes</is-generated>
+  </date>
+  <in-reply-to>
+    <is-generated>yes</is-generated>
+  </in-reply-to>
+  <references>
+    <is-generated>yes</is-generated>
+  </references>
+  <content-disposition>
+    <is-generated>yes</is-generated>
+  </content-disposition>
+  <mediatype>
+    <suitable-mediatype>yes</suitable-mediatype>
+    <mediatype-parameter>name</mediatype-parameter>
+  </mediatype>
+</header>
+
+<japanese>
+  <jisx0201kana>全角に変換</jisx0201kana>
+  <os-dependent-char>同じ意味の文字列に置換(13),警告(nec,ibm)</os-dependent-char>
+  <subject-encoding>partial</subject-encoding>
+  <filename-encoding>RFC2231/B</filename-encoding>
+  <rfc2231-decoding>yes</rfc2231-decoding>
+</japanese>
+
+<language>
+  <latin1>yes</latin1>
+  <latin2>yes</latin2>
+  <turkish>yes</turkish>
+  <nordic>yes</nordic>
+  <cyrillic>yes</cyrillic>
+  <arabic>no</arabic>
+  <greek>yes</greek>
+  <hebrew>no</hebrew>
+  <japanese>yes</japanese>
+  <chinese>yes</chinese>
+  <chinese-tw>yes</chinese-tw>
+  <korean>yes</korean>
+  <utf-8>incomplete</utf-8>
+  <utf-7>incomplete</utf-7>
+  <note></note>
+</language>
+
+<cipher>
+  <pgp>
+    <is-implemented>yes</is-implemented>
+    <pgp-version>5.5,6.0,6.5</pgp-version>
+    <pgp-mime>yes</pgp-mime>
+  </pgp>
+  <smime>
+    <is-implemented>no</is-implemented>
+  </smime>
+  <tls>
+    <smtp>no</smtp>
+    <pop>no</pop>
+    <imap>no</imap>
+  </tls>
+</cipher>
+
+<other-specifications>
+  <binary-encode>base64, uuencode, binhex</binary-encode>
+  <smtp>
+    <is-implemented>yes</is-implemented>
+    <pop-before-smtp>incomplete</pop-before-smtp>
+    <authentication>yes(CRAM-MD5)</authentication>
+  </smtp>
+  <pop>
+    <is-implemented>yes</is-implemented>
+    <authentication>APOP</authentication>
+  </pop>
+  <imap>
+    <is-implemented>yes</is-implemented>
+    <authentication>CRAM-MD5</authentication>
+  </imap>
+  <ldap>
+    <is-implemented>yes</is-implemented>
+    <jp-char>yes</jp-char>
+  </ldap>
+</other-specifications>
+
+<note>
+</note>
+</product>

@@ -1,0 +1,18 @@
+#!/bin/sh
+#  /service/pop3d/log
+exec \
+setuidgid log \
+multilog t \
+-'* * > *' \
+-'* * < *' \
+s500000 \
+./main \
+-'*' \
++'* * < *' \
++'* * > -ERR *' \
+s500000 \
+./tcp \
+-'*' \
++'* * status: *' \
+=status
+

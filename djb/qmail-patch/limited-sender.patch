@@ -1,0 +1,85 @@
+*** ../qmail-1.03.orig/qmail-smtpd.c	Mon Jun 15 19:53:16 1998
+--- qmail-smtpd.c	Wed Feb 16 00:30:38 2000
+***************
+*** 50,55 ****
+--- 50,56 ----
+  void straynewline() { out("451 See http://pobox.com/~djb/docs/smtplf.html.\r\n"); flush(); _exit(1); }
+  
+  void err_bmf() { out("553 sorry, your envelope sender is in my badmailfrom list (#5.7.1)\r\n"); }
++ void err_sh() { out("552 sorry, your domain isn't in my list of allowed senderhosts (#5.7.1)\r\n"); }
+  void err_nogateway() { out("553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)\r\n"); }
+  void err_unimpl() { out("502 unimplemented (#5.5.1)\r\n"); }
+  void err_syntax() { out("555 syntax error (#5.5.4)\r\n"); }
+***************
+*** 96,101 ****
+--- 97,105 ----
+  int bmfok = 0;
+  stralloc bmf = {0};
+  struct constmap mapbmf;
++ int flagsh = 0;
++ stralloc sh = {0};
++ struct constmap mapsh;
+  
+  void setup()
+  {
+***************
+*** 117,122 ****
+--- 121,131 ----
+    if (bmfok)
+      if (!constmap_init(&mapbmf,bmf.s,bmf.len,0)) die_nomem();
+   
++   flagsh = control_readfile(&sh,"control/senderhosts",0);
++   if (flagsh == -1) die_control();;
++   if (flagsh)
++     if (!constmap_init(&mapsh,sh.s,sh.len,0)) die_nomem();
++ 
+    if (control_readint(&databytes,"control/databytes") == -1) die_control();
+    x = env_get("DATABYTES");
+    if (x) { scan_ulong(x,&u); databytes = u; }
+***************
+*** 208,213 ****
+--- 217,248 ----
+    return 0;
+  }
+  
++ static stralloc host = {0};
++ 
++ int senderhosts(buf,len)
++ char *buf;
++ int len;
++ {
++   int j;
++ 
++   if (!flagsh) return 1;
++ 
++   j = byte_rchr(buf,len,'@');
++   if (j >= len) return 0; /* null domain in relaying is not acceptable */
++ 
++   ++j; buf += j; len -= j;
++ 
++   if (!stralloc_copyb(&host,buf,len)) return -1;
++   buf = host.s;
++   case_lowerb(buf,len);
++ 
++   for (j = 0;j < len;++j)
++     if (!j || (buf[j] == '.'))
++       if (constmap(&mapsh,buf + j,len - j)) return 1;
++ 
++   return 0;
++ }
++ 
+  int addrallowed()
+  {
+    int r;
+***************
+*** 241,246 ****
+--- 276,284 ----
+  {
+    if (!addrparse(arg)) { err_syntax(); return; }
+    flagbarf = bmfcheck();
++   if (relayclient) {
++     if (!senderhosts(addr.s,str_len(addr.s))) { err_sh(); return; }
++   }
+    seenmail = 1;
+    if (!stralloc_copys(&rcptto,"")) die_nomem();
+    if (!stralloc_copys(&mailfrom,addr.s)) die_nomem();

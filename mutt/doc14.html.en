@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet href="mutt.css" type="text/css"?>
+<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-8859-1" />
+<meta http-equiv="content-style-type" content="text/css" />
+<title>Mutt Japanese Edition - Document</title>
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="mutt.css" />
+</head>
+<body>
+
+<table border="0" width="770">
+<tr>
+<td colspan="2" class="header">
+<!-- beginning of header -->
+<h1>Mutt Japanese Edition</h1>
+<!-- end of header -->
+</td>
+</tr>
+<tr valign="top">
+<td width="160" class="toc">
+<!-- beginning of TOC -->
+<table border="0" width="160">
+<tr><th>Mutt</th></tr>
+<tr><td>
+  <ul>
+  <li><a href="index.html.en">TOP</a></li>
+  </ul>
+</td></tr>
+<tr><th>Documents</th></tr>
+<tr><td>
+  <ul>
+  <li><a href="doc14.html.en">1.4</a></li>
+  <li><a href="doc15.html.en">1.5</a></li>
+  </ul>
+</td></tr>
+<tr><th>Download</th></tr>
+<tr><td>
+  <ul>
+  <li><a href="download14.html.en">1.4</a></li>
+  <li><a href="download15.html.en">1.5</a></li>
+  </ul>
+</td></tr>
+</table>
+<!-- end of TOC -->
+</td>
+<td width="600" class="contents">
+<!-- beginning of contents -->
+<h2>Documents: 1.4</h2>
+
+<hr />
+<h3><a name="14" id="14">Mutt 1.4</a></h3>
+<table border="1">
+<tr>
+  <th>Name</th>
+  <th>Original</th>
+  <th>Translation</th>
+  <th>Notes</th>
+</tr>
+<tr>
+  <td>README for mutt-1.3</td>
+  <td><a href="1.4/doc/README">README</a></td>
+  <td><a href="1.4/doc/README.ja">README.ja</a></td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Visible changes since Mutt 1.2</td>
+  <td><a href="1.4/doc/NEWS">NEWS</a></td>
+  <td><a href="1.4/doc/NEWS.ja">NEWS.ja</a></td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Installation</td>
+  <td><a href="1.4/doc/INSTALL">INSTALL</a></td>
+  <td><a href="1.4/doc/INSTALL.ja">INSTALL.ja</a></td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>README.SECURITY</td>
+  <td><a href="1.4/doc/README.SECURITY">README.SECURITY</a></td>
+  <td><a href="1.4/doc/README.SECURITY.ja">README.SECURITY.ja</a></td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>IMAP/SSL in mutt</td>
+  <td><a href="1.4/doc/README.SSL">README.SSL</a></td>
+  <td><a href="1.4/doc/README.SSL.ja">README.SSL.ja</a></td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Manual</td>
+  <td><a href="1.4/doc/manual.html">HTML<br><a href="1.4/doc/manual.txt">TEXT</a></td>
+  <td><a href="1.4/doc/manual_ja.html">HTML</a><br><a href="1.4/doc/manual_ja.txt">TEXT</a></td>
+  <td>Translated by NISHIOKA san, and HITOMI san (<a href="http://ha4.seikyou.ne.jp/home/Kohtaro.Hitomi/mutt/">Japanese Mutt Manual</a>)</td>
+</tr>
+</table>
+
+<hr />
+<h3><a name="14ja" id="14ja">ja patch for Mutt 1.4</a></h3>
+<table border="1">
+<tr>
+  <th>Name</th>
+  <th>HTML</th>
+  <th>TEXT</th>
+  <th>Notes</th>
+</tr>
+<tr>
+  <td>Release notes for ja patch</td>
+  <td><a href="1.4/doc/README.JA-PATCH.ja.html">HTML</a></td>
+  <td><a href="1.4/doc/README.JA-PATCH.ja">TEXT</a></td>
+  <td>Japanese</td>
+</tr>
+<tr>
+  <td>Install</td>
+  <td><a href="1.4/doc/INSTALL.JA-PATCH.ja.html">HTML</a></td>
+  <td><a href="1.4/doc/INSTALL.JA-PATCH.ja">TEXT</a></td>
+  <td>Japanese</td>
+</tr>
+<tr>
+  <td>Manual</td>
+  <td><a href="1.4/doc/manual-ja-patch.en.html">HTML</a></td>
+  <td><a href="1.4/doc/manual-ja-patch.en.txt">TEXT</a></td>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Setup for Japanese enviroment</td>
+  <td><a href="1.4/doc/usage-japanese.ja.html">HTML</a></td>
+  <td><a href="1.4/doc/usage-japanese.ja.txt">TEXT</a></td>
+  <td>Japanese</td>
+</tr>
+</table>
+
+<!-- end of contents -->
+</td>
+</tr>
+<tr>
+<td colspan="2" class="footer">
+<!-- beginning of footer -->
+<address>
+"TAKIZAWA, Takashi" <a href="mailto:taki@cyber.email.ne.jp">taki@cyber.email.ne.jp</a>
+</address>
+<!-- end of footer -->
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<?xml-stylesheet href="../djb.css" type="text/css"?>
+<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<title>qmail - UW IMAP server</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="../djb.css" />
+</head>
+<body>
+<h1>qmail と IMAP</h1>
+<h2>UW IMAP server</h2>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sun Jan  7 15:20:15 2001
+<!-- hhmts end -->
+</div>
+<hr />
+<h3><a id="toc" name="toc">目次</a></h3>
+<ul class="toc">
+<li><a href="#chap1">1. UW IMAP server とは</a></li>
+<li><a href="#chap2">2. インストール</a></li>
+</ul>
+
+<hr />
+<h3><a id="chap1" name="chap1">1. UW IMAP server とは</a></h3>
+<p>UW IMAP server は University of Washington の Mark Crispin 氏によって開発が行われており、Mark Crispin 氏が IMAP4 関連の RFC の著者でもあることから、IMAP4 のリファレンス実装的な位置付けにもあります。</p>
+<p>しかし、時々、セキュリティホールが見つかるため、常に最新版の動向を調べる必要があります。参考までに <a href="http://www.cert.org/">CERT/CC</a> や <a href="http://www.securityfocus.com/">SecurityFocus (BAGTRAQ)</a> などで 2000年5月7日時点で報告されたものの一覧を載せます。要は最新版以外のものは使うべきではないということです。</p>
+<ul>
+<li><a href="http://www.cert.org/advisories/CA-97.09.imap_pop.html">CERT Advisory CA-97.09 "Topic: Vulnerability in IMAP and POP"</a></li>
+<li><a href="http://www.cert.org/advisories/CA-98.09.imapd.html">CERT Advisory CA-98.09.imapd</a></li>
+<li><a href="http://www.securityfocus.com/bid/130">1998-07-17: imapd Buffer Overflow Vulnerability</a></li>
+<li><a href="http://www.securityfocus.com/bid/283">1999-05-26: Univ. of Washington pop2d Buffer Overflow Vulnerability</a></li>
+<li><a href="http://www.securityfocus.com/bid/1110">2000-04-16: Univ. Of Washington imapd Buffer Overflow Vulnerabilities</a></li>
+<li><a href="http://www.securityfocus.com/bid/1132">2000-04-19: Multiple Vendor popd Lock File Denial of Service Vulnerability</a></li>
+</ul>
+
+<p>また、ユーザ数が増えるとパフォーマンスが悪くなるという話も聞きますので、他の IMAP サーバを使うことも検討してみてください。</p>
+
+<hr />
+<h3><a id="chap2" name="chap2">2. インストール</a></h3>
+
+<h4>方針</h4>
+<p>ここでは次の条件のもとでインストールを行うことにします。</p>
+<ul>
+<li>MTA に qmail を用いる。つまり、スプールファイルは ~/Mailbox になるということ。なお、qmail の Maildir 形式のスプールは UW IMAP server では使えません。</li>
+<li>通常ではホームディレクトリの中身が全て見えてしまうため、これを見せないようにする。
+</ul>
+
+<p>MTA に qmail を用いるのであれば Maildir 形式のスプールを使いたいところですが、UW IMAP server ではサポートしていません。ただし、サードパーティのアドオンドライバがあります(<cite>docs/FAQ</cite>)。しかし、UW IMAP server は mbx 形式のスプールを扱うように最適化されているため、Maildir 形式のパフォーマンスはよくないという話もあります。</p>
+
+<h4>インストール方法</h4>
+<p><a href="http://www.washington.edu/imap/">IMAP Information Center</a> からパッケージを取得してください。2001年1月7日時点での最新版は 2000a です。</p>
+
+<p>パッケージを展開します。</p>
+<div class="example">
+<kbd>
+$ uncompress imap-2000a.tar.Z<br />
+$ tar xvf imap-2000a.tar<br />
+$ cd imap-2000a
+</kbd>
+</div>
+<p>ここで、方針に従って、次のことを行います。詳細は <cite>docs/CONFIG</cite> を読んだ下さい。</p>
+<ul>
+<li>~/Mailbox から読み出す。</li>
+<li>~/mail/ を IMAP 用のホームディレクトリとすることによって Mailbox をはじめホームディレクトリ直下のファイルを見せなくする。</li>
+</ul>
+
+<p>まず、~/Mailbox を使うために、src/osdep/unix/env_unix.c に対して、の関数 sysinbox () において</p>
+<div class="example">
+sprintf (tmp,"%s/%s",MAILSPOOL,myusername ());
+</div>
+<p>を</p>
+<div class="example">
+<code>sprintf (tmp,"%s/Mailbox",myhomedir ());</code>
+</div>
+<p>に書き換えます。</p>
+
+<p>次にトップの Makefile を編集し、EXTRACFLAGS= の行に -DMAILSUBDIR=\\\"mail\\\" を追加します。
+
+<p>以上の書き換えが終ったら、コンパイルしてインストールします(Linux で PAM を使う場合の例です)。平文認証を認めないようにするのであれば PASSWDTYPE=nul も付けるといいでしょう。POP3 も使うのであれば ipop3d もインストールしてください。</p>
+<div class="example">
+$ make lnp PASSWDTYPE=pam
+# cp imapd/imapd /usr/local/sbin/
+# cp ipopd/ipop3d /usr/local/sbin/
+</div>
+
+
+<p>/etc/service に次の行があることを確認します。</p>
+<div class="example">
+<samp>imap &#0008; 143/tcp</samp>
+</div>
+<p>inetd から imapd を起動するのであれば、/etc/inetd.conf に次の行を設定し、起
+動している inetd に対して SIGHUP を送ってください。この例では tcpd 経由で起動さ
+せているので、tcpd の設定(hosts.allow, hosts.deny)も合わせて行ってください。</p>
+<div class="example">
+<samp>pop3 stream tcp nowait root /usr/sbin/tcpd /usr/local/sbin/imapd</samp>
+</div>
+
+<p>tcpserver と daemontools を組み合わせて、imapd を起動するのであれば、次のよ
+うな ./run を作ってください。詳しくは <cite><a href="../daemontools/daemontools-
+howto.html">daemontools HOW-TO</a></cite> をご覧下さい。</p>
+<pre class="example">
+#!/bin/sh
+#  imapd
+exec env - PATH="/usr/local/sbin:$PATH" \
+tcpserver -vR -c40 -xtcp.cdb -u0 -g0 0 imap imapd 2&gt;&amp;1
+</pre>
+
+<hr />
+<p>
+<a href="index.html">qmail と IMAP</a> 
+</p>
+<hr />
+</body>
+</html>

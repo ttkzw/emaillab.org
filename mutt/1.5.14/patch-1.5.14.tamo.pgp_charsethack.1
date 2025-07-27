@@ -1,0 +1,103 @@
+diff -uNr mutt-1.5.14.orig/PATCHES mutt-1.5.14/PATCHES
+--- mutt-1.5.14.orig/PATCHES	2006-10-30 11:30:55.000000000 +0900
++++ mutt-1.5.14/PATCHES	2007-03-08 01:53:05.000000000 +0900
+@@ -0,0 +1 @@
++patch-1.5.14.tamo.pgp_charsethack.1
+diff -uNr mutt-1.5.14.orig/init.h mutt-1.5.14/init.h
+--- mutt-1.5.14.orig/init.h	2006-11-21 02:49:08.000000000 +0900
++++ mutt-1.5.14/init.h	2007-03-08 01:52:48.000000000 +0900
+@@ -1398,6 +1398,17 @@
+   ** settings can be overridden by use of the \fIsmime-menu\fP.
+   ** (Crypto only)
+   */
++  { "pgp_charsethack", DT_BOOL, R_NONE, OPTPGPCHARSETHACK, 0},
++  /*
++  ** .pp
++  ** If \fIset\fP, Mutt will assume a non-MIME PGP armored message to be in
++  ** the charset specified in \fICharset:\fP armor header (by GnuPG) or in
++  ** \fIContent-Type\fP message header (by some MUAs). You should not set
++  ** this variable, because such an armor shouldn't have charset information.
++  ** By default, Mutt assumes such messages to be in UTF-8 (see RFC2440).
++  ** You will ignore the RFC if you set this variable!
++  ** (PGP only)
++  */
+   { "pgp_ignore_subkeys", DT_BOOL, R_NONE, OPTPGPIGNORESUB, 1},
+   /*
+   ** .pp
+diff -uNr mutt-1.5.14.orig/mutt.h mutt-1.5.14/mutt.h
+--- mutt-1.5.14.orig/mutt.h	2007-01-31 04:49:02.000000000 +0900
++++ mutt-1.5.14/mutt.h	2007-03-08 01:52:48.000000000 +0900
+@@ -467,6 +467,7 @@
+   OPTSMIMEISDEFAULT,
+   OPTASKCERTLABEL,
+   OPTSDEFAULTDECRYPTKEY,
++  OPTPGPCHARSETHACK,
+   OPTPGPIGNORESUB,
+   OPTPGPCHECKEXIT,
+   OPTPGPLONGIDS,
+diff -uNr mutt-1.5.14.orig/pgp.c mutt-1.5.14/pgp.c
+--- mutt-1.5.14.orig/pgp.c	2005-12-03 08:12:18.000000000 +0900
++++ mutt-1.5.14/pgp.c	2007-03-08 01:52:48.000000000 +0900
+@@ -260,6 +260,7 @@
+   short maybe_goodsig = 1;
+   short have_any_sigs = 0;
+ 
++  char *gpgcharset = NULL;
+   char body_charset[STRING];
+   mutt_get_body_charset (body_charset, sizeof (body_charset), m);
+ 
+@@ -328,6 +329,8 @@
+              && (mutt_strcmp ("-----END PGP SIGNATURE-----\n", buf) == 0
+                  || mutt_strcmp ("-----END PGP PUBLIC KEY BLOCK-----\n",buf) == 0)))
+ 	  break;
++	if (mutt_strncmp ("Charset: ", buf, 9) == 0)
++	  gpgcharset = mutt_substrdup (buf + 9, NULL);
+       }
+ 
+       /* leave tmpfp open in case we still need it - but flush it! */
+@@ -413,9 +416,7 @@
+       }
+       
+       /*
+-       * Now, copy cleartext to the screen.  NOTE - we expect that PGP
+-       * outputs utf-8 cleartext.  This may not always be true, but it 
+-       * seems to be a reasonable guess.
++       * Now, copy cleartext to the screen.
+        */
+ 
+       if(s->flags & M_DISPLAY)
+@@ -438,12 +439,15 @@
+       {
+ 	FGETCONV *fc;
+ 	int c;
++	char *expected_charset = ((!option (OPTPGPCHARSETHACK)) ? "utf-8" :
++				  (gpgcharset ? gpgcharset : body_charset));
+ 	rewind (pgpout);
+ 	state_set_prefix (s);
+-	fc = fgetconv_open (pgpout, "utf-8", Charset, 0);
++	fc = fgetconv_open (pgpout, expected_charset, Charset, M_ICONV_HOOK_FROM);
+ 	while ((c = fgetconv (fc)) != EOF)
+ 	  state_prefix_putc (c, s);
+ 	fgetconv_close (&fc);
++	FREE (&gpgcharset);
+       }
+ 
+       if (s->flags & M_DISPLAY)
+@@ -1418,12 +1422,11 @@
+     int c;
+     FGETCONV *fc;
+     
+-    if (flags & ENCRYPT)
+-      send_charset = "us-ascii";
+-    else
+-      send_charset = "utf-8";
+-    
+-    fc = fgetconv_open (fp, from_charset, "utf-8", M_ICONV_HOOK_FROM);
++    send_charset = option(OPTPGPCHARSETHACK) ? body_charset :
++			((flags & ENCRYPT) ? "us-ascii" : "utf-8");
++    fc = fgetconv_open (fp, from_charset,
++			option(OPTPGPCHARSETHACK) ? send_charset : "utf-8",
++			M_ICONV_HOOK_FROM);
+     while ((c = fgetconv (fc)) != EOF)
+       fputc (c, pgpin);
+     

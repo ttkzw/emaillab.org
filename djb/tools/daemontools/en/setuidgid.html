@@ -1,0 +1,33 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>The setuidgid program</h1>
+<tt>setuidgid</tt>
+runs another program under a specified account's uid and gid.
+<h2>Interface</h2>
+<pre>
+     setuidgid <i>account</i> <i>child</i>
+</pre>
+<tt><i>account</i></tt>
+is a single argument.
+<tt><i>child</i></tt>
+consists of one or more arguments.
+<p>
+<tt>setuidgid</tt>
+sets its uid and gid to <tt><i>account</i></tt>'s uid and gid,
+removing all supplementary groups.
+It then runs <tt><i>child</i></tt>.
+<p>
+<tt>setuidgid</tt>
+exits 111 if it cannot find a UNIX account named <tt><i>account</i></tt>,
+if it cannot setgid,
+if it cannot setuid,
+or if it cannot run <tt><i>child</i></tt>.
+Otherwise its exit code is the same as that of <tt><i>child</i></tt>.
+<p>
+<tt>setuidgid</tt>
+cannot be run by anyone other than root.
+</body>
+</html>

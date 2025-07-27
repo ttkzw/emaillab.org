@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<title>daemontools howto</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<style type="text/css">
+body {
+    color: black;
+    background-color: #fff8dc
+}
+h1,h2,h3,h4 {
+    color: green;
+}
+p.caption {
+    color: green;
+    font-weight: bold;
+}
+li.note {
+    fontsize: small;
+}
+ul.toc,ul.toc ul,ul.note {
+    list-style: none;
+}
+.author {
+    text-align: right;
+}
+.update {
+    text-align: right;
+}
+.example {
+    color: green;
+    font-family: monospace;
+    margin-left: 2em;
+}
+
+</style>
+</head>
+<body>
+<h1>daemontools HOW-TO (α版)</h1>
+<div class="author">
+Copyright 2000 滝澤 隆史 &lt;taki&#x40;cyber.email.ne.jp&gt;</a>
+</div>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sun Nov 19 19:29:10 2000
+<!-- hhmts end -->
+</div>
+
+<hr />
+<h2><a  id="prescript" name="prescript">前書き</a></h2>
+<p>この文書は DJB 氏の daemontools パッケージに興味を持たれる方やこれから導入・運用を行おうとする方に向けて書かれたものです。daemontools パッケージの概要、導入・設定方法、使用例などをまとめています。しかし、各ツールを詳細に説明するものではありません。そのため、この文書を読んだ後に、<a href="http://cr.yp.to/daemontools.html"><cite>マニュアル</cite></a><sup>*1</sup> を読んでください。<a href="http://www.emaillab.org/djb/tools/daemontools/top.html"><cite>日本語訳</cite></a><sup>*2</sup>もあります。
+また、新山さんの <a href="http://tanaka-www.cs.titech.ac.jp/%7Eeuske/doc/daemontools.html"><cite>daemontools FAQ</cite></a><sup>*3</sup>もありますのでそちらもご覧下さい。
+</p>
+
+<p class="caption">註記</p>
+<ul class="note">
+<li><a id="pre_n1" name="pre_n1">*1)</a> "daemontools" http://cr.yp.to/damontools.html</li>
+<li><a id="pre_n2" name="pre_n2">*2)</a> "daemontools(日本語訳)" http://www.emaillab.org/djb/tools/daemontools/top.html</li>
+<li><a id="pre_n3" name="pre_n3">*3)</a> "daemontools FAQ" http://tanaka-www.cs.titech.ac.jp/%7Eeuske/doc/daemontools.html</li>
+</ul>
+
+<hr />
+<h2><a id="toc" name="toc">目次</a></h2>
+<ul class="toc">
+  <li><a href="#chap1">1. 概要</a>
+    <ul>
+      <li><a href="#chap1sec1">1.1. daemontools とは</a></li>
+      <li><a href="#chap1sec2">1.2. パッケージの内容</a></li>
+      <li><a href="#chap1sec3">1.3. 既存の他のプログラムとの違い</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap2">2. インストールと設定</a>
+    <ul>
+      <li><a href="#chap2sec1">2.1. daemontools のインストール</a></li>
+      <li><a href="#chap2sec2">2.2. svscan の起動</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap3">3. サービスの制御</a>
+    <ul>
+      <li><a href="#chap3sec1">3.1. <tt>svscan</tt> と <tt>supervise</tt> の動作</a></li>
+      <li><a href="#chap3sec2">3.2. 各サービスの起動</a></li>
+      <li><a href="#chap3sec3">3.3. 起動スクリプト <tt>./run</tt> の例</a></li>
+      <li><a href="#chap3sec4">3.4. サービスの制御</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap4">4. ログの収集</a>
+    <ul>
+      <li><a href="#chap4sec1">4.1. <tt>multilog</tt></a></li>
+      <li><a href="#chap4sec2">4.2. <tt>.log/run</tt> の作成例</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap5">5. 環境変数・資源制限</a> (作成予定)</li>
+</ul>
+
+<hr />
+<h2><a id="chap1" name="chap1">1. 概要</a></h2>
+<h3><a id="chap1sec1" name="chap1sec1">1.1. daemontools とは</a></h3>
+<p>daemontools はサービスを安全・確実かつ容易に管理するためのツール集です。
+主にサービスの制御、ログの収集、環境変数・資源制限を行います。</p>
+
+<hr />
+<h3><a id="chap1sec2" name="chap1sec2">1.2. パッケージの内容</a></h3>
+<p>daemontools パッケージに含まれているプログラムには次のものがあります。</p>
+
+<table border="1" title="daemontoolsのプログラム一覧">
+<tr><th>プログラム名</th>
+<th>説明</th>
+</tr>
+<tr><td><tt>supervise</tt></td>
+<td>サービスを開始させ、監視します。何らかのトラブルでサービスが停止したら、自動的に再起動させます。</td>
+</tr>
+<tr><td><tt>svc</tt></td>
+<td><tt>supervise</tt> により監視されているサービスを制御します。</td>
+</tr>
+<tr><td><tt>svok</tt></td>
+<td><tt>supervise</tt> が起動しているかを調べます。</td>
+</tr>
+<tr><td><tt>svstat</tt></td>
+<td><tt>supervise</tt> により監視されているサービスの状態を出力します。</td>
+</tr>
+<tr><td><tt>svscan</tt></td>
+<td>サービスの集まりを開始させ、監視します。</td>
+</tr>
+<tr><td><tt>fghack</tt></td>
+<td>自信をバックグランドに移すサービスがバックグランドに移るのを防ぐツールです。</td>
+</tr>
+<tr><td><tt>multilog</tt></td>
+<td>標準入力から一続きの行を読み、任意の数のログに選択された行を追加します。</td>
+</tr>
+<tr><td><tt>tai64n</tt></td>
+<td>各行に TAI64N 形式の正確なタイムスタンプをを付けます。</td>
+</tr>
+<tr><td><tt>tai64nlocal</tt></td>
+<td>TAI64N 形式のタイムスタンプを人が読める形式に変換します。</td>
+</tr>
+<tr><td><tt>setuidgid</tt></td>
+<td>指定されたアカウントの uid と gid で別のプログラムを起動します。</td>
+</tr>
+<tr><td><tt>envuidgid</tt></td>
+<td>指定されたアカウントの uid と gid を示す環境変数を設定して別のプログラムを起動させます。</td>
+</tr>
+<tr><td><tt>envdir</tt></td>
+<td>指定したディレクトリにあるファイルによって修正された環境を設定して別のプログラムを起動させます。</td>
+</tr>
+<tr><td><tt>softlimit</tt></td>
+<td>新しい資源制限を伴って別のプログラムを起動させます。</td>
+</tr>
+<tr><td><tt>setlock</tt></td>
+<td>ファイルをロックして別のプログラムを起動させます。</td>
+</tr>
+</table>
+
+<hr />
+<h3><a id="chap1sec3" name="chap1sec3">1.3. 既存の他のプログラムとの違い</a></h3>
+<p>既存の他のプログラムとに違いは次の通りです。</p>
+<ul>
+  <li>自身が常駐するサービスの場合、何らかのトラブルが生じてサービスが死んだとき、通常は死んだままです。しかし、daemontools の <tt>supervise</tt> を使うと、サービスが突然死んでも、自動的に起動し直してくれます。</li>
+  <li>サービスの中にはそのプロセス ID を <tt><var>service</var>.pid</tt> のようなファイルに格納するものもありますが、そうでないものもあります。一方、daemontools ではサービスのプロセス ID を <tt>supervise</tt> が一括して管理しています。そのため、その制御は <tt>svc</tt> を使って簡単にできます。</li>
+  <li>SVR4形式の init スクリプトでも起動／停止／再起動の指令は出せますが、daemontools の <tt>svc</tt> ではさらに多くの種類のシグナルを送ることができます。</li>
+  <li><tt>syslogd</tt> は負荷が高くなるとデータの取りこぼしがあります。daemontools の <tt>multilog</tt> では取りこぼしは一切ありません。また、ログのサイズの制限／循環、パターンマッチによりログの取捨選択ができるので効率のよいログの管理ができます。</li>
+  <li><tt>syslogd</tt> のタイムスタンプは一般に秒単位です。一方、<tt>multilog</tt> では TAI64N 形式のタイムスタンプで管理していて、その精度はナノ秒です。（ただし、現状のマシンクロックの制限により実質マイクロ秒の精度です。）</li>
+</ul>
+
+<hr />
+<h2><a id="chap2" name="chap2">2. インストール</a></h2>
+<h3><a id="chap2sec1" name="chap2sec1">2.1. daemontools のインストール</a></h3>
+<p>daemontools のパッケージ <a href="daemontools-0.70.tar.gz">daemontools-0.70.tar.gz</a> を入手します。</p>
+<p>ファイルを展開し、そのディレクトリに移動します。</p>
+<div class="example">
+<kbd>$ gzip -dc daemontools-0.70.tar.gz | tar xvf -</kbd><br />
+<kbd>$ cd daemontools-0.70</kbd>
+</div>
+<p>コンパイルして、インストールします。</p>
+<div class="example">
+<kbd>$ make</kbd><br />
+<kbd># make setup check</kbd>
+</div>
+<p>試験を行います。何も出力しなかったら正常です。</p>
+<div class="example">
+<kbd>$ ./rts &gt; rts.out</kbd><br />
+<kbd>$ cmp rts.out rts.exp</kbd>
+</div>
+<p>タイムスタンプを確認します。各行の前の日時と後ろの日時は同じになります。ただし、端数の関係で1秒違うかもしれません。</p>
+<div class="example">
+<kbd>$ date | ./tai64n | ./tai64nlocal</kbd><br />
+<samp>2000-05-05 11:16:53.959932500 Fri May  5 11:16:53 JST 2000</samp><br />
+<kbd>$ date | sh -c './multilog t e 2&gt;&amp;1' | ./tai64nlocal</kbd><br />
+<samp>2000-05-05 11:17:11.739003500 Fri May  5 11:17:11 JST 2000</samp>
+</div>
+<p>以上、何も問題が生じなければ、インストールは終了です。</p>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/install.html">マニュアル: <tt>daemontools</tt> のインストール</a> (http://www.emaillab.org/djb/tools/daemontools/install.html)</li>
+</ul>
+
+<hr />
+<h3><a id="chap2sec2" name="chap2sec2">2.2. svscan の起動</a></h3>
+<p><tt>svscan</tt> が監視するディレクトリを作成します。<tt>svscan</tt> に関する説明は次章で行います。</p>
+<div class="example">
+<kbd># mkdir /service</kbd><br />
+<kbd># chmod 755 /service</kbd>
+</div>
+<p>ブートスクリプトに <tt>svscan</tt> を起動するコマンドを登録します。BSD 形式の起動スクリプトであれば、<tt>rc.local</tt> などに、次のコマンドを追加して下さい。<tt>PATH</tt> は必要だと思うものを設定してください。</p>
+<div class="example">
+<kbd>env - PATH=/usr/local/bin:/usr/bin:/bin csh -cf 'svscan /service &amp;'</kbd>
+</div>
+<p>SVR4 形式の起動スクリプトであれば、次のようなスクリプト <tt>svscan</tt> を作成し、登録してください。OS により少々修正する必要があると思います。</p>
+<pre class="example"><code>
+#!/bin/sh
+PATH=/usr/local/bin:/usr/bin:/bin
+
+case "$1" in
+  start)
+        echo -n "Starting svscan: "
+        exec env - PATH="$PATH" \
+        csh -cf 'svscan /service &amp;; echo $! &gt; /var/run/svscan.pid'
+        touch /var/lock/subsys/svscan
+        ;;
+  stop)
+        if [ -f /var/run/svscan.pid ]; then
+          echo -n "Stopping svscan: "
+          kill `cat /var/run/svscan.pid`
+          svc -dx /service/*
+          svc -dx /service/*/log
+          rm -f /var/run/svscan.pid
+          rm -f /var/lock/subsys/svscan
+        fi
+        ;;
+  *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+esac
+
+exit 0
+</code></pre>
+
+<p>なお、RedHat Linux 7.x用の起動スクリプトは <a href="svscan">http://www.emaillab.org/djb/daemontools/svscan</a> にあります。次のようにして登録してください。</p>
+<div class="example">
+<kbd>
+# cd /etc/rc.d/init.d<br />
+# cp /tmp/svscan .<br />
+# chmod +x svscan<br />
+# chkconfig --add svscan
+</kbd>
+</div>
+
+<p>起動スクリプトの登録ができたら、起動スクリプトを個別に実行したり、再起動したりして、<tt>svscan</tt> を起動してください。</p>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/svscan.html">マニュアル: <tt>svscan</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/svscan.html)</li>
+</ul>
+
+
+<hr />
+<h2><a id="chap3" name="chap3">3. サービスの制御</a></h2>
+<h3><a id="chap3sec1" name="chap3sec1">3.1. <tt>svscan</tt> と <tt>supervise</tt> の動作</a></h3>
+<p><tt>svscan</tt> は監視対象のディレクトリ <tt>/service</tt> にサブディレクトリ <tt><var>sub</var></tt> があるとき、そのディレクトリ名を引数にして <tt>supervise</tt> を起動させます。<tt>supervise</tt> は引数で渡されたディレクトリ <tt><var>sub</var></tt> に移動し、<tt>./run</tt> スクリプトを起動させ、監視します。この <tt>./run</tt> にはサービスを実行するスクリプトを記述します。さらに、<tt><var>sub</var></tt> に sticky bit が立っていれば、<tt>svscan</tt> は <tt><var>sub</var></tt> に移動し、<tt>log</tt> を引数にして <tt>supervise</tt> を起動させ、<tt><var>sub</var>/run</tt> の出力と <tt><var>sub</var>/log/run</tt> の入力をパイプでつなぎます。このときの <tt>supervise</tt> は引数で渡されたディレクトリ <tt>log</tt> に移動し、<tt>./run</tt> スクリプトを起動させ、監視します。この <tt>./run</tt> にはログを記録するプログラム(<tt>multilog</tt>)を実行するスクリプトを記述します。このように <tt>supervise</tt> は <tt>svscan</tt> により起動させられるので、スクリプト中に <tt>supervise</tt> を明示して記述する必要はありません。
+それぞれのプログラムとその引数および作業するディレクトリを整理すると次の表のようになります。</p>
+<table border="1" class="example">
+<tr>
+<th>プログラム</th>
+<th>作業ディレクトリ</th>
+</tr>
+<tr>
+<td><tt>svscan /service</tt></td>
+<td><tt>/service</tt></td>
+</tr>
+<tr>
+<td><tt>supervise <var>sub</var></tt></td>
+<td><tt>/service/<var>sub</var></tt></td>
+</tr>
+<tr>
+<td><tt>supervise log</tt></td>
+<td><tt>/service/<var>sub</var>/log</tt></td>
+</tr>
+</table>
+
+<p>上記で述べたことに加えて、<tt>svscan</tt> には次のような特徴があります。</p>
+<ul>
+<li>起動したディレクトリを監視します。引数（ディレクトリ名）が与えられたら、起動後にそのディレクトリに移動し、そのディレクトリを監視します。</li>
+<li>5秒毎にサブディレクトリを調べます。
+  <ul>
+  <li>新しいサブディレクトリがあれば、<tt>supervise</tt> プロセスを開始させます。</li>
+  <li><tt>supervise</tt> プロセスが終了しているサブディレクトリを見つけたら、その <tt>supervise</tt> プロセスを再開させます。</li>
+  <li>ドットで始まるサブディレクトリは無視します。</li>
+  </ul>
+</li>
+</ul>
+
+<p>上記で述べたことに加えて、<tt>supervise</tt> には次のような特徴があります。</p>
+<ul>
+<li><tt>./run</tt> が終了したら、<tt>./run</tt> を再起動させます。ループを防ぐため、再起動まで1秒間待ちます。</li>
+<li><tt>supervise</tt> の起動時に <tt>./down</tt> が存在すれば、<tt>./run</tt> を起動させません。</li>
+<li><tt>supervise</tt> 自身は終了の指示がない限り終了しません。</li>
+</ul>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/svscan.html">マニュアル: <tt>svscan</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/svscan.html)</li>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/supervise.html">マニュアル: <tt>supervise</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/supervise.html)</li>
+</ul>
+
+
+<hr />
+<h3><a id="chap3sec2" name="chap3sec2">3.2. 各サービスの起動</a></h3>
+<h4>a) ログを取らない場合</h4>
+<p>起動させたいサービスのためのディレクトリ<tt>/path/to/<var>foo</var></tt>を適当な場所に作成します。</p>
+<div class="example">
+<kbd># mkdir /path/to/<var>foo</var></kbd>
+</div>
+<p>次に、<tt>./run</tt> を作成し、サービスを実行するスクリプトを記述します。</p>
+<p><tt>/service/<var>sub</var></tt> から <tt>/path/to/<var>foo</var></tt> へのシンボリックリンクを作ります。</p>
+<div class="example">
+<kbd># ln -s /path/to/<var>foo</var> /service/<var>sub</var></kbd>
+</div>
+<p>5秒以内に <tt>supervise</tt> が起動するでしょう。<tt>svok</tt> を使って起動が成功しているか確認できます。また、<tt>svstat</tt> でもその起動の状態を確認できます。</p>
+<div class="example">
+<kbd># svok /service/<var>sub</var>; echo "$?"</kbd><br />
+<samp>0</samp><br />
+<kbd># svstat /service/<var>sub</var></kbd><br />
+<samp>/service/<var>sub</var>: up (pid 1234) 20 seconds</samp>
+</div>
+
+<h4>b) ログを取る場合</h4>
+<p>起動させたいサービスのためのディレクトリ<tt>/path/to/<var>foo</var></tt>を適当な場所に作成します。ログ用のディレクトリ <tt>/path/to/<var>foo</var>/log</tt> も作成します。さらに <tt><var>foo</var></tt> に対して sticky bit を立てます。ログの出力を行う UID, GID を変える場合は、<tt>log</tt> の所有者も変えます。</p>
+<div class="example">
+<kbd>
+# mkdir /path/to/<var>foo</var><br />
+# mkdir /path/to/<var>foo</var>/log<br />
+# chmod +t /path/to/<var>foo</var><br />
+# chown <var>uid</var>.<var>gid</var> /path/to/<var>foo</var>/log
+</kbd>
+</div>
+<p>次に、<tt>./run</tt> を作成し、サービスを実行するスクリプトを記述します。また、<tt>log/run</tt> を作成し、ログを保存するスクリプトを記述します。</p>
+<p><tt>/service/<var>sub</var></tt> から <tt>/path/to/<var>foo</var></tt> へのシンボリックリンクを作ります。</p>
+<div class="example">
+<kbd># ln -s /path/to/<var>foo</var> /service/<var>sub</var></kbd>
+</div>
+<p>5秒以内に <tt>supervise</tt> が起動するでしょう。<tt>svok</tt> を使って起動が成功しているか確認できます。また、<tt>svstat</tt> でもその起動の状態を確認できます。</p>
+<div class="example">
+<kbd># svok /service/<var>sub</var>; echo "$?"</kbd><br />
+<samp>0</samp><br />
+<kbd># svok /service/<var>sub</var>/log; echo "$?"</kbd><br />
+<samp>0</samp><br />
+<kbd># svstat /service/<var>sub</var> /service/<var>sub</var>/log</kbd><br />
+<samp>/service/<var>sub</var>: up (pid 1234) 20 seconds<br />
+/service/<var>sub</var>/log: up (pid 1235) 20 seconds</samp>
+</div>
+
+<h4>具体例(qmailの場合)</h4>
+<p>まず、qmail の起動プログラム <tt>qmail-start</tt> 用のディレクトリを作成します。場所はどこでもかまいませんが、ここでは <tt>/var/qmail/supurvise/qmail-send</tt> とします。ログを保存するために、このディレクトリに sticky bit を立て、そのディレクトリの下にに <tt>qmail-send</tt> のログ保存用ユーザ <tt>qmaill</tt> 所有のディレクトリ <tt>log</tt> を作成します。</p>
+<div class="example">
+<kbd>
+# mkdir /var/qmail/supervise/qmail-send<br />
+# chmod +t /var/qmail/supervise/qmail-send<br />
+# mkdir /var/qmail/supervise/qmail-send/log<br />
+# chown qmaill.nofiles /var/qmail/supervise/qmail-send/log
+</kbd>
+</div>
+<p>起動スクリプト <tt>./run</tt> と <tt>log/run</tt> を作成します。このスクリプトの例は次節に述べます。</p>
+<p><tt>/service/qmail</tt> からのシンボリックリンクを作ります。</p>
+<div class="example">
+<kbd># ln -s /var/qmail/supervise/qmail-send /service/qmail</kbd>
+</div>
+<p>5秒以内に <tt>supervise</tt> が起動するはずなので、<tt>svok</tt> あるいは <tt>svstat</tt> で起動を確認してください。また、qmail のマニュアルに記述してある配送試験を行ってください。</p>
+
+<p>次に、qmail の SMTP デーモン <tt>qmail-smtpd</tt> 用のディレクトリを作成します。ここでは <tt>/var/qmail/supervise/qmail-smtpd</tt> とします。ログを保存するために、このディレクトリに sticky bit を立て、そのディレクトリの下にに <tt>qmail-send</tt> のログ保存用ユーザ <tt>smtplog</tt> 所有のディレクトリ <tt>log</tt> を作成します。</p>
+<div class="example">
+<kbd>
+# mkdir /var/qmail/supervise/qmail-smtpd<br />
+# chmod +t /var/qmail/supervise/qmail-smtpd<br />
+# mkdir /var/qmail/supervise/qmail-smtpd/log<br />
+# chown smtplog.nofiles /var/qmail/supervise/qmail-smtpd/log
+</kbd>
+</div>
+<p>起動スクリプト <tt>./run</tt> と <tt>log/run</tt> を作成します。このスクリプトの例は次節に述べます。</p>
+<p><tt>/service/smtpd</tt> からのシンボリックリンクを作ります。</p>
+<div class="example">
+<kbd># ln -s /var/qmail/supervise/qmail-smtpd /service/smtpd</kbd>
+</div>
+<p>5秒以内に <tt>supervise</tt> が起動するはずなので、<tt>svok</tt> あるいは <tt>svstat</tt> で起動を確認してください。</p>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/svscan.html">マニュアル: <tt>svscan</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/svscan.html)</li>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/supervise.html">マニュアル: <tt>supervise</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/supervise.html)</li>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/svok.html">マニュアル: <tt>svok</tt> プログラム</a> (http://www.emaillab.org/taki/djb/tools/daemontools/svok.html)</li>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/svstat.html">マニュアル: <tt>svstat</tt> プログラム</a> (http://www.emaillab.org/taki/djb/tools/daemontools/svstat.html)</li>
+</ul>
+
+<hr />
+<h3><a id="chap3sec3" name="chap3sec3">3.3. 起動スクリプト <tt>./run</tt> の例</a></h3>
+<p>ここでは、サービスの起動スクリプト <tt>./run</tt> の作成例を示します。ログの収集スクリプト <tt>log/run</tt> に関してはここでは典型的な例しか示しません。応用例は次章に記述します。</p>
+
+<h4><tt>./run</tt> を作成するに当たっての注意事項</h4>
+<ul>
+<li>シグナルをサービスに直接送るために、<tt>exec</tt> を使って <tt>sh</tt> (<tt>./run</tt> のプロセス)を置き換える必要があります。</li>
+<li><tt>&amp;</tt> を付けてバックグランドで走らせてはいけません。</li>
+<li>自身を fork してバックグランドに移してしまうプログラムは <tt>fghack</tt> を使うことができます。ただし、制御を行うことはできません。</li>
+<li>サービスによっては <tt>supervise</tt> からのシグナルでは制御できないものもあります。</li>
+</ul>
+
+<h4><tt>qmail-send</tt></h4>
+<p>qmail のメイル配送のプログラムを起動させ、配送のログを取る場合の例を示します。ログは <tt>qmail-send</tt> のログ保存専用のユーザ <tt>qmaill</tt> により保存されます。すべてのログはタイムスタンプを付けて <tt>./log/main/</tt> に保存されます。さらに現在の接続数は <tt>./log/status</tt> に保存されます。</p>
+<p class="caption"><tt>./run</tt></p>
+<pre class="example">
+#!/bin/sh
+exec env - PATH="/var/qmail/bin:$PATH" \
+qmail-start ./Maildir/
+</pre>
+<p class="caption"><tt>./log/run</tt></p>
+<pre class="example">
+#!/bin/sh
+exec \
+setuidgid qmaill \
+multilog t ./main '-*' '+* status: *' =status
+</pre>
+
+<h4><tt>qmail-smtpd</tt></h4>
+<p>qmail の SMTP デーモン <tt>qmail-smtpd</tt> を <tt>tcpserver</tt> で起動させて接続制御を行い、接続状況のログを取る場合の例を示します。この場合はログ保存専用のユーザ <tt>smtplog</tt> によりログを保存します。また、接続制御ファイル <tt>tcp.cdb</tt> は同じディレクトリにあるものとします。</p>
+<p class="caption"><tt>./run</tt></p>
+<pre class="example">
+#!/bin/sh
+exec env - PATH="/var/qmail/bin:$PATH" \
+tcpserver -vR -c40 -x./tcp.cdb -u7791 -g2108 0 smtp qmail-smtpd 2&gt;&amp;1
+</pre>
+<p class="caption"><tt>./log/run</tt></p>
+<pre class="example">
+#!/bin/sh
+exec \
+setuidgid smtplog \
+multilog t ./main '-*' '+* * status: *' =status
+</pre>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/supervise.html">マニュアル: <tt>supervise</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/supervise.html)</li>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/fghack.html">マニュアル: <tt>fghack</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/fghack.html)</li>
+</ul>
+
+<hr />
+<h3><a id="chap3sec4" name="chap3sec4">3.4. サービスの制御</a></h3>
+<p><tt>svc</tt> を使って次のことができます。</p>
+<ul>
+  <li>サービスの起動・停止</li>
+  <li>サービスへのシグナルの送信</li>
+  <li><tt>supervise</tt> の終了</li>
+</ul>
+<p><tt>svc</tt> の使い方は次の通りです。</p>
+<div class="example">
+<code>svc <var>opts</var> <var>services</var></code>
+</div>
+<p><tt><var>opts</var></tt> は getopt 形式のオプションです。複数のオプションを指定でき、前から順番に実行されます。<tt><var>services</var></tt> は制御対象のディレクトリ名です。複数のディレクトリを同時に指定できます。ここで、<tt>svc</tt> のオプションの一覧を示します。</p>
+
+<table border="1">
+<tr>
+  <th>オプション</th>
+  <th>意味</th>
+  <th>動作</th>
+</tr>
+<tr>
+  <td><tt>-u</tt></td>
+  <td>Up</td>
+  <td>サービスが起動していなければ、開始します。サービスが停止していれば、再開します。</td>
+</tr>
+<tr>
+  <td><tt>-d</tt></td>
+  <td>Down</td>
+  <td>サービスが起動していれば、TERM シグナルを送り、それから CONT シグナルを送ります。停止した後は再開しません。</td>
+</tr>
+<tr>
+  <td><tt>-o</tt></td>
+  <td>Once</td>
+  <td>サービスが起動していなければ、開始します。サービスが停止していれば、再開しません。</td>
+</tr>
+<tr>
+  <td><tt>-p</tt></td>
+  <td>Pause</td>
+  <td>サービスに STOP シグナルを送ります。</td>
+</tr>
+<tr>
+  <td><tt>-c</tt></td>
+  <td>Continue</td>
+  <td>サービスに CONT シグナルを送ります。</td>
+</tr>
+<tr>
+  <td><tt>-h</tt></td>
+  <td>Hangup</td>
+  <td>サービスに HUP シグナルを送ります。</td>
+</tr>
+<tr>
+  <td><tt>-a</tt></td>
+  <td>Alarm</td>
+  <td>サービスに ALRM シグナルを送ります。</td>
+</tr>
+<tr>
+  <td><tt>-i</tt></td>
+  <td>Interrupt</td>
+  <td>サービスに INT シグナルを送ります。</td>
+</tr>
+<tr>
+  <td><tt>-t</tt></td>
+  <td>Terminate</td>
+  <td>サービスに TERM シグナルを送ります。</td>
+</tr>
+<tr>
+  <td><tt>-k</tt></td>
+  <td>Kill</td>
+  <td>サービスに KILL シグナルを送ります。</td>
+</tr>
+<tr>
+  <td><tt>-x</tt></td>
+  <td>Exit</td>
+  <td>サービスがダウンしたらすぐに <tt>supervise</tt> は終了します。</td>
+</tr>
+</table>
+
+<p>シグナルの意味は次の通りです。（値は環境により異なることがあります。）詳細は <cite>signal(7)</cite> を読んでください。</p>
+<table border="1">
+<tr>
+<th>シグナル</th>
+<th>値</th>
+<th>意味</th>
+</tr>
+<tr>
+<td>SIGSTOP</td>
+<td>17</td>
+<td>プロセスの停止</td>
+</tr>
+<tr>
+<td>SIGCONT</td>
+<td>19</td>
+<td>停止状態からの再開</td>
+</tr>
+<tr>
+<td>SIGHUP</td>
+<td>1</td>
+<td>制御している端末のハングアップの検出。制御しているプロセスの死。</td>
+</tr>
+<tr>
+<td>SIGALRM</td>
+<td>14</td>
+<td>alarm(2)からのタイマーシグナル</td>
+</tr>
+<tr>
+<td>SIGINT</td>
+<td>2</td>
+<td>キーボードからの割り込み</td>
+</tr>
+<tr>
+<td>SIGTERM</td>
+<td>15</td>
+<td>終了シグナル</td>
+</tr>
+<tr>
+<td>SIGKILL</td>
+<td>9</td>
+<td>Killシグナル</td>
+</tr>
+</table>
+
+<p>ここで、いくつかの使用例を示します。</p>
+<p><tt>qmail-send</tt> の設定の変更を有効にするためのサービスの再起動</p>
+<div class="example">
+<kbd># svc -t /service/qmail</kbd>
+</div>
+<p><tt>./run</tt> の書き換え時の処理</p>
+<div class="example">
+<kbd># mv ./run.new ./run; svc -t /service/smtpd</kbd>
+</div>
+<p>サービスの一時的な停止および再開</p>
+<div class="example">
+<kbd>
+# svc -d /service/ftpd<br />
+# svc -u /service/ftpd
+</kbd>
+</div>
+<p>サービスの停止後、<tt>supervise</tt> の終了（ただし、5秒以内に <tt>supervise</tt> は再起動する）</p>
+<div class="example">
+<kbd>
+# svc -dx /service/ftpd /service/ftpd/log
+</kbd>
+</div>
+<p>サービスの停止後、<tt>supervise</tt> の終了（<tt>supervise</tt> を再開させない）</p>
+<div class="example">
+<kbd>
+# mv /service/ftpd /service/.ftpd; svc -dx /service/.ftpd /service/.ftpd/log
+</kbd>
+</div>
+<p><tt>svscan</tt>を終了させるとき（全てのサービスの停止後、<tt>supervise</tt> を終了し、<tt>svscan</tt> のプロセスを終了する）</p>
+<div class="example">
+<kbd>
+# svc -dx /service/*<br />
+# svc -dx /service/*/log<br />
+# kill <var>pid_of_svscan</var>
+</kbd>
+</div>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/svc.html">マニュアル: <tt>svc</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/svc.html)</li>
+</ul>
+       
+<hr />
+<h2><a id="chap4" name="chap4">4. ログの収集</a></h2>
+<h3><a id="chap4sec1" name="chap4sec1">4.1. <tt>multilog</tt></a></h3>
+<p>前章で述べたログの収集スクリプト <tt>log/run</tt> には収集プログラムとして <tt>multilog</tt> を使います。ここでは、その <tt>multilog</tt> の使い方について説明します。</p>
+
+<p><tt>multilog</tt> の使い方は次の通りです。</p>
+<div class="example">
+<code>multilog <var>script</var></code>
+</div>
+<p><tt><var>script</var></tt> は動作(action)の集まりで、次の表に記述した動作の行の選択から出力までの組合わせを繰り返して指定することができます。（恐らくシェルの限界まで）</p>
+
+<table border="1">
+<tr>
+<th>動作の概要</th>
+<th>動作</th>
+<th>備考</th>
+</tr>
+<tr>
+<td>タイムスタンプ</td>
+<td><tt>t</tt></td>
+<td>各行の先頭にTAI64N形式のタイムスタンプを付ける。(最初の動作として記述した場合のみ有効)</td>
+</tr>
+<tr>
+<td rowspan="2">行の選択</td>
+<td><tt>-<var>pattern</var></tt></td>
+<td><tt><var>pattern</var></tt> が行に合えばその行の選択が解除される。</td>
+</tr>
+<tr>
+<td><tt>+<var>pattern</var></tt></td>
+<td><tt><var>pattern</var></tt> が行に合えばその行は選択される。</td>
+</tr>
+<tr>
+<td rowspan="3">自動切り替えの動作</td>
+<td><tt>s<var>size</var></tt></td>
+<td>最大ファイルサイズの設定。デフォルト99999。</td>
+</tr>
+<tr>
+<td><tt>n<var>num</var></tt></td>
+<td>ログファイルの最大数。デフォルト10。</td>
+</tr>
+<tr>
+<td><tt>!<var>processor</var></tt></td>
+<td>プロセッサの設定</td>
+</tr>
+<tr>
+<td>ログ</td>
+<td><tt><var>dir</var></tt></td>
+<td>ログ <tt><var>dir</var></tt> へ選択された行を追加する。ドットやスラッシュで始まる必要がある。</td>
+</tr>
+<tr>
+<td>警告</td>
+<td><tt>e</tt></td>
+<td>標準エラーに選択された各行（の最初の200バイト）を出力する。</td>
+</tr>
+<tr>
+<td>Statusファイル</td>
+<td><tt>=<var>file</var></tt></td>
+<td><tt><var>file</var></tt> の中身を選択された各行（の最初の1000バイト）で置き換える。</td>
+</tr>
+</table>
+
+<p>各行は最初は選択されています。行の選択指定はいくつでも記述でき、前から順番にそのパターンの選択・解除が追加されていきます。</p>
+<p><tt><var>pattern</var></tt>の仕様は次の通りです。</p>
+<ul>
+  <li>* とそれ以外の文字からなる文字列。</li>
+  <li>* は直後に現れる文字を含まない任意の文字列に一致。</li>
+  <li>最後にある * は任意の文字列に一致。</li>
+  <li>シェルのメタ文字を含めることができるが、引用符で囲む必要がある。</li>
+</ul>
+<p>想定外の動作を防ぐために、<tt><var>pattern</var></tt>全体を引用符で囲んだ方が無難でしょう。</p>
+
+<p>ここで、いくつか行の選択指定の例を示します。<tt>multilog</tt> の詳しい使用例に関しては次節をご覧ください。</p>
+
+<p>動作<br />
+<span class="example">
+<code>+hello</code>
+</span>
+は <samp>hello</samp> を選択します。<samp>hello world</samp> は選択しません。</p>
+
+<p>動作<br />
+<span class="example">
+<code>-'* * &gt; *'</code>
+</span>
+は<br />
+<span class="example">
+<samp>@400000003879ded713291cfc 4357 &gt; -ERR authorization failed</samp>
+</span>
+の選択を解除します。一つ目と二つ目の * はその直後のスペースを含まない任意の文字列に一致します。</p>
+
+<p>動作<br />
+<span class="example">
+<code>'-*'</code>
+</span>
+は全ての行の選択を解除します。特定のパターンのみを選択する場合は通常、最初にこの動作を記述して全ての選択を解除してから、選択するパターンを追加していきます。</p>
+
+<p>一続きの動作<br />
+<span class="example">
+<code>-'*' +'* status: *' =status</code>
+</span>
+は<br />
+<span class="example">
+<samp>@400000003914053c22ab2904 status: local 0/10 remote 0/20</samp>
+</span>
+を選択し、<tt>status</tt> というファイルの内容を置き換えます。つまり、<tt>status</tt> というファイルには常に最新の <samp>status:</samp> 行が格納されることになります。</p>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/multilog.html">マニュアル: <tt>multilog</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/multilog.html)</li>
+</ul>
+
+<hr />
+<h3><a id="chap4sec2" name="chap4sec2">4.2. <tt>.log/run</tt> の作成例</a></h3>
+<h4><tt>qmail-send</tt></h4>
+<p>qmail のメイル配送プログラム <tt>qmail-send</tt> のログを取る場合の例を示します。ログは <tt>qmail-send</tt> のログ保存専用のユーザ <tt>qmaill</tt> により保存されます。このスクリプトは次の3つの部分に分けることができます。</p>
+<ul>
+  <li>タイムスタンプを付けて全てのログを <tt>./log/main/</tt> に保存する。</li>
+  <li>通常よく出てくるパターンに一致しないものは <tt>./log/alert/</tt> に保存する。</li>
+  <li>現在の同時配送数を <tt>./log/status</tt> に保存する。</li>
+</ul>
+<p>ちなみに、この例は DJB 氏がメイリングリストに投稿した例を修正したものです。</p>
+
+<pre class="example">
+#!/bin/sh
+exec \
+setuidgid qmaill \
+multilog t ./main \
+-'* status: *' \
+-'* starting delivery *' \
+-'* delivery * success*' \
+-'* delivery * failure*' \
+-'* new msg *' \
+-'* info msg *' \
+-'* end msg *' \
+-'* bounce msg *' \
+-"* delivery * deferral: Sorry,_I_couldn't_find_any_host_by_that_name*" \
+-"* delivery * deferral: Sorry,_I_wasn't_able_to_establish_an_SMTP_*" \
+./alert \
+-'*' \
++'* status: *' \
+=status
+</pre>
+
+<h4>qmail-smtpd</h4>
+<p>qmail の SMTP デーモン <tt>qmail-smtpd</tt> を途中を <tt>recordio</tt> を挟んで <tt>tcpserver</tt> で起動させて接続制御を行い、接続状況のログとコマンドの応答を取る場合の例を示します。この場合はログ保存専用のユーザ <tt>smtplog</tt> によりログを保存します。このスクリプトは次の3つの動作に分けることができます。</p>
+<ul>
+  <li><tt>recordio</tt> によって記録されたもの以外のログを全て <tt>./log/main/</tt> に保存する。</li>
+  <li><tt>recordio</tt> によって記録されたもの中でサーバへ送られる主要なコマンドとその応答を <tt>./log/tcp/</tt> に保存する。</li>
+  <li>現在の接続数を <tt>./log/status</tt> に保存する。</li>
+</ul>
+<p>ちなみに <tt>recordio</tt> とは、プログラムの入出力を記録するプログラムで、ucspi-tcp パッケージに含まれています。これを用いれば、ログの出力を持たないサービスであっても、セッションのコマンドの応答から、不正中継の試みなどの様々な情報を記録することができます。ただし、選択する行によってはプライバシの問題にもなるので扱いには注意が必要です。</p>
+
+<pre class="example">
+#!/bin/sh
+exec \
+setuidgid smtplog \
+multilog t \
+-'* * &gt; *' \
+-'* * &lt; *' \
+s200000 \
+./main \
+-'*' \
++'* * &lt; HELO *' \
++'* * &lt; EHLO *' \
++'* * &lt; MAIL *' \
++'* * &lt; RCPT *' \
++'* * &lt; DATA*' \
++'* * &lt; QUIT*' \
++'* * &lt; RSET*' \
++'* * &lt; NOOP*' \
++'* * &gt; 1*' \
++'* * &gt; 2*' \
++'* * &gt; 3*' \
++'* * &gt; 4*' \
++'* * &gt; 5*' \
+s200000 \
+./tcp \
+-'*' \
++'* * status: *' \
+=status
+</pre>
+
+<p class="caption">関連リンク</p>
+<ul>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/multilog.html">マニュアル: <tt>multilog</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/multilog.html)</li>
+  <li><a href="http://www.emaillab.org/djb/tools/daemontools/setuidgid.html">マニュアル: <tt>setuidgid</tt> プログラム</a> (http://www.emaillab.org/djb/tools/daemontools/setuidgid.html)</li>
+  <li><a href="http://www.emaillab.org/djb/tools/ucspi-tcp/top.html">ucspi-tcp マニュアル</a> (http://www.emaillab.org/djb/tools/ucspi-tcp/top.html)</li>
+</ul>
+
+<hr />
+<h2><a id="chap5" name="chap5">5. 環境変数・資源制限 (作成予定)</a></h2>
+<p>ここまで手が回りません。後日、時間ができたら続きを書きます。</p>
+
+<hr />
+Thanks to M.Sugimoto.
+<hr />
+</body>
+</html>

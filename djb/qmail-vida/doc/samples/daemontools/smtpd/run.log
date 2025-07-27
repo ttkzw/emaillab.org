@@ -1,0 +1,11 @@
+#!/bin/sh
+#  /service/smtpd/log
+exec \
+setuidgid log \
+multilog t \
+s500000 \
+./main \
+-'*' \
+'+* * status: *' \
+=status
+

@@ -1,0 +1,49 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The tai64nlocal program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<br><a href="top.html">daemontools</a>
+<h1><a href="http://cr.yp.to/daemontools/tai64nlocal.html">tai64nlocal プログラム</a></h1>
+<tt>tai64nlocal</tt> は正確な TAI64N 形式のタイムスタンプを人が読める形式に変換します。
+
+<h2>使い方</h2>
+<tt>tai64nlocal</tt> は標準入力から行を読み込みます。
+行が @ で始まっていなければ、<tt>tai64nlocal</tt> はその行をそのまま標準出力に書き出します。
+行が @ で始まっていれば、<tt>tai64nlocal</tt> は <a href="tai64n.html">tai64n</a> によって出力された形式である @ の後のタイムスタンプを探し、そのタイムスタンプを ISO 形式 YYYY-MM-DD HH:MM:SS.SSSSSSSSS のローカルタイムに変換して、その行を標準出力に書き出します。
+
+<p>
+例えば、US/Pacific タイムゾーンでは、入力行
+<pre>
+     @4000000037c219bf2ef02e94 mark
+</pre>
+は
+<pre>
+     1999-08-23 21:03:43.787492500 mark
+</pre>
+のように出力されるはずです。
+しかし、<tt>tai64nlocal</tt> の現在の実装はローカルタイムを求める UNIX の <tt>localtime</tt> ライブラリ・ルーチンに依存することに気をつけてください。
+<tt>localtime</tt> の実装の中には閏秒を計算していない壊れた時間尺を使っているものもあります。
+(最新の閏秒の表を持っている) Olson の tz ライブラリを使っているシステムでは、タイムゾーンを例えば、<tt>US/Pacific</tt> の代わりに <tt>right/US/Pacific</tt> に設定することによりこの問題を修正することができます。
+
+<p>
+大抵の <tt>localtime</tt> の実装は 2038 年には対応してないことに気をつけてください。
+
+<p>
+入力の終りに達したら、<tt>tai64nlocal</tt> はコード 0 で終了します。
+標準入力から読んだり、標準出力へ書いたりするときに問題が生じたら、エラーメッセージを出力せずにコード 111 で終了します。
+
+<p>
+<tt>tai64nlocal</tt> は起動後に一切メモリを割り当てません。
+しかし、もしかしたら <tt>localtime</tt> の内部では割り当てているかも知れません。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Wed Apr 19 14:40:02 2000
+<!-- hhmts end -->
+</body>
+</html>

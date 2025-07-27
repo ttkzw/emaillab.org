@@ -1,0 +1,227 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The cdb-reading library interface</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/data.html">Data structures</a>
+<br><a href="top.html">cdb</a>
+<h1><a href="http://cr.yp.to/cdb/reading.html">cdb-reading ライブラリ・インターフェース</a></h1>（翻訳作業中です）
+<h2>概要</h2>
+You can read records in a
+<a href="cdb.txt">constant database</a>
+from file descriptor <tt><i>fd</i></tt> as follows:
+<ol>
+<li>Use <tt>cdb_init</tt> to place information about <tt><i>fd</i></tt>
+into a <tt>struct cdb</tt> variable <tt><i>c</i></tt>.
+<li>Carry out any number of searches, as described below.
+<li>Use <tt>cdb_free</tt> to remove any memory map
+that might have been reserved by <tt>cdb_init</tt>.
+</ol>
+
+次のようにして、ファイル記述子 <tt><i>fd</i></tt> から<a href="cdb.txt">コンスタント・データベース</a>のレコードを読むことができます:
+
+<ol>
+<li><tt><i>fd</i></tt> に関する情報を <tt>struct cdb</tt> 変数 <tt><i>c</i></tt> に置くために <tt>cdb_init</tt> を使用します。
+<li>後述するように、たくさん検索を実行します。
+<li><tt>cdb_init</tt> によって確保されているメモリマップを取り除くために <tt>cdb_free</tt> を使用します。
+</ol>
+
+Each search works as follows:
+<ol>
+<li>Use <tt>cdb_find</tt> to search for a record under key <tt><i>k</i></tt>.
+If <tt>cdb_find</tt> returns 0, the database does not contain that key; stop.
+If <tt>cdb_find</tt> returns -1, there was a read error; abort.
+<li>Use <tt>cdb_datalen</tt> to find the number of bytes of data in this record.
+Allocate a pointer <tt><i>d</i></tt> to a region of memory
+large enough to hold the data.
+If not enough memory is available, abort.
+<li>Use <tt>cdb_read</tt> with <tt>cdb_datapos</tt>
+to read the data.
+If <tt>cdb_read</tt> returns -1, there was a read error; abort.
+<li>Do something with the data,
+and then free the allocated region of memory.
+</ol>
+There may be several records under a single key.
+You can use <tt>cdb_findnext</tt> to find the next record under this key.
+
+検索は次のように行います:
+<ol>
+<li>キー <tt><i>k</i></tt> でレコードを検索するために <tt>cdb_find</tt> を使用します。
+<tt>cdb_find</tt> が 0 を返せば、データベースにはそのキーは存在せず、終了します。
+<tt>cdb_find</tt> が -1 を返せば、読み取りエラーで中断します。
+<li>このレコードのデータのバイト数を見つけるために <tt>cdb_datalen</tt> を使用します。
+データを保持するために十分なメモリ領域へポインタ <tt><i>d</i></tt> を割り当てます。
+十分なメモリが得られなければ、中断します。
+<li>データを読むために <tt>cdb_datapos</tt> と共に <tt>cdb_read</tt> を使用します。
+<tt>cdb_read</tt> が -1 を返せば、読み取りエラーで中断します。
+<li>データを処理したら、割り当てたメモリ領域を解放します。
+</ol>
+一つのキーで複数のレコードがあってもかまいません。
+このキーで次のレコードを見つけるために <tt>cdb_findnext</tt> を使用できます。
+
+
+<h2>詳細</h2>
+<pre>
+     #include &lt;cdb.h&gt;
+
+     cdb_init(&amp;<i>c</i>,<i>fd</i>);
+     cdb_free(&amp;<i>c</i>);
+     <i>result</i> = cdb_read(&amp;<i>c</i>,<i>d</i>,<i>dlen</i>,<i>dpos</i>);
+
+     cdb_findstart(&amp;<i>c</i>,<i>k</i>,<i>klen</i>);
+     <i>result</i> = cdb_findnext(&amp;<i>c</i>,<i>k</i>,<i>klen</i>);
+     <i>result</i> = cdb_find(&amp;<i>c</i>,<i>k</i>,<i>klen</i>);
+
+     <i>dpos</i> = cdb_datapos(&amp;<i>c</i>);
+     <i>dlen</i> = cdb_datalen(&amp;<i>c</i>);
+
+     static struct cdb <i>c</i>;
+     int <i>fd</i>;
+
+     char *<i>d</i>;
+     unsigned int <i>dlen</i>;
+     uint32 <i>dpos</i>;
+
+     char *<i>k</i>;
+     unsigned int <i>klen</i>;
+     int <i>result</i>;
+</pre>
+<p>
+A <tt>struct cdb</tt> variable such as <tt><i>c</i></tt>
+is either unallocated or allocated.
+If it is allocated,
+it holds information about a constant database:
+<ul>
+<li>a file descriptor <tt><i>fd</i></tt> reading from the database;
+<li>if convenient,
+a shared memory map reading from the database; and
+<li>information about a search in progress.
+</ul>
+<tt><i>c</i></tt>
+must be initialized to zero, meaning unallocated.
+
+<p>
+<tt><i>c</i></tt> のような <tt>構造体 cdb</tt>の変数はメモリが割り当てられていないか割り当てられているかのどちらかです。
+メモリが割り当てられていれば、次の示すコンスタント・データベースについての情報を保持します。
+<ul>
+<li>データベースから読み取るファイル記述子 <tt><i>fd</i></tt>
+<li>都合がよければ、データベースから読み取る共有メモリマップ
+<li>実行中の検索についての情報
+</ul>
+<tt><i>c</i></tt> は 0 で初期化されなければなりません。これはメモリが割り当てられていないことを意味します。
+
+<p>
+<tt>cdb_free</tt> unallocates <tt><i>c</i></tt>
+if <tt><i>c</i></tt> is allocated.
+Otherwise it leaves <tt><i>c</i></tt> alone.
+<tt>cdb_free</tt> does not close <tt><i>fd</i></tt>.
+
+<p>
+<tt><i>c</i></tt> にメモリが割り当てられていれば、<tt>cdb_free</tt> は <tt><i>c</i></tt> のメモリを解放します。
+そうでなければ、<tt><i>c</i></tt> はそのままです。
+<tt>cdb_free</tt> は <tt><i>fd</i></tt> を閉じません。
+
+<p>
+<tt>cdb_init</tt>
+allocates <tt><i>c</i></tt> to hold information
+about a constant database read by descriptor <tt><i>fd</i></tt>.
+You may call <tt>cdb_init</tt> repeatedly;
+if <tt><i>c</i></tt> is already allocated,
+<tt>cdb_init</tt> unallocates it first. 
+
+<p>
+<tt>cdb_init</tt> は記述子 <tt><i>fd</i></tt> によって読み込まれるコンスタント・データベースについての情報を保持するために <tt><i>c</i></tt> にメモリを割り当てます。
+<tt>cdb_init</tt> を繰り返し、呼び出してもかまいません。
+<tt><i>c</i></tt> がすでに割り当てられていれば、<tt>cdb_init</tt> はまずそのメモリを解放します。
+
+<p>
+<tt>cdb_read</tt>
+reads <tt><i>dlen</i></tt> bytes into <tt><i>d</i></tt>
+from byte position <tt><i>dpos</i></tt> in the database.
+You must allocate <tt><i>c</i></tt> before calling <tt>cdb_read</tt>.
+Normally <tt>cdb_read</tt> returns 0.
+If the database file is shorter than <tt><i>dpos</i>+<i>dlen</i></tt> bytes,
+or if there is a disk read error,
+<tt>cdb_read</tt> returns -1, setting <tt>errno</tt> appropriately.
+
+<p>
+<tt>cdb_read</tt> はデータベースのバイト位置 <tt><i>dpos</i></tt> から <tt><i>dlen</i></tt> バイトを <tt><i>d</i></tt> へ読み込みます。
+<tt>cdb_read</tt> を呼び出す前に <tt><i>c</i></tt> のメモリを割り当てなければなりません。
+普通、<tt>cdb_read</tt> は 0 を返します。
+データベースファイルが <tt><i>dpos</i>+<i>dlen</i></tt> バイトより小さい、あるいはディスク読み取りエラーが生じたら、<tt>cdb_read</tt> は -1 を返し、適切な <tt>errno</tt> を設定します。
+
+<p>
+<tt>cdb_findstart</tt>
+prepares <tt><i>c</i></tt> to search for the first record
+under key <tt><i>k</i></tt>.
+You must allocate <tt><i>c</i></tt> before calling <tt>cdb_findstart</tt>,
+and you must call <tt>cdb_findstart</tt>
+before calling <tt>cdb_findnext</tt>.
+
+<p>
+<tt>cdb_findstart</tt> はキー <tt><i>k</i></tt> で最初のレコードの検索に <tt><i>c</i></tt> を用意します。
+<tt>cdb_findstart</tt> を呼び出す前に <tt><i>c</i></tt> にメモリを割り当てなければなりません。また、<tt>cdb_findnext</tt> を呼び出す前に <tt>cdb_findstart</tt> を呼び出さなければなりません。
+
+<p>
+<tt>cdb_findnext</tt>
+looks for the <i>n</i>th record under key <tt><i>k</i></tt> in the database,
+where <tt><i>n</i></tt> is the number of calls to <tt>cdb_findnext</tt>
+after the most recent call to <tt>cdb_findstart</tt>.
+If it finds the record,
+<tt>cdb_findnext</tt> returns 1;
+if there are exactly <tt><i>n</i>-1</tt> such records,
+<tt>cdb_findnext</tt> returns 0;
+if there are fewer than <tt><i>n</i>-1</tt> such records,
+the behavior of <tt>cdb_findnext</tt> is undefined;
+if there is a database format error or disk error,
+<tt>cdb_findnext</tt> returns -1, setting <tt>errno</tt> appropriately.
+Each call to <tt>cdb_findnext</tt> must use the same <tt><i>k</i></tt>
+and <tt><i>klen</i></tt> as the call to <tt>cdb_findstart</tt>.
+
+<p>
+<tt>cdb_findnext</tt> はデータベースにおけるキー <tt><i>k</i></tt> を持つ <i>n番目の</i> レコードを検索します。この <tt><i>n</i></tt> は <tt>cdb_findstart</tt> の最近の呼び出し後の <tt>cdb_findnext</tt> を呼び出す回数です。
+レコードが見つかれば <tt>cdb_findnext</tt> は 1 を返します。
+ちょうど <tt><i>n</i>-1</tt> 個のレコードがあれば <tt>cdb_findnext</tt> は 0 を返します。
+<tt><i>n</i>-1</tt> 個未満のレコードしかなければ <tt>cdb_findnext</tt> の動作はは定義されません。
+データベースの形式エラーもしくはディスクエラーがあれば <tt>cdb_findnext</tt> は -1 を返し、適切な <tt>errno</tt> を設定します。
+<tt>cdb_findnext</tt> を呼び出しは、<tt>cdb_findstart</tt> の呼び出しと同じ <tt><i>k</i></tt> と <tt><i>klen</i></tt> を使わなければなりません。
+
+<p>
+If <tt>cdb_findnext</tt> returns 1,
+it arranges for <tt>cdb_datapos</tt> to return the starting byte position
+of the data in the record, and for <tt>cdb_datalen</tt>
+to return the number of bytes of data in the record.
+Otherwise the results of <tt>cdb_datapos</tt> and <tt>cdb_datalen</tt>
+are undefined.
+
+<p>
+<tt>cdb_findnext</tt> が 1 を返せば、レコードにおけるデータの開始バイト位置を返す <tt>cdb_datapos</tt> とレコードにおけるデータのバイト数を返す <tt>cdb_datalen</tt> を用意します。
+
+<p>
+<tt>cdb_find</tt> is the same as <tt>cdb_findstart</tt>
+followed by <tt>cdb_findnext</tt>:
+it finds the first record under key <tt><i>k</i></tt>.
+
+<p>
+<tt>cdb_find</tt> は <tt>cdb_findnext</tt> があとに続く <tt>cdb_findstart</tt> と同じです。キー <tt><i>k</i></tt> で最初のレコードを探します。
+
+<p>
+Beware that these functions
+may rely on non-atomic operations on the <tt><i>fd</i></tt> ofile,
+such as seeking to a particular position and then reading.
+Do not attempt two simultaneous database reads
+using a single ofile.
+
+<p>
+特定の位置をシークしてから呼び出すような <tt><i>fd</i></tt> ofile でのアトミックでない動作にこれらの関数は依存するかも知れないことに気をつけてください。
+一つの ofile を使って 二つ同時にデータベースを読むことを試みてはいけません。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat Mar 18 09:46:12 2000
+<!-- hhmts end -->
+</body>
+</html>

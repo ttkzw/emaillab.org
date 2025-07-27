@@ -1,0 +1,64 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The setlock program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<br><a href="top.html">daemontools</a>
+<h1><a href="http://cr.yp.to/daemontools/setlock.html">setlock プログラム</a></h1>
+<tt>setlock</tt> はファイルをロックして別のプログラムを起動させます。
+
+<h2>使い方</h2>
+<pre>
+     setlock <i>opts</i> <i>fn</i> <i>child</i>
+</pre>
+<p>
+<tt><i>opts</i></tt> は getopt 形式のオプション郡です。
+<tt><i>fn</i></tt> は一つの引数です。
+<tt><i>child</i></tt> は一つ以上の引数から成ります。
+
+<p>
+<tt>setlock</tt> は書き込み用に <tt><i>fn</i></tt> を開き（存在しなければ作成して）、排他ロックを適応し、<tt><i>child</i></tt> を起動させます。
+
+<p>
+通常、<tt><i>child</i></tt> が終了したときにロックは解除されます。
+
+<p>
+完全な話を書くと:
+<tt><i>child</i></tt> はディスクファイル <tt><i>fn</i></tt> を示しているロックされた ofile 用の記述子が与えられます。
+この ofile が次のどちらかになったときにロックは解除されます:
+<ul>
+<li>その記述子を持っている全てのプロセスによって閉じられたとき
+<li>はっきりとロックが解除されたとき
+</ul>
+
+<h2>オプション</h2>
+
+<ul>
+<li><tt>-n</tt>:
+遅延なし。
+<tt><i>fn</i></tt> が別のプロセスによってロックされていたら、
+<tt>setlock</tt> は諦めます。
+<li><tt>-N</tt>:
+(デフォルト。)
+遅延あり。
+<tt><i>fn</i></tt> が別のプロセスによってロックされていたら、
+<tt>setlock</tt> は新しいロックをかけることができるまで待ちます。
+<li><tt>-x</tt>:
+<tt><i>fn</i></tt> が開けない（作成できない）あるいはロックできないときは、
+<tt>setlock</tt> はコード 0 で終了します。
+<li><tt>-X</tt>:
+(デフォルト。)
+<tt><i>fn</i></tt> が開けない（作成できない）あるいはロックできないときは、
+<tt>setlock</tt> はエラーメッセージをを出力し、非 0 コードで終了します。
+</ul>
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Apr 16 19:58:57 2000
+<!-- hhmts end -->
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html lang="ja">
+<head>
+<title>qmapop</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../../taki.css">
+</head>
+<body>
+<h1>qmapop</h1>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Thu Dec 27 21:30:03 2001
+<!-- hhmts end -->
+</div>
+<hr>
+<p>注意：qmapop はもうメンテナンスをしていません。<a href="../qmail-vida/">qmail-vida</a> をお使い下さい。</p>
+
+<h3>はじめに</h3>
+<p>qmail-pop3d の APOP 認証パッケージを作成したのでここで公開します。まだ、作成して間もないため（それなりにチェックはしたつもりですが）バグが混入しているかも知れません。作成動機は、APOP対応パッケージといえば<a href="http://www.inter7.com/vchkpw/">vpopmail-vchkpw</a>が有名ですが、高機能であるがために余計な機能がありすぎて気に入らなかったからです。それならば、自分が必要な機能だけを実現するパッケージを作ろうと思いました。かといっても、新規に作るのも無駄なので、使えるものは使おうということで、Bert Gijsbers 氏のすでに obsolete になっている qmapop-0.3 をベースにして書き直しました。checkpassword はほぼ書き直しという状態です。必要な機能として考えたのは次の3つです。</p>
+<ul>
+<li>APOP 対応（これは当然）
+<li>/etc/passwd なしのPOP専用アカウント(users/assign を使用)
+<li>POP before SMTP 対応
+</ul>
+
+<p><a href="qmapop-0.51.tar.gz">qmapop-0.51.tar.gz</a></p>
+
+<p>付属文書を以下におきます。</p>
+<ul>
+<li><a href="README.ja">README.ja</a>
+<li><a href="BLURB.ja">BLURB.ja</a> qmapop の特徴
+<li><a href="INSTALL.ja">INSTALL.ja</a> インストールについて
+<li><a href="APOPDB.ja">APOPDB.ja</a> APOP認証データベース
+<li><a href="CHANGES.ja">CHANGES.ja</a> 変更履歴
+</ul>
+
+<p>このパッケージは無保証ですので、各自の責任において使用してください。原則として GPL2 に基づいて配布するつもりですが、ドキュメントの整備やバグフィックス等が片付くまで再配布は今しばらくお待ち下さい。なお、問い合わせは、オリジナルの Bert Gijsbers 氏にはせず、改変者の滝澤までお願いします。</p>
+
+<p>また、たにざきさんに qmapop のメーリングリストを作っていただきました。詳しくは <a href="http://kelp.chibi.ne.jp/qmapop/">qmapop ML</a> をご覧下さい。</p>
+
+<address>
+TAKIZAWA Takashi &lt;taki@cyber.email.ne.jp&gt;
+</address>
+<hr>
+<p>
+<a href="../index.html">DJB's software maniacs (qmail 関連情報)</a>
+</p>
+</body>
+</html>

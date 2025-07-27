@@ -1,0 +1,67 @@
+Date: Tue, 1 Jan 2002 21:40:31 +0100
+From: Thomas Roessler <roessler@does-not-exist.org>
+To: mutt-announce@mutt.org, mutt-dev@mutt.org, mutt-users@mutt.org, bugtraq@securityfocus.com
+Cc: Joost Pol <joost@contempt.nl>, Jeremy Blosser <jblosser@firinn.org>
+Subject: [Announce] SECURITY: mutt-1.2.5.1 and mutt-1.3.25 released.
+Message-ID: <20020101204031.GA20706@sobolev.does-not-exist.org>
+Mail-Followup-To: mutt-users@mutt.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+Sender: owner-mutt-dev@mutt.org
+
+
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+mutt-1.2.5.1 and mutt-1.3.25 have just been released.
+
+These releases both fix a security hole which can be remotely
+exploited. The problem was found and a fix suggested by Joost Pol
+<joost@contempt.nl>.  Thanks for that.
+
+mutt-1.2.5.1 is released as an update to the last stable version of
+mutt, mutt-1.2.5.  The ONLY relevant change in this version is the
+fix mentioned above.  No other bugs present in 1.2.5 have been
+fixed.  You only want to upgrade to this version of mutt if you
+absolutely have to stick with the mutt-1.2 series.
+
+mutt-1.3.25 is the latest BETA version of mutt, and very close to
+what will eventually become mutt-1.4.  Personally, I'd recommend
+that you download and use this version.
+
+The tar balls, with detached PGP signatures, will be available from=20
+<ftp://ftp.mutt.org/pub/mutt/> in some minutes.
+
+As an alternative, you can apply the patch available from=20
+<ftp://ftp.mutt.org/pub/mutt/patch-1.2,3.rfc822_terminate.1> to any=20
+1.2 or 1.3 series mutt source code, and rebuild.
+
+
+I apologize for the problem, and wish all of you a happy new year.
+
+--=20
+Thomas Roessler                        http://log.does-not-exist.org/
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iQEVAwUBPDIev9ImKUTOasbBAQJqSAf6AvWpzKDJumBz4rPhIoVENsSyOu4/N78b
+k4em4afI6jJ0hjZmcBlQSvf0THqax+eNTRTWKnJMJ9o7Fz80usL697TEksDb8aCV
+9h89JAAlRQHZIP6fjx0jr7KMmjz5i4XqG13mLm+9S52MK76wFwf5HHd+3VAzcfni
+JP4EcUIGd/nNCh+MrhGTuFlRC0mZ/zOYPeyZ/iC1abXOGAWuPgDcucEd+O/n6TXp
+Aw6s5xwZg26buqmQEuy5J3E3VksLqQwl3iEDFf6XijnOKjHIuPh4Lvxddg50NeTm
+a0EOVmoS8ZfnIme+vnCQXKIR1vvKKsLraXEn6Jw6XwG97RSNurx5qQ==
+=clc3
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--
+

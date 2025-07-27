@@ -1,0 +1,36 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The <tt>who@</tt> program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<br><a href="top.html">ucspi-tcp</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp/who@.html"><tt>who@</tt> プログラム</a></h1>
+<tt>who@</tt> はリモートホスト上で活動しているユーザの一覧を出力します。
+
+<h2>使い方</h2>
+<pre>
+     who@ <i>host</i>
+</pre>
+<tt>who@</tt> は <tt><i>host</i></tt> の TCP 11 番ポート 11 (Systat) に接続し、受け取ったどんなデータも出力します。
+CR (\015) を取り除き、表示できない文字を表示できる形式に変換します。
+
+<p>
+<tt><i>host</i></tt> が指定されなかったら、<tt>who@</tt> はローカルホストに接続します。
+
+<p>
+コンピュータの中には活動しているユーザの一覧を 11 番ポートに返答するものもあります。
+例えば、<a href="tcpserver.html"><tt>tcpserver</tt></a> を使って次のように動いているかもしれません。
+<pre>
+     tcpserver -RHl0 0 11 who
+</pre>
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat Mar 18 20:21:00 2000
+<!-- hhmts end -->
+</body>
+</html>

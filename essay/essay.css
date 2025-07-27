@@ -1,0 +1,27 @@
+body {
+    color: black;
+    background-color: #fff8dc
+}
+
+h1,h2,h3 {
+    color: green;
+}
+
+caption {
+    text-align: left;
+    font-weight: bold;
+}
+
+.foot-menu {
+    fontsize: 0.9em;
+}
+
+.update {
+    text-align: right;
+}
+
+.header {
+    background-color: #bfffbf;
+    fontsize: 0.8em;
+}
+

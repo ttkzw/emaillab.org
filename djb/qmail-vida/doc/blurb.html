@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<title>blurb</title>
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="vida.css" />
+<body>
+<h1>特徴</h1>
+
+<h2>特徴の概要</h2>
+
+<ul>
+  <li>checkpasswordの認証方式の追加(CRAM-MD5,APOP対応)</li>
+  <li>checkpasswordのSMTP認証対応</li>
+  <li>qmail-smtpupプログラムの追加</li>
+  <li>仮想ユーザ対応</li>
+  <li>バーチャルドメイン対応</li>
+  <li>パスワードデータベースは CDB を利用するため、ユーザ数が多くても高速
+</li>
+  <li>D.J.Bernstein氏のライブラリを積極的に利用</li>
+</ul>
+
+<h2>checkpasswordの認証方式の追加</h2>
+<p>オリジナルのcheckpasswordは平文認証しか扱いませんが、qmail-vidaで強化されたcheckpasswordは平文認証に加えてCRAM-MD5認証とAPOP認証に対応しています。なお、デフォルトでは平文認証を行なえないようになっています。環境変数ALLOWPLAINを設定することにより平文認証を許可するようになります。
+</p>
+
+<h2>checkpasswordのSMTP認証対応</h2>
+<p>qmail-vidaで追加されたqmail-smtpupから呼び出されることによりSMTP認証を行なうことが可能になります。認証に成功すると実行権限をqmaildに変えqmail-smtpdを呼び出し、通常のSMTPの処理を続けることになります。
+</p>
+
+<h2>qmail-smtpupプログラムの追加</h2>
+<p>POP3におけるqmail-popupと同じようにSMTPにおいてはqmail-smtpupというプログラムを用意しています。認証を行なうためにrootの権限で起動しなければなりませんが、qmail-smtpdから認証の応答の部分を分離させ、認証終了後にqmaildの権限に変えてからqmail-smtpdを起動できるようにしています。なお、他のSMTP認証パッケージは大抵qmail-smtpdの中で認証も含めて行なっているものが多いです。</p>
+<p>通常は認証を行なわない場合でもメールの送信を受け付けます（当然、中継は出来ない）が、環境変数FORCEAUTHを設定すると認証なしにメールを送ることが出来なくなります。これはクライアントからの中継専用のサーバで送信の制限を厳しくするときに設定します。外部からメールを受け付けるサーバにはこの環境変数を絶対に設定してはいけません。</p>
+
+<h2>仮想メールボックス対応</h2>
+<p>システムにアカウントを持っていない仮想ユーザでもメールボックスを持つことができます。</p>
+
+<h2>バーチャルドメイン対応</h2>
+<p>IPアドレスベースおよびログインIDベースのバーチャルドメインの運用が簡単にできます。</p>
+
+<h2>パスワードデータベースにCDBを利用</h2>
+<p>パスワードデータベースにCDBを利用しているためアカウント数が多くても高速に認証を行うことができます。</p>
+
+<h2>D. J. Bernstein氏のライブラリを積極的に利用</h2>
+<p>D. J. Bernstein氏のライブラリを積極的に利用し、stdioやstdlibライブラリを原則として使用していません。そのため、バッファーオーバーフローやフォーマットバグなどの危険を回避できます。ただし、stdioのrename()だけは代わりになるものがないため使用しています。
+</p>
+
+
+
+<h2>実装していない機能</h2>
+
+<h3>実装するかどうか未定の機能</h3>
+<ul>
+<li>認証ログの出力機能</li>
+<li>PAMによる認証</li>
+<li>LDAPによる認証</li>
+<li>POP over SSL/TLS</li>
+<li>SMTP over SSL/TLS</li>
+</ul>
+
+<p>認証ログの出力機能はありませんが、ucspi-tcp パッケージの recordio と daemontools パッケージの multilog を利用することにコマンドの応答を記録することが可能です。</p>
+<p>PAM認証とSMTP/POP over SSL/TLSは現状では作者が理解していないので実装できません</p>
+
+<h2>実装する予定のない機能</h2>
+<ul>
+<li>POP before SMTP</li>
+</ul>
+
+<p>現在、主要な MUA は SMTP 認証が可能です。そのため、POP before SMTP の必要性はもはや感じません。どうしても必要な方は Bruce Guenter 氏の <a href="http://untroubled.org/relay-ctrl/">relay-ctrl パッケージ</a>を併用して使ってください。作者も POP before SMTP から SMTP 認証への移行時にこのパッケージを利用していましたのでお勧めします。</p>
+
+</body>
+</html>

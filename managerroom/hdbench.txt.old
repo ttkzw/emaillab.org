@@ -1,0 +1,24 @@
+ ★ ★ ★  HDBENCH Ver 3.11  (C)EP82改/かず ★ ★ ★
+M/B Name
+Processor   Pentium II 732.98MHz[GenuineIntel family 6 model 8 step 1]
+Cache       L1_Data:[16K]  L1_Instruction:[16K]
+VideoCard   Matrox Millennium G400 DualHead Max - English
+Resolution  1024x768 (32Bit color)
+Memory      130,028 KByte
+OS          Windows 98 4.10 (Build: 1998)
+Date        1999/12/30  17:38
+
+SCSI = Adaptec AHA-2940U/AHA-2940UW PCI SCSI Controller
+HDC[?]=Intel 82371AB/EB PCI Bus Master IDE Controller
+
+A = GENERIC NEC  FLOPPY DISK
+C = IBM DDRS-39130       Rev S97B
+DE = QUANTUM FIREBALL SE6.4S  Rev PJ09
+F = PLEXTOR CD-R   PX-W124TS Rev 1.00
+K = TOSHIBA DVD-ROM SD-M1201 Rev 1R08
+
+   ALL  Integer   Float  MemoryR MemoryW MemoryRW  DirectDraw
+ 14451    30845   32115    14069   12586    15028          74
+
+Rectangle   Text Ellipse  BitBlt    Read   Write    Copy  Drive
+    47590  54323    5671     321    9646    8969    1670  C:\20MB

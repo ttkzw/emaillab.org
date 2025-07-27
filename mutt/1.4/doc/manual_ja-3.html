@@ -1,0 +1,586 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.20">
+ <TITLE>The Mutt E-Mail Client : 設定</TITLE>
+ <LINK HREF="manual_ja-4.html" REL=next>
+ <LINK HREF="manual_ja-2.html" REL=previous>
+ <LINK HREF="manual_ja.html#toc3" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="manual_ja-4.html">次のページ</A>
+<A HREF="manual_ja-2.html">前のページ</A>
+<A HREF="manual_ja.html#toc3">目次へ</A>
+<HR>
+<H2><A NAME="s3">3.</A> <A HREF="manual_ja.html#toc3">設定</A></H2>
+
+<P>Mutt を最適に利用できるように初期設定(選択)はなされていますが、自分の好みにあわせて設定ファイルを書き直した方がよい場合も多いでしょう。Muttを初めて起動したとき、
+-n 
+<A HREF="manual_ja-6.html#commandline">command line</A>コマンドラインオプションが指定されていなければ、Muttはシステムで設定されている設定ファイルを読みにいこうとします(初期のファイルの場所はシステム管理者が指定しています)。普通この設定ファイルは
+/usr/local/share/mutt/Muttrc か /etc/Muttrcです。次に Muttはホームディレクトリーにある
+.muttrc というファイルを探しにいきます。もしこのファイルがなくてホームディレクトリーに
+.muttというサブディレクトリーがあれば .mutt/muttrc を読み込みに行こうとします。</P>
+<P>.muttrc に
+<A HREF="manual_ja-6.html#commands">commands</A>コマンドを書き込んで Muttをユーザー独自の設定にします。</P>
+<P>また Mutt はバージョン毎の設定ファイルを指定することができ、それを指定していた場合は上に述べた初期の設定ファイルではなくそのファイルを読み込みます。例えば
+Muttrc-0.88というファイルがシステムで設定されているディレクトリーにあって、Mutt
+のヴァージョン 0.88 を使っている場合、 Muttrc ではなくそのファイルが読み込まれます。ユーザー独自の設定ファイルに関しても同様で、ホームディレクトリーに
+.muttrc-0.88.6 というファイルをおいてバージョン 0.88.6の Mutt を走らせた場合、このファイルが
+.muttrc の代わりに読み込まれます。いま使っている Mutt がどのバージョンのものかはコマンドラインオプションで
+-v を指定するか、インデックスメニューでバー ジョンを確認する show-versionキー(初期値:
+V)を押すことで確認できます。</P>
+<H2><A NAME="muttrc-syntax"></A> <A NAME="ss3.1">3.1</A> <A HREF="manual_ja.html#toc3.1">初期化ファイルの構文</A>
+</H2>
+
+<P>初期化ファイルは一連のコマンドで構成され、それぞれの行は一つ以上のコマンドを含みます。一つの行に複数のコマンドを記入する場合はセミコロン(;)
+でコマンドを区切らなければなりません。</P>
+<P>
+<PRE>
+set realname='Mutt user' ; ignore x-  
+</PRE>
+</P>
+<P>ハッシュマーク、またはポンド記号( # )、はコメント記号として使われます。コメント記号から行の最後まではコメントとして無視されますので初期化ファイルに注釈を付けたい場合に利用できます。例えば、</P>
+<P>
+<PRE>
+my_hdr X-Disclaimer: Why are you listening to me? # This is a comment  
+</PRE>
+</P>
+<P>シングル引用符(')とダブル引用符(&quot;)はスペースなどの特殊な文字を含む文字列をくくるのに使います。二つの引用符の違いは多くの一般的なシェルプログラミングにおけるそれらの違いと似ています。つまり、シングル引用符が用いられた場合その中の文字列はその文字の字義のままになります(シェル変数の展開もされませんしバックスラッシュによるエスケープ[次のパラグラフを参照]も受けません)。一方、ダブル引用符の中の文字列はその中の文字が特殊な文字として解釈されうる場合があります。例えば、バック引用符はダブル引用符の中では解釈されますがシングル引用符の中では解釈されません。</P>
+<P>\ は、bash や zsh でそうであるように、次に来る特殊な文字を解釈されないようにエスケープします。例えばダブル引用符(&quot;)を解釈され得る特殊な文字としてではなく字義通りの意味で文字列の中で使いたい場合、
+\ を使うことが できます。</P>
+<P>
+<PRE>
+set realname=&quot;Michael \&quot;MuttDude\&quot; Elkins&quot;  
+</PRE>
+</P>
+<P>\ そのものを行に挿入するには \\ とします。 \n
+と \r は C で持つ意味と同じで改行と復帰をそれぞれ意味します。</P>
+<P>行末に \ を置くことでコマンドを複数の行に分けて書くことができます。ただしコマンド名の途中でわけることは許されません。</P>
+<P>初期化ファイルの中で Unix のコマンドをバック引用符(`)でくくることにより
+Unix の出力に置き換えるようにすることもできます。例えば次のようにします。</P>
+<P>
+<PRE>
+my_hdr X-Operating-System: `uname -a`  
+</PRE>
+</P>
+<P>行が解釈される前に uname -a という Unix のコマンドの出力に置き換えられます。初期化ファイルは行指向であるため
+Unix コマンドの出力は最初の行しか置き換えられないということに注意して下さい。</P>
+<P>UNIX の環境には sh や bashのようなシェルと似た方法でアクセスすることができます。環境変数名の前に
+&quot;$&quot;を前置するのです。例えば、次のように使ってください、</P>
+<P>
+<PRE>
+set record=+sent_on_$HOSTNAME  
+</PRE>
+</P>
+<P>Muttが解釈できるコマンドは次のセクションから説明されています。コマンドの完全なリストは
+<A HREF="manual_ja-6.html#commands">command reference</A>を見てください。</P>
+<H2><A NAME="alias"></A> <A NAME="ss3.2">3.2</A> <A HREF="manual_ja.html#toc3.2">エイリアスを定義/使用する</A>
+</H2>
+
+<P>使い方: <CODE>alias </CODE><CODE><EM>key address</EM> [ , </CODE><CODE><EM>address</EM>, ... ]</CODE></P>
+<P>メールをやりとるする相手のメールアドレスを覚えておいたりタイプしたりするのは普通とても面倒です。Muttでは完全なメールアドレスの略記としてエイリアスを作成することができます。</P>
+<P><B>注意</B>: エイリアスをグループ(複数のメールアドレスを指定)に対して作成したい場合はそのアドレスをコンマ(
+, )で区切らなければなりません。</P>
+<P>エイリアスを削除するには、</P>
+<P><CODE>unalias</CODE> [ * | <I>key</I> <I>...</I> ] 
+を使ってください (*はすべてのエイリアスという意味です)。</P>
+<P>
+<PRE>
+alias muttdude me@cs.hmc.edu (Michael Elkins)  
+alias theguys manny, moe, jack 
+</PRE>
+</P>
+<P>他のメーラーとは違い Mutt はエイリアスを特別のファイルに定義する必要はありません。エイリアスコマンドはそのファイルが読み込まれる(
+<A HREF="#source">sourced</A>を参照)ならば設定ファイルの中のどこにあってもいいのです。従って、複数のエイリアスファイルを持つこともすべて
+muttrc の 中に定義することもできます。</P>
+<P>一方、 
+<A HREF="manual_ja-2.html#create-alias">create-alias</A> という機能で扱えるファイルは 
+<A HREF="manual_ja-6.html#alias_file">$alias_file</A>変数で指定される(初期の状態で
+~/.muttrc)ファイルのみです。Mutt はどのファイルにたいしてもうまくエイリアスを追加できるという意味ではこのファイルは特別なファイルではありませんが、新しいエイリアスを機能させるにはこのファイル
+を 
+<A HREF="#source">source</A> コマンドで読み込む必要があります。</P>
+<P>例えば:</P>
+<P>
+<PRE>
+source /usr/local/share/Mutt.aliases  
+source ~/.mail_aliases 
+set alias_file=~/.mail_aliases 
+</PRE>
+</P>
+<P>エイリアスを使うには <EM>To:</EM> や <EM>Cc:</EM> など Mutt がメールアドレスの入力を要求するところで作成したエイリアスを入力するだけです。またヘッダーを編集可能なように
+<A HREF="manual_ja-6.html#edit_headers">$edit_headers</A>変数をセットしている場合は適切なヘッダーに対してエイリアスを使うことができます。</P>
+<P>さらに、メールアドレスを入力する様々な場面で TABキーを押すことで書きかけのエイリアスを完全なエイリアスに補完することができます。いくつかのエイリアスにマッチした場合マッチしたエイリアスを選択するメニューを表示します。エイリアスの完全なリストを表示させるには書きかけのエイリアスが無い状態で
+TABキーを押さなければなりません、つまり未入力の状態や複数のメールアドレスに対するエイリアスの場合はコンマの後などで
+TAB キーを押すのです。</P>
+<P>エイリアス選択メニューでは select-entryキー(初期値: RET)を押すことで好きなだけ選択することができます。選択メニューを抜けてメールアドレスの入力に戻るには
+exitキー(初期値: q)を押します。</P>
+<H2><A NAME="bind"></A> <A NAME="ss3.3">3.3</A> <A HREF="manual_ja.html#toc3.3">デフォルトのキーバインディングを変更する</A>
+</H2>
+
+<P>使い方: <CODE>bind </CODE><CODE><I>map</I> </CODE><CODE><I>key</I> </CODE><CODE><I>function</I></CODE> </P>
+<P>このコマンドは初期のキーバインディングを変更するコマンドです(キーを押した時に機能します)。</P>
+<P><EM>map</EM> はどのメニューに対するキーバインディングなのかを指定します。今のところ定義されている
+<EM>map</EM> は、</P>
+<P>
+<UL>
+<LI>generic </LI>
+<LI>alias </LI>
+<LI>attach </LI>
+<LI>browser </LI>
+<LI>editor </LI>
+<LI>index </LI>
+<LI>compose </LI>
+<LI>pager </LI>
+<LI>pgp </LI>
+<LI>postpone </LI>
+</UL>
+</P>
+<P>です。</P>
+<P><EM>key</EM> はバインドしたいキー(または一続きのキー)です。コントロール文字を指定したい場合は
+\Cx という一連のキーを用います。ここで x はコントロールキーを押しながら入力する文字です(例えば
+Control-A を指定したい場合は \Ca とし ます)。x と \C が大文字であるか小文字であるかは無視されます、つまり\CA、
+\Ca、 \cA、\ca はすべて同じものを意味します。もう一つの方法は
+\ を前 に置いた三桁の8進数で指定することで可能になります(例えば
+\177は \c?と同 じ意味です)。</P>
+<P>また次のものも使うことができます:</P>
+<P>
+<PRE>
+\t              tab  
+&lt;tab&gt;           tab 
+ \r             carriage return 
+ \n             newline 
+ \e             escape 
+&lt;esc&gt;           escape 
+&lt;up&gt;            up arrow 
+&lt;down&gt;          down arrow 
+&lt;left&gt;          left arrow 
+&lt;right&gt;         right arrow 
+&lt;pageup&gt;        Page Up 
+&lt;pagedown&gt;      Page Down 
+&lt;backspace&gt;     Backspace 
+&lt;delete&gt;        Delete 
+&lt;insert&gt;        Insert 
+&lt;enter&gt;         Enter 
+&lt;return&gt;        Return 
+&lt;home&gt;          Home 
+&lt;end&gt;           End 
+&lt;space&gt;         Space bar 
+&lt;f1&gt;            function key 1 
+&lt;f10&gt;           function key 10 
+</PRE>
+</P>
+<P><EM>key</EM> はスペースを含まない限り引用符でくくる必要はありません。</P>
+<P><EM>function</EM> で <EM>key</EM> が押された時にどのような動作をするかを指定します。function
+の完全なリストは 
+<A HREF="manual_ja-6.html#functions">reference</A> を参照して下さい。noop は特殊な functionでキー(一連のキー)へのバインドを外します。</P>
+<H2><A NAME="charset-hook"></A> <A NAME="ss3.4">3.4</A> <A HREF="manual_ja.html#toc3.4">文字セットのエイリアスを定義する </A>
+</H2>
+
+<P>使い方: <CODE>charset-hook</CODE> <I>alias</I> <I>charset</I> </P>
+<P>使い方: <CODE>iconv-hook</CODE> <I>charset</I> <I>local-charset</I> </P>
+<P><CODE>charset-hook</CODE> コマンドは文字セットのエイリアスを定義します。これは
+muttが知らない文字セットを使っているメッセージを正しく表示するのに便利です。</P>
+<P><CODE>iconv-hook</CODE>コマンドは文字セットにシステム特有の名前を定義します。この機能はあなたのシステムの文字変換ライブラリが文字セットに変わったシステム特有の名前を使っている場合に便利です。</P>
+<H2><A NAME="folder-hook"></A> <A NAME="ss3.5">3.5</A> <A HREF="manual_ja.html#toc3.5">メールボックスに関係する変数の設定</A>
+</H2>
+
+<P>使い方: <CODE>folder-hook [!]</CODE><CODE><I>regexp</I> </CODE><CODE><I>command</I></CODE> </P>
+<P>メールボックスによって設定を変更したい場合が多くあります。folder-hookコマンドを使うことで特定のメールボックスに対して設定コマンドを実行できます。<EM>regexp</EM>は
+commandを実行するメールボックスを指定する正規表現で、<EM>command</EM> はメールボックスを読み込む前に実行されます。一つのメールボックスに対していくつかの
+folder-hook がマッチした場合は muttrc に書いてある順に実行されます。</P>
+<P><B>注意</B>: 
+<A HREF="manual_ja-6.html#spoolfile">$spoolfile</A>へのショートカットとして ! を pattern の最初に使いたい場合、正規表現の
+not 演算子と区別するためにダブルもしくはシングル引用符でくくらなければなりません。</P>
+<P>メールボックスを離れた時に元の設定に戻るわけではないということに注意して下さい。例えば、読み込むメールボックスの並べ方を変更するためのコマンドの例として次のようなものがありますが:</P>
+<P>
+<PRE>
+folder-hook mutt set sort=threads  
+</PRE>
+</P>
+<P>別のメールボックスに移ったからといって前の並べ方にもどるわけではありません。default
+のコマンドを指定するには 「.」 というパターンを用いて下さい:</P>
+<P>
+<PRE>
+folder-hook . set sort=date-sent  
+</PRE>
+</P>
+<H2><A NAME="macro"></A> <A NAME="ss3.6">3.6</A> <A HREF="manual_ja.html#toc3.6">キーボードマクロ</A>
+</H2>
+
+<P>使い方: <CODE>macro </CODE><CODE><I>menu</I> </CODE><CODE><I>key</I> </CODE><CODE><I>sequence</I> [ </CODE><CODE><I>description</I> ]</CODE> </P>
+<P>一連のアクションを一つのキーで実行したい時にマクロは便利です。ある
+<EM>menu</EM> で <EM>key</EM> を押した場合、Mutt は <EM>sequence</EM> を続けざまに押した時と同じように振舞います。ですから、共通して使う一連のコマンドがある場合、マクロを作成すると一つのキーでそれらのコマンドを実行できるようになります。</P>
+<P><EM>key</EM> と <EM>sequence</EM> はキーバインディングにおけるルール(
+<A HREF="#bind">key bindings</A>)と基本的に同じルールで展開されますが、次のルールが追加されています。<EM>sequence</EM>
+においてコントロールキャラクターを入力するのに ^x という形も使うことができます。カレット(
+^ )を入力するには ^^ と入力する必要があります。2番目はある種のキー、例えば
+Up、や関数を <I>&lt;key name&gt;</I>と <I>&lt;function name&gt;</I>というフォーマットを使って直接呼び出すことができることです。使うことのできるキーの名前は
+<A HREF="#bind">key bindings</A>を参照してください。また関数は
+<A HREF="manual_ja-6.html#functions">function reference</A>に一覧表があります。</P>
+<P>関数名を直接使う場合のメリットはマクロが現在のキーバインドに影響されないことです。したがってユーザーがどのようにキーを定義しているかに依存しません。これによってマクロがより環境に影響されにくくなり可搬性が高まります。またこれを使うことによって何人もの人が使うファイル（例えばシステム全体の
+Muttrc）の中でマクロを定義できます。</P>
+<P>オプションとして一連のコマンドの後ろにヘルプスクリーンに表示される説明文を指定することができます。</P>
+<P><B>注意</B>: ヘルプ画面に表示されるマクロ定義は画面の広さにあわせて折り返して表示するということありません。つまり、スクリーンの広さ分しか表示されませ
+ん。</P>
+<H2><A NAME="color"></A> <A NAME="ss3.7">3.7</A> <A HREF="manual_ja.html#toc3.7">色属性と白黒属性を使う</A>
+</H2>
+
+<P>使い方: <CODE>color </CODE><CODE><I>object</I> </CODE><CODE><I>foreground</I> </CODE><CODE><I>background</I> [ </CODE><CODE><I>regexp</I> ]</CODE></P>
+
+<P>使い方: <CODE>color index </CODE><CODE><I>foreground</I> </CODE><CODE><I>background</I> </CODE><CODE><I>pattern</I></CODE> </P>
+<P>使い方: <CODE>uncolor index </CODE><CODE><I>pattern</I> [ </CODE><CODE><I>pattern</I> ...  ]</CODE> </P>
+<P>端末がカラー表示をサポートしていれば、Muttを独自の色構成にすることで見ためをちょっと派手にすることができます。objectの色を定義するには
+foregroundの色と backgroundの色の両方を定義しなければなりません(片方だけを定義することはできません)。</P>
+<P><EM>object</EM> は次の内のどれかです:</P>
+<P>
+<UL>
+<LI>attachment</LI>
+<LI>body (regexp にマッチするメールの本文)</LI>
+<LI>bold (メールの本文の太字シークエンス)</LI>
+<LI>error (Mutt が出力するエラーメッセージ)</LI>
+<LI>header (regexp にマッチするメールのヘッダー)</LI>
+<LI>hdrdefault (pager におけるメールのヘッダーのデフォルトの色)</LI>
+<LI>index (メールインデックスにおける pattern にマッチします)</LI>
+<LI>indicator (メニューで現在のアイテムを指し示す矢印もしくはバー)</LI>
+<LI>markers (ページャーで折り返された行の最初に表示される + マーク)</LI>
+<LI>message</LI>
+<LI>normal</LI>
+<LI>quoted (メールの本文で $quote_regexp にマッチする部分)</LI>
+<LI>quoted1, quoted2, ... quotedN</LI>
+<LI>search</LI>
+<LI>signature</LI>
+<LI>status (メールボックスやメールに関するモードに関する情報を示す行)</LI>
+<LI>tilde (ページャーにおいて空行を示すのに使われる <CODE>~</CODE> )</LI>
+<LI>tree (インデックスとファイル添付メニューで描かれるスレッドツリー)</LI>
+<LI>underline (メールの本文の下線つき文字のシークエンス)</LI>
+</UL>
+</P>
+<P><EM>foreground</EM>と <EM>background</EM>は次の内のどれかです:</P>
+<P>
+<UL>
+<LI>white </LI>
+<LI>black </LI>
+<LI>green </LI>
+<LI>magenta </LI>
+<LI>blue </LI>
+<LI>cyan </LI>
+<LI>yellow </LI>
+<LI>red </LI>
+<LI>default </LI>
+<LI>color<I>x</I> </LI>
+</UL>
+</P>
+<P><EM>foreground</EM> に関しては先頭に bright という接頭辞を付けることにより太字にすることもできます(例えば、brightred)。</P>
+<P>端末がサポートしていれば、基本色として default という特別な色を指定することができます。また
+brightdefault という書き方も正しい書き方です。Mutt が S-Lang ライブラリーにリンクされている場合、さらに
+COLORFGBG変数を端末の基本色として設定しておく必要があります。例えば(Bourne-like
+shells の場合):</P>
+<P>
+<PRE>
+set COLORFGBG=&quot;green;black&quot;  
+export COLORFGBG 
+</PRE>
+</P>
+<P><B>注意</B>: この変数を設定するときに S-Lang ライブラリーは white と
+yellow の代わりに lightgray と brown をキーワードとして使うことを要求します。</P>
+<P><B>注意</B>: uncolorコマンドは色の登録を解除するコマンドで indexの objectに関してのみ使うことができます。このコマンドを使うとき
+colorコマンドで指定したパターンと同一のパターンを指定しなければなりません。
+* という特別なパターンは indexに関する色指定をすべてまとめて解除します。</P>
+<P>また Mutt は <EM>color0, color1, ..., color</EM>N-1といったキーワードも解釈できます(N
+は端末がサポートしている色の番号です)。このキーワードを使うことでディスプレイの色を変更しなおす時に楽になります(例えば、xtermの
+color2 に設定してある色を変更したりする時です)。ただしそのために色が元々の意味を失ってしまうこともあるかもしれません。</P>
+<P>端末がカラー表示をサポートしていなくとも、monoコマンドを使うことで白黒属性を変更することはできます。</P>
+<P>使い方: <CODE>mono</CODE> <I>&lt;object&gt; &lt;attribute&gt;</I> [ <I>regexp</I> ]</P>
+
+<P>使い方: <CODE>mono</CODE> index <I>attribute</I> <I>pattern</I> </P>
+<P>使い方: <CODE>unmono</CODE> index <I>pattern</I> [ <I>pattern</I> ... ] </P>
+<P><EM>attribute</EM>は次のうちのどれかです:</P>
+<P>
+<UL>
+<LI>none </LI>
+<LI>bold </LI>
+<LI>underline </LI>
+<LI>reverse </LI>
+<LI>standout </LI>
+</UL>
+</P>
+<H2><A NAME="ignore"></A> <A NAME="ss3.8">3.8</A> <A HREF="manual_ja.html#toc3.8">不要なメールヘッダを隠す</A>
+</H2>
+
+<P>使い方: <CODE>[un]ignore </CODE><CODE><I>pattern</I> [ </CODE><CODE><I>pattern</I> ... ]</CODE></P>
+
+<P>メールにシステムから自動的につけられたたくさんのヘッダーフィールドがあることがしばしばあります、またはスクリーンに表示させてもあまり役に立ちそうにないヘッダーフィールドもあります。このコマンドを使うことで普段は隠しておきたいヘッダーフィールドを指定することができるようになります。</P>
+<P>ヘッダーフィールドの名前を完全に指定する必要はありません。例えば、
+ignore content- としていすると content- で始まるヘッダーフィールドはすべて無視されます。</P>
+<P>一度隠すように設定されたへッダーフィールドを隠すリストから外すには
+unignore コマンドを使って下さい。注意してほしいのは、例えば ignore
+x- としてから unignore x-mailerとしてもうまくいかないということです。unignore
+コマンドは与えられたパターンのヘッダーフィールドを表示させるコマンドではないのです。</P>
+<P>unignore * とすると設定を隠すリストから全て外します。</P>
+<P>例えば、</P>
+<P>
+<PRE>
+# Sven's draconian header weeding  
+ignore * 
+unignore from date subject to cc 
+unignore organization organisation x-mailer: x-newsreader: x-mailing-list: 
+unignore posted-to: 
+</PRE>
+</P>
+<H2><A NAME="lists"></A> <A NAME="ss3.9">3.9</A> <A HREF="manual_ja.html#toc3.9">メーリングリスト</A>
+</H2>
+
+<P>使い方: <CODE>[un]lists</CODE> <I>address</I> [ <I>address</I> ... ]</P>
+
+<P>使い方: <CODE>[un]subscribe</CODE> <I>address</I> [ <I>address</I> ... ]</P>
+
+<P>Mutt にはメーリングリスト
+<A HREF="manual_ja-4.html#using_lists">handling mailing lists</A>に関する優れた機能があります。それを利用するにはどのアドレスがメーリングリストに属するのかを指定しなければなりません。それを指定すると、
+<A HREF="manual_ja-2.html#list-reply">list-reply</A>機能をすべてのメーリングリストに対して使えるようになります。そのうえ購読しているメーリングリストに送るメッセージには
+Mail-Followup-Toへッダがつき他の人の MUA (Mail User Agents)に返信をあなたの個人のメールアドレスに送らないように知らせます。Mail-Followup-Toへッダは非標準的な拡張ですべての
+MUAでサポートされているわけではないことに注意してください。またこのへッダを付け加えることはメーリングリストのメッセージの個人宛の
+CC:を受け取るのを完全に防ぐものではありません。もう一つ注意しておくと
+Mail-Followup-Toへッダの生成は 
+<A HREF="manual_ja-6.html#followup_to">followup_to</A>変数によってコントロールされます。</P>
+<P>詳しく説明すると、Muttは既知(known)のメーリングリストのリストと購読(subscribe)しているメーリングリストのリストを保持しています。すべての購読しているメーリングリストは既知です。あるメーリングリストを既知の状態にするには
+listコマンドを使います。購読の状態にするには subscribeコマンドを使います。</P>
+<P>あいまいさをなくすために十分なアドレスを指定しましょう。例えば、Muttのメーリングリストを購読していて、<I>mutt-users@mutt.org</I>というアドレスでメールを受け取るとします。Muttにこれがメーリングリストだと教えてやるには設定ファイルに
+lists mutt-users という行を付け加えてください。これが購読しているメーリングリストだと
+Muttに教えてやるには subscribe mutt-usersという行を代わりに付け加えます。もし
+<I>mutt-users@example.com</I>というアドレスを持つ他の人からメールを受け取る可能性がある場合には実際のメーリングリストのメールに一致させるために
+lists mutt-users@mutt.orgまたは subscribe mutt-users@mutt.orgを使って下さい。</P>
+<P>unlists コマンドは既知と購読のメーリングリストのリストからアドレスを外すコマンドです。すべての設定を解除するには
+unlists * というコマンドを使って下さ い。</P>
+<P>購読のリストからははずすが、既知のリストには残しておく場合には
+unsubscribeを使ってください。</P>
+<H2><A NAME="mbox-hook"></A> <A NAME="ss3.10">3.10</A> <A HREF="manual_ja.html#toc3.10">複数のスプールするメールボックスを使う</A>
+</H2>
+
+<P>使い方: <CODE>mbox-hook [!]</CODE><CODE><I>pattern</I> </CODE><CODE><I>mailbox</I></CODE> </P>
+<P>このコマンドはメールボックスを離れたり Mutt を終了させた時に既読のメールを自動的に他のメールボックスに移すのに使われます。pattern
+はスプールメールボックスとして扱うメールボックスを指定する正規表現です。mailboxは既読のメールをセーブする場所を指定します。</P>
+<P>他のいくつかの hook コマンドとは違い、最初にマッチしたパターンだけが使われます(既読のメールを複数のメールボックスにセーブすることはできません)。</P>
+<H2><A NAME="mailboxes"></A> <A NAME="ss3.11">3.11</A> <A HREF="manual_ja.html#toc3.11">メールを取り込むメールボックスを定義する</A>
+</H2>
+
+<P>使い方: <CODE>mailboxes [!]</CODE><CODE><I>filename</I> [ </CODE><CODE><I>filename</I> ... ]</CODE></P>
+
+<P>このコマンドはどのフォルダーにメールを取り込むことができ、そして新着のメールをチェックするかを指定します。初期の設定ではステータスバーにこれらのフォルダーに何通の新着のメールがあるかが表示されています。</P>
+<P>フォルダーを移動する時に <EM>space</EM> を押すと新着のメールが到着しているフォルダーを次々に表示します。</P>
+<P>ディレクトリーブラウザーで TAB キーを押すと mailboxes コマンドで指定されたメールボックスを表示するメニューを表示します。-y
+オプション付きで Mutt が起動されると自動的にこのモードになります。</P>
+<P><B>注意</B>: 新着のメールであるかどうかは変更が加えられた時間と最後にアクセスした時間とを比べて判断していますので、biff
+や frm や他のなんらかのプログラムでメールボックスにアクセスするものを使っている場合、それらのプログラムが適切にアクセスタイムをリセットしなければ
+Mutt は新着のメールの到着を判断できません。バックアップツールもアクセスタイムを変える原因の一つです。</P>
+<P><B>注意</B>: mailboxes コマンドにおける filename はコマンドが実行される時に展開されます。そのため、これらの名前が
+<A HREF="manual_ja-4.html#shortcuts">shortcut characters</A>(
+=や ! のようなショートカット文字)や変数定義の時に使われる文字(
+<A HREF="manual_ja-6.html#folder">$folder</A>や
+<A HREF="manual_ja-6.html#spoolfile">$spoolfile</A>のような)を含んでいれば
+mailboxes コマンドが実行される前に展開されます。</P>
+<H2><A NAME="my_hdr"></A> <A NAME="ss3.12">3.12</A> <A HREF="manual_ja.html#toc3.12">ユーザが定義するへッダ</A>
+</H2>
+
+<P>使い方: <CODE>my_hdr </CODE><CODE><I>string</I></CODE> </P>
+<P>使い方: <CODE>unmy_hdr </CODE><CODE><I>field</I> [ </CODE><CODE><I>field</I> ... ]</CODE> </P>
+<P>my_hdr コマンドを使うことで独自のヘッダーフィールドを定義することができます。またそのヘッダーフィールドは送信するメール毎に付加されます。</P>
+<P>例えば、Organization: ヘッダーフィールドを出ていくメールすべてに付加したい場合は次のコマンドを
+.muttrc に書き加えて下さい:</P>
+<P>
+<BLOCKQUOTE>
+my_hdr Organization: A Really Big Company, Anytown, USA  
+</BLOCKQUOTE>
+</P>
+<P><B>注意</B><EM>:</EM> キーワードとコロン(:)の間にスペースを入れることは許されません。電子メールの標準を定める
+RFC822 でそのスペースは許されないと定められているので Mutt でもそのルールに従っています。</P>
+<P>全てのメールに対してではなくある一つのメールにヘッダーフィールドを付加したい場合には、そのメールの本文に伴うヘッダーを編集できるように
+<A HREF="manual_ja-6.html#edit_headers">edit_headers</A> 変数をセットしておくか、send-menu で edit-headers 機能 (デフォルト:
+E)を利用して下さい。</P>
+<P>ユーザー独自のヘッダーフィールドを除くには unmy_hdr コマンドを使って下さい。全てのヘッダーフィールドを除くのにアスタリスク(*)を使うこともできます。例えば、すべての
+To と Cc ヘッダーフィールドを削除するには次のよ うにします:</P>
+<P>
+<BLOCKQUOTE>
+unmy_hdr to cc  
+</BLOCKQUOTE>
+</P>
+<H2><A NAME="hdr_order"></A> <A NAME="ss3.13">3.13</A> <A HREF="manual_ja.html#toc3.13">メールを閲覧する時のヘッダの並び方を決める</A>
+</H2>
+
+<P>使い方: <CODE>hdr_order </CODE><CODE><I>header1</I> </CODE><CODE><I>header2</I> </CODE><CODE><I>header3</I></CODE> </P>
+<P>このコマンドを使うことでメールを閲覧する時に Mutt が表示するヘッダーの並び方を指定することができます。</P>
+<P>`unhdr_order * 'はオーダーリストからすべての前のヘッダーをクリアします。そのためヘッダーの並び方を削除することはシステムワイドなスタートアップファイルによる設定にも影響します。</P>
+<P>
+<PRE>
+hdr_order From Date: From: To: Cc: Subject:  
+</PRE>
+</P>
+<H2><A NAME="save-hook"></A> <A NAME="ss3.14">3.14</A> <A HREF="manual_ja.html#toc3.14">セーブする時のデフォルトのファイル名を指定する</A>
+</H2>
+
+<P>使い方: <CODE>save-hook [!]</CODE><CODE><I>pattern</I> </CODE><CODE><I>filename</I></CODE> </P>
+<P>このコマンドでメールをセーブする時に使われるデフォルトのファイル名を変えることができます。メールの
+From: が regexp にマッチするかあなた自身がメールの送信者であった場合と
+To: が regexp にマッチする場合にこのファイル名が使われます。</P>
+<P>パターンの正確な形式に関する情報に関しては 
+<A HREF="manual_ja-4.html#pattern_hook">Message Matching in Hooks</A>を参照して下さい。</P>
+<P>例:</P>
+<P>
+<PRE>
+save-hook me@(turing\\.)?cs\\.hmc\\.edu$ +elkins  
+save-hook aol\\.com$ +spam 
+</PRE>
+</P>
+<P>
+<A HREF="#fcc-save-hook">fcc-save-hook</A>コマンドも参照して下さい。</P>
+<H2><A NAME="fcc-hook"></A> <A NAME="ss3.15">3.15</A> <A HREF="manual_ja.html#toc3.15">Fcc:としてセーブするデフォルトのメールボックスを指定する</A>
+</H2>
+
+<P>使い方: <CODE>fcc-hook [!]</CODE><CODE><I>pattern</I> </CODE><CODE><I>mailbox</I></CODE> </P>
+<P>このコマンドは送信するメールを 
+<A HREF="manual_ja-6.html#record">$record</A> 以外にセーブしたい場合に使います。
+Muttはメールの受信者のリストのなかに regexp にマッチするものがあった場合に
+mailbox として指定されたメールボックスを Fcc: として保存するメールボックスにします。regexp
+にマッチしなかった場合は 
+<A HREF="manual_ja-6.html#record">$record</A>メールボックスに保存します。</P>
+<P>正規表現(regexp)の正確な形式に関する情報に関しては 
+<A HREF="manual_ja-4.html#pattern_hook">Message Matching in Hooks</A>を参照して下さい。</P>
+<P>Example: <CODE>fcc-hook aol.com$ +spammers</CODE> </P>
+<P>上記のようにすると送信しようとするメールのうちドメインが aol.com
+であるメールはデフォルトで +spammers メールボックスにコピーが保存されます。
+<A HREF="#fcc-save-hook">fcc-save-hook</A>コマンドも参照して下さい。</P>
+<H2><A NAME="fcc-save-hook"></A> <A NAME="ss3.16">3.16</A> <A HREF="manual_ja.html#toc3.16">セーブするファイル名のデフォルトと Fcc: するメールボックスのデフォルトを一度に指定する。</A>
+</H2>
+
+<P>使い方: <CODE>fcc-save-hook [!]</CODE><CODE><I>pattern</I> </CODE><CODE><I>mailbox</I></CODE> </P>
+<P>このコマンドは 
+<A HREF="#fcc-hook">fcc-hook</A>と 
+<A HREF="#save-hook">save-hook</A> を一度に指定するショートカットコマンドで mailbox
+で同じメールボックスに指定します。</P>
+<H2><A NAME="send-hook"></A> <A NAME="ss3.17">3.17</A> <A HREF="manual_ja.html#toc3.17">メールの宛先によって設定を変更する</A>
+</H2>
+
+<P>使い方: <CODE>send-hook [!]</CODE><CODE><I>pattern</I> </CODE><CODE><I>command</I></CODE> </P>
+<P>このコマンドを使うことでメールの宛先に応じて任意のコマンドを実行できます。pattern
+は send-hook コマンドを実行したいアドレスにマッチする正規表現で、マッチした場合は
+command で指定されたコマンドが実行されます。複数の send-hook コマンドがマッチした場合には
+muttrc に書かれている順に実行 されます。</P>
+<P>パターンの正確な形式に関する情報に関しては 
+<A HREF="manual_ja-4.html#pattern_hook">Message Matching in Hooks</A>を参照して下さい。</P>
+<P>例: <CODE>send-hook mutt &quot;set mime_forward signature=''&quot;</CODE></P>
+
+<P>他の典型的な使い方としてはメールの宛先に応じて 
+<A HREF="manual_ja-6.html#attribution">$attribution</A>、 
+<A HREF="manual_ja-6.html#signature">$signature</A>、
+<A HREF="manual_ja-6.html#locale">$locale</A>変数を変更することがあります。こうすることで引用する時に示す出典の言葉と署名の言語を変更することができます。</P>
+<P><B>注意</B>: send-hook コマンドは最初に受信者のリストを Mutt が調べた時に<EM>一度だけ</EM>実行されます。返信操作を行った後や編集を終えた後で受信者を追加しても
+send-hookコマンドは実行されません。また受取人に関するへッダやサブジェクトを変える
+my_hdrコマンドは send-hookから実行されるメッセージには何の影響も与えません。</P>
+<H2><A NAME="message-hook"></A> <A NAME="ss3.18">3.18</A> <A HREF="manual_ja.html#toc3.18">メッセージを整形する前に設定を変える</A>
+</H2>
+
+<P>使い方： <CODE>message-hook</CODE> <CODE>[!]</CODE><CODE><I>pattern</I> </CODE><CODE><I>command</I></CODE> </P>
+<P>このコマンドはメッセージを見たり、整形する前にメッセージの内容によって任意の設定コマンドを実行するのに使います。表示されるメッセージに
+<I>pattern</I>がマッチすれば <I>command</I>が実行されます。同じメッセージがいくつものパターンにマッチする場合には、muttrcに書いてある順でコマンドが実行されます。</P>
+<P>パターンのフォーマットについての情報は 
+<A HREF="manual_ja-4.html#pattern_hook">Message Matching in Hooks</A>を参照して下さい。</P>
+<P>例： </P>
+<P>
+<PRE>
+message-hook ~A 'set pager=builtin'  
+message-hook '~f freshmeat-news' 'set pager=&quot;less  \  &quot;+/^  subject: .*\ &quot;&quot;' 
+</PRE>
+</P>
+<H2><A NAME="pgp-hook"></A> <A NAME="ss3.19">3.19</A> <A HREF="manual_ja.html#toc3.19">受取人の PGP キーを選ぶ</A>
+</H2>
+
+<P>使い方: <CODE>pgp-hook </CODE><CODE><I>pattern</I> </CODE><CODE><I>keyid</I></CODE> </P>
+<P>PGPでメールを暗号化しようとしている場合、特定のメールアドレスに対して一定の
+PGP鍵を自動的に振り当てたい場合があります。受取人の公開鍵がアドレスから推測できなかったり、なんらかの理由で
+Mutt が普通使う鍵ではないものを使いたかったりするような場合です。pgp-hook
+コマンドを使うことで特定の受取人へのメールを暗号化するときに公開鍵の
+IDを指定することができるようになります。</P>
+<H2><A NAME="push"></A> <A NAME="ss3.20">3.20</A> <A HREF="manual_ja.html#toc3.20">一連のキーをキーボードバッファーに加える</A>
+</H2>
+
+<P>使い方: <CODE>push </CODE><CODE><I>string</I></CODE> </P>
+<P>このコマンドは名前付き文字列をキーボードバッファーに加えます。この文字列は
+<A HREF="#macro">macro</A>コマンドの一連の文字列と同じようにコントロールキャラクタ、キーの名前、関数名を含むことができます。これ使って起動時や特定のフォルダに移動したときに一連のコマンドを実行することができます。</P>
+<H2><A NAME="exec"></A> <A NAME="ss3.21">3.21</A> <A HREF="manual_ja.html#toc3.21">関数の実行</A>
+</H2>
+
+<P>使い方: <CODE>exec</CODE> <I>function</I> [ <I>function</I> ... ] </P>
+<P>このコマンドは任意の関数を実行するのに使います。使うことのできる関数は
+<A HREF="manual_ja-6.html#functions">Functions</A>に一覧にしてあります。``exec
+function''は ``push &lt;function&gt;''と同じです。</P>
+<H2><A NAME="score-command"></A> <A NAME="ss3.22">3.22</A> <A HREF="manual_ja.html#toc3.22">メールにスコア付けする</A>
+</H2>
+
+<P>使い方: <CODE>score </CODE><CODE><I>pattern</I> </CODE><CODE><I>value</I></CODE> </P>
+<P>使い方: <CODE>unscore </CODE><CODE><I>pattern</I> [ </CODE><CODE><I>pattern</I> ... ] </CODE></P>
+<P>scoreコマンドは patternにマッチするメールのスコアに <CODE>value</CODE>の値を加えます。pattern
+は
+<A HREF="manual_ja-4.html#patterns">patterns</A>セクションに書かれている形式の文字列です（注意: 効率が悪くなるので、インデックスで使うことのできない情報を走査するパターン、例えば<CODE>~b</CODE>、<CODE>~B、~h</CODE>等は使わない方がいいでしょう）。valueは正か負の整数です。メールの最終的なスコアは
+scoreコマンドのすべての合計です。とはいえ、value に等号記号(=)を前置して
+pattern にマッチする特定の エントリーに対するスコアの計算を止めさせることで上限を設定することもできます。スコアの下限は
+0 です。</P>
+<P>unscore コマンドはリストから score のエントリーを外します。外す時は
+scoreコマンドで指定したのと同じパターンを指定しなければなりません。*
+という特殊なパターンは score のエントリーを全て外します。</P>
+<H2><A NAME="set"></A> <A NAME="ss3.23">3.23</A> <A HREF="manual_ja.html#toc3.23">変数を設定する</A>
+</H2>
+
+<P>使い方: <CODE>set [no|inv]</CODE><CODE><I>variable</I>[=</CODE><CODE><I>value</I>] [</CODE><CODE><I>variable</I> ... ]</CODE> </P>
+<P>使い方: <CODE>toggle </CODE><CODE><I>variable</I> [</CODE><CODE><I>variable</I> ... ]</CODE> </P>
+<P>使い方: <CODE>unset </CODE><CODE><I>variable</I> [</CODE><CODE><I>variable</I> ... ]</CODE> </P>
+<P>使い方: <CODE>reset </CODE><CODE><I>variable</I> [</CODE><CODE><I>variable</I> ... ] </CODE></P>
+<P>このコマンドは
+<A HREF="manual_ja-6.html#variables">configuration variables</A>変数をセットしたり外したりするのに使います。変数には
+boolean, number, string, quadoption という4つの種類があります。boolean
+変数は set (true)か unset (false)がその取り得る値で、number 変数
+はその値に正の整数を指定します。</P>
+<P>string 変数はいくつかの文字からなり、スペースやタブを含む場合は引用符で括らなければなりません。また
+Cと同様に改行とタブはそれぞれ \n、\t というエスケープシークエンスで指定することができます。</P>
+<P><EM>quadoption</EM> 変数は何らかの操作をした時にプロンプトを表示させるかどうかをコントロールしたりプロンプトのデフォルトの答えを指定するのに使います。<EM>yes</EM>という値を設定するとプロンプトの質問に対して自動的に
+yes と答えたように Mutt は反応します。同様に no と設定した場合は
+no と答えたように反 応します。<EM>ask-yes</EM> と設定した場合はデフォルトの答えを
+yes にしてプロンプトが表示され <EM>ask-no</EM> と設定した場合はデフォルトの答えを
+no にしてプロンプトが表示されます。</P>
+<P>no という前置詞を変数につけるとその変数の設定を外します。例:
+<CODE>set noaskbcc</CODE></P>
+<P><EM>boolean</EM>変数に対しては <CODE>inv</CODE> という前置詞を変数名につけて利用することができます。<CODE>inv</CODE>
+という前置詞が付けられた <EM>boolean</EM>変数はその値が逆になります (on か
+off )。これはマクロを書く時に便利です。例: <CODE>set invsmart_wrap</CODE></P>
+<P><CODE>toggle</CODE> コマンドは指定されたすべての変数の頭に <CODE>inv</CODE> がつけられたようにすることができるコマンドです。</P>
+<P><CODE>unset</CODE>コマンドは自動的に指定した変数の頭に <CODE>no</CODE> という前置詞をつけます。</P>
+<P>変数の値を調べるにはインデックスメニューで enter-command 機能で変数の前にクエスチョンマークを付けたものをセットすればわかります。</P>
+<P>
+<PRE>
+set ?allow_8bit  
+</PRE>
+</P>
+<P>実際には boolean 変数と quadoption変数に対してしかクエスチョンマークを付ける必要はありません。</P>
+<P><CODE>reset</CODE>コマンドは与えられたすべての変数の値をコンパイル時のデフォルトに戻します。<CODE>set</CODE>コマンドで変数の頭に「&amp;」をつけると
+<CODE>reset</CODE>コマンドと同じ振舞いをします。</P>
+<P>reset コマンドには all という特殊な変数を設定することができ、この変数を設定するとすべての変数設定を解除してシステムのデフォルトの設定に戻すことができます。</P>
+<H2><A NAME="source"></A> <A NAME="ss3.24">3.24</A> <A HREF="manual_ja.html#toc3.24">他のファイルから初期化コマンドを読み込む</A>
+</H2>
+
+<P>使い方: <CODE>source </CODE><CODE><I>filename</I></CODE> </P>
+<P>このコマンドを使うことで他のファイルから初期化コマンドを読み込むことができます。例えば、エイリアスファイルを
+<CODE>~/.mail_aliases</CODE> にわけてこちらは他の人が読めないようにし <CODE>~/.muttrc</CODE>は読めるようにする、ということができ
+ます。</P>
+<P>filenameがチルド(<CODE>~</CODE>)で始まっていれば、チルドはあなたのホームディレクトリの絶対パスに展開されます。</P>
+<P>filenameが垂直バー(|)で終っていればそのファイルはそこから入力を読み込む実行ファイルとみなされます。(例:
+<CODE>source ~bin/myscript|/</CODE>)</P>
+<H2><A NAME="unhook"></A> <A NAME="ss3.25">3.25</A> <A HREF="manual_ja.html#toc3.25">フックを取り除く</A>
+</H2>
+
+<P>使い方: <CODE>unhook</CODE> [ * | <I>hook-type</I> ] </P>
+<P>このコマンドは設定してある hookを無効にします。すべての hookを無効にするにはアステリスク(*)を引数にしてください。<CODE>unhook
+send-hook</CODE>のようにして特定のタイプの hookをすべて無効にすることもできます。</P>
+<HR>
+<A HREF="manual_ja-4.html">次のページ</A>
+<A HREF="manual_ja-2.html">前のページ</A>
+<A HREF="manual_ja.html#toc3">目次へ</A>
+</BODY>
+</HTML>

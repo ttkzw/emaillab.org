@@ -1,0 +1,24 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../tcpip.html">TCP/IP</a>
+<br><a href="../ucspi-tcp.html">ucspi-tcp</a>
+<h1>The <tt>mconnect</tt> program</h1>
+<tt>mconnect</tt> connects to a remote SMTP server.
+<h2>Interface</h2>
+<pre>
+     mconnect <i>host</i> <i>port</i>
+</pre>
+<tt>mconnect</tt>
+connects to <tt><i>port</i></tt> on <tt><i>host</i></tt>.
+It sends its input to <tt><i>host</i></tt>,
+adding a CR to each line.
+Meanwhile it prints anything it receives from <tt><i>host</i></tt>.
+<p>
+If <tt>port</tt> is not supplied,
+<tt>mconnect</tt> uses port 25 (SMTP).
+<p>
+If <tt>host</tt> is not supplied,
+<tt>mconnect</tt> connects to the local host.
+</body>
+</html>

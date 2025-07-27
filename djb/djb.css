@@ -1,0 +1,32 @@
+body {
+    color: black;
+    background-color: #fff8dc
+}
+
+h1,h2,h3,h4 {
+    color: green;
+}
+
+p.caption {
+    color: green;
+    font-weight: bold;
+}
+
+ul.toc,ul.toc ul,ul.note {
+    list-style: none;
+}
+.author {
+    text-align: right;
+}
+.update {
+    text-align: right;
+}
+.example {
+    color: green;
+    font-family: monospace;
+    margin-left: 2em;
+}
+.foot-menu {
+    fontsize: 0.9em
+}
+

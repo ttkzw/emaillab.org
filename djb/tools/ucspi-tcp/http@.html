@@ -1,0 +1,40 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The http@ program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<br><a href="top.html">ucspi-tcp</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp/http@.html"><tt>http@</tt> プログラム</a></h1>
+<tt>http@</tt> はリモートホストからウェブページを取得します。
+
+<h2>使い方</h2>
+<pre>
+     http@ <i>host</i> <i>page</i> <i>port</i>
+</pre>
+<tt>http@</tt> は <tt><i>host</i></tt> の <tt><i>port</i></tt> 番のポートに接続し、<tt><i>host</i></tt> に
+<pre>
+     GET /<i>page</i> HTTP/1.0
+     Host: <tt><i>host</i></tt>
+
+</pre>
+を送り、返答の内容を各行末から CR を取り除いて出力します。
+
+<p>
+<tt><i>port</i></tt> が指定されなかったら、<tt>http@</tt> は 80 番ポート (HTTP) に接続します。
+
+<p>
+<tt><i>page</i></tt> が指定されなかったら、<tt>http@</tt> は <tt><i>host</i></tt> に / を要求します。
+
+<p>
+<tt><i>host</i></tt> が指定されなかったら、<tt>http@</tt> はローカルホストに接続します。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Nov 19 20:35:29 2000
+<!-- hhmts end -->
+</body>
+</html>

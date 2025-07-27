@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<?xml-stylesheet href="../djb.css" type="text/css"?>
+<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<title>patch for qmail</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="../djb.css" />
+</head>
+<body>
+<h1>qmail のパッチ</h1>
+<h2>qmail のパッチについて</h2>
+<p>1998年5月6日初出</p>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sun May  7 15:32:20 2000
+<!-- hhmts end -->
+</div>
+<hr />
+<h3>アンケートの概要</h3>
+<p>まず、qmailのことをよく知らない人のために始めに断っておきますが、qmailには基本的にパッチを当てる必要は全くありません。それ自体で十分に多機能で安全です。しかし、<a href="http://www2.jp.qmail.org/www.qmail.org/top.html">www.qmail.org</a> などを見ていると、たくさんのパッチが公開されています。では、「なぜパッチを当てているのか？」「もしかしたらパッチを当てなければいけないのでは？」という疑問が上がります。そこで次のようなアンケートを行いました。</p>
+<ol>
+  <li>パッチを当てているか当てていないか？</li>
+  <li>どういう理由で？</li>
+</ol>
+<p>その結果において、パッチを当てる理由をおおざっぱにまとめると次のようになりました。</p>
+<ol>
+<li>ローカルタイム表示</li>
+<li>POP3関連(APOP対応も含めて)</li>
+<li>RFCを守らないMTA/MUA対策</li>
+<li>SPAM対策などの接続制御</li>
+</ol>
+<p>このアンケートを行った当時の qmail のバージョンは 1.01 であり、また、関連パッケージの状況も異なるので、この理由と対策方法は現状では異なる部分があります。そのため、対策方法を次の節に示すことにします。なお、このアンケートの詳細は<a href="patch-questionnaire.html">「アンケート」</a>に示します。</p>
+
+<hr />
+<h3>対策</h3>
+<h4>1. ローカルタイム表示</h4>
+<dl>
+<dt>Recieved:</dt>
+<dd>Recieved: フィールドでの時刻を GMT ではなくローカルタイムで表示したい場合は、パッチを当てるしかありません。どちらがよいかは多分に趣味的な問題です。（日本国内だけでメイルがやり取りされているわけではないということです。）<br />
+<a href="ftp://ftp.nlc.net.au/pub/unix/mail/qmail/qmail-date-localtime.patch">ftp://ftp.nlc.net.au/pub/unix/mail/qmail/qmail-date-localtime.patch</a>
+</dd>
+<dt>Date:</dt>
+<dd>Date: フィールドを付けない MUA からのメッセージに対して FAQ 5.5 の方法で付けさせたい場合において、Date: フィールドをローカルタイム表示にしたい場合は qmail のパッケージに含まれる predate 経由で qmail-inject を起動すればよいです。
+</dd>
+</dl>
+
+<h4>2. POP3関連(APOP対応も含めて)</h4>
+<dl>
+<dt>Status:</dt>
+<dd>未読の判断を Status: フィールドで行う場合はパッチを当てる必要があります。しかし、最近は UIDL が普及しているので必要無いと思います。<br />
+<a href="http://homepages.munich.netsurf.de/Franz.Sirl/qmail-pop3d-1.03.diff">http://homepages.munich.netsurf.de/Franz.Sirl/qmail-pop3d-1.03.diff</a></dd>
+<dt>APOP</dt>
+<dd>APOP 対応にするのであれば、Christopher Johnson 氏の vchkpw という virtual domains package を使うのが簡単です。checkpassword の代わりに働き、様々な便利な機能を提供します。なお、現在、vchkpw の開発は Ken Jones 氏に引き継がれて vpopmail というパッケージになり、さらに便利になっています。<br />
+<a href="http://www.inter7.com/vchkpw/">http://www.inter7.com/vchkpw/</a></dd>
+</dl>
+
+<h4>3. RFCを守らないMTA/MUA対策</h4>
+<dl>
+<dt>bare LFs</dt>
+<dd>bare LFs に関してはまず DJB の文書 <a href="ftp://koobera.math.uic.edu/www/docs/smtplf.html">"Bare LFs in SMTP"</a> を読んでください。原則として、MTA/MUA の作者に直してもらう必要があります。対応してくれない場合は、そのソフトを使うのを止めさせるか、接続できないままにしておくか、qmail 側で対策を行う必要があります。qmail 側で対策を行う場合は、<a href="../tools/ucspi-tcp/top.html">ucspi-tcp</a> パッケージに含まれる fixcrio を使い、<br />
+<code>fixcrio qmail-smtpd</code><br />
+のようにして qmail-smtpd を起動させればよいです。</dd>
+<dt>multiple line replies</dt>
+<dd>qmail 1.02 までは HELO の後に次のような３行の応答を返していました。<br />
+<code>
+250-mta.x.yyy.ac.jp<br />
+250-PIPELINING<br />
+250 8BITMIME<br />
+</code>
+MUA によってはこの複数行の応答を理解できずエラーが生じ、接続できないものがありました。しかし、qmail 1.03 では１行の応答を返すので、特に対策は必要ありません。</dd>
+</dl>
+
+<h4>4. SPAM対策などの接続制御</h4>
+<dl>
+<dt>MAPS RBL</dt>
+<dd><a href="http://maps.vix.com/rbl/">MAPS RBL</a> を利用するためには <a href="../tools/ucspi-tcp/top.html">ucspi-tcp</a> パッケージに含まれている rblsmtpd を使えばできます。</dd>
+<dt>RELAY CLIENT</dt>
+<dd>特定のホストのみ中継を許可する方法は FAQ 5.4 の方法でできます。</dd>
+</dl>
+
+<hr />
+<p>
+<a href="index.html">目次</a>
+</p>
+<hr />
+</body>
+</html>

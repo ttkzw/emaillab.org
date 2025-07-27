@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html lang="ja">
+<head>
+<title>Message Transfer</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../taki.css">
+<style type="text/css">
+<!--
+.email  {
+    fontsize: 0.7em
+}
+.comment {
+    color: red
+}
+-->
+</style>
+</head>
+<body>
+<h1>メッセージの配送の仕組み</h1>
+<p>2000年1月30日初版発行</p>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sun Jan 30 23:49:37 2000
+<!-- hhmts end -->
+</div>
+<hr>
+<h2>目次</h2>
+<ul>
+<li><a href="#at_first">はじめに</a>
+<li><a href="#message">メッセージの構成</a>
+<li><a href="#at_first"></a>
+<li><a href="#at_first">はじめに</a>
+<li><a href="#at_first">はじめに</a>
+</ul>
+
+<hr>
+<h2><a name="at_first">はじめに</a></h2>
+<p>このページをご覧になっている方々は普段インターネットメイルを利用していると思います。中にはこのへッダはこういう意味なんだよと説明できるような人もいると思います。では、メイルの配送の仕組みに付いてはどうでしょうか？ 説明できる人は極端に減ってくると思います。普段、目にすることはないわけですから、メイルサーバの管理者やメイル関係のソフトの開発者にでもならない限り知る機会がないからです。そこで、この文書ではへッダについての説明はできるよという方のレベルを対象としてメッセージの配送の仕組みに付いて説明を行っていきたいと思います。そのため、ここでは特に基本的な用語の説明は行いません。基本的な知識が不足していると思う方は HAT 氏の「<a href="http://www02.so-net.ne.jp/~hat/imail/cover.html">インターネットメールの注意点</a>」を読むことをお勧めします。</p>
+
+<hr>
+<h2>メッセージ</h2>
+<h3>メッセージの構成</h3>
+<p>まずはメッセージの例を見てみましょう。
+
+<blockquote class="email">
+<pre>
+Return-Path: &lt;foo@example.org&gt;
+Delivered-To: bar@example.org
+Received: (qmail 2543 invoked from network); 4 Sep 1999 09:27:32 -0000
+Received: from deathstar.example.org (HELO deathstar.example.org) (192.168.2.2)
+  by tie-fighter.example.org with SMTP; 4 Sep 1999 09:27:31 -0000
+MIME-Version: 1.0
+Subject: Hello, world
+From: foo &lt;foo@example.org&gt;
+To: bar &lt;bar@example.org&gt;
+X-Mailer: tie-bomber
+Date: Sat, 04 Sep 1999 18:26:50 +0900
+Message-ID: &lt;19990904092850.5963.foo@example.org&gt;
+Content-Type: text/plain; charset=iso-2022-jp         <span class=".comment"> ↑ここから上はへッダ</span>
+                                                      <span class=".comment"> ← 空行</span>
+Hello, world!                                         <span class=".comment"> ↓ここから下はボディ</span>
+こんにちは。半魚ドン。
+明日からルルイエの神殿を探しに行きます。
+</pre>
+</blockquote>
+
+<p>空行（改行のみの行）を境にして大きく二つの部分に別れていることがわかるでしょう。空行より上の部分をへッダと言い、下の部分をボディと言います。このようにメッセージはへッダとボディから構成されています。ボディは省略することができます。</p>
+
+<p>へッダには配送に必要な情報（送信者や受信者のメイルアドレス）やユーザに必要な基礎的な情報（件名など）やメッセージを識別する情報などが決められた形式で記述されています。この形式を定義しているのが <a href="../emailref/RFC/rfc822.txt">RFC 822</a> です。メッセージを作成するときには MUA はユーザが入力した情報を RFC 822 に適応する形式でへッダとして生成します。メッセージを読むときには MUA はへッダを解析し、ユーザが読みやすい形に整理し表示します。</p>
+
+<p>ボディにはユーザが直接作成するメッセージの内容が記述されています。ボディの内容に関して MUA は必要に応じて符号化／復号化したり、文字符号化方法をインターネットに適応したものに変えたり、マシンの表示に適したものに変えたりします。</p>
+
+<h3>へッダ</h3>
+<p>へッダ・フィールドは次のような種類に分けることができます。（ここでは 822bis の分類に従っています。）</p>
+<dl>
+<dt>The origination date field
+<dd>メッセージが完成した日時を記述するフィールドです。該当するフィールド名は "Date" です。
+
+<dt>Originator fields
+<dd>送信者のアドレスを記述するフィールドです。該当するフィールド名は "From", "Sender", "Reply-To" です。
+
+<dt>Destination address fields
+<dd>受信者のアドレスを記述するフィールドです。該当するフィールド名は "To", "Cc", "Bcc" です。
+
+<dt>Identification fields
+<dd>メッセージの識別やメッセージ間の関係を記述するフィールドです。該当するフィールド名は "Message-ID", "In-Reply-To", "References" です。
+
+<dt>Informational fields
+<dd>基礎的な情報を記述するためのフィールドです。該当するフィールド名は "Subject", "Comments", "Keywords" です。
+
+<dt>Resent fields
+<dd>メッセージを転送する際に用いられるフィールドです。転送者が作成する情報がこのフィールドに記述されます。該当するフィールド名は "Resent-Date", "Resent-From", "Resent-Sender", "Resent-To", "Resent-Cc", "Resent-Bcc", "Resent-Message-ID" です。
+
+<dt>Trace fields
+<dd>メッセージの配送経路を記述するためのフィールドです。このフィールドに関しては MUA の対象外で、MTA や MDA が生成します。該当するフィールド名は "Return-Path", "Received" です。
+
+<dt>MIME Header Fields
+<dd>MIME 関連の情報を記述するためのフィールドです。該当するフィールドは "MIME-Version", "Content-Type", "Content-Transfer-Encoding", "Content-ID", "Content-Description", "Content-Disposition", "Content-MD5", "Content-Language" です。
+
+<dt>User defined field
+<dd>ユーザが自由に定義してよいフィールドです。他のフィールド名と重なるのを防ぐために "X-" で始まるフィールド名を持つことが多いです。
+</dl>
+
+<hr>
+<h2>エンベロープ</h2>
+<h3>エンベロープ</h3>
+<p>前章でメッセージの構成について述べましたが、メッセージを配送するためにはさらにエンベロープと呼ばれる送信者／受信者の情報が必要です。MTA は原則として配送経路情報（Trace header fields）を追加する以外にはメッセージには一切関与せず、エンベロープの情報に基づきホスト間でメッセージを配送するからです。封筒に書いてある住所／氏名がエンベロープで、その中の便箋に書かれているものがメッセージと考えるとわかりやすいでしょう。エンベロープは RFC 821 "SMTP" ではエラーの報告先（送信者）のアドレス reverse-path、受信者のアドレス forward-path と記述されています。なお、この送信者を envelope sender とか envelope from と、受信者を envelope recipient と言うことがあります。</p>
+
+<h3>へッダからのエンベロープ情報の抽出</h3>
+<p>前節で記述したように MTA にメッセージを渡すときにエンベロープ情報が必要です。しかし、メッセージを生成した状態ではエンベロープ情報は持っていません。そのため、MTA に SMTP 経由でメッセージを送るにしろ、キューにメッセージを送るにしろ、送る前にそのメッセージのへッダ・フィールドからエンベロープの情報を抽出しなければなりません。</p>
+
+<p>前章で分類した中で配送に必要な情報が含まれているフィールドは Originator fields と Destination address fields と Resent fields です。さらにこの中で受信者の情報が含まれているフィールドは "To", "Cc", "Bcc", "Resent-To", "Resent-Cc", "Resent-Bcc" です。Resent-* フィールドが存在するときは転送先のアドレスが Resent-* に記述されるので元の "To", "Cc", "Bcc" は受信者の情報としては使われなくなります。一方、送信者に関する情報が含まれるフィールドは "From", "Sender", "Resent-From", "Resent-Sender" です。"Sender" フィールドが存在するときは実際に送信するのは "Sender" フィールドに記述された人ですから、"From" フィールドは送信者の情報としては使われなくなります。また、Resent-* フィールドが存在するときは転送元のアドレスが Resent-* に記述されるので "From", "Sender" は送信者の情報としては使われません。"Resent-From" と "Resent-Sender" の関係は "From", "Sender" の関係と同様です。</p>
+
+
+
+<hr>
+<address>
+滝澤 隆史(TAKIZAWA Takashi)<br>
+<a href="mailto:taki@cyber.email.ne.jp">taki@cyber.email.ne.jp</a>
+</address>
+<hr>
+<p class="footmenu">
+<a href="index.html">目次</a>
+</p>
+</body>
+</html>

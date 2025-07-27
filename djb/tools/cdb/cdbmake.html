@@ -1,0 +1,63 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The cdbmake and cdbdump programs</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/data.html">Data structures</a>
+<br><a href="top.html">cdb</a>
+<h1><a href="http://cr.yp.to/cdb/cdbmake.html">cdbmake プログラムと cdbdump プログラム</a></h1>
+<pre>
+     cdbmake <i>f</i> <i>ftmp</i>
+</pre>
+<tt>cdbmake</tt> はその標準入力から一連の符号化されたレコードを読み込み、<a href="cdb.txt">コンスタント・データベース</a>を <tt><i>f</i></tt> に書き出します。
+<p>
+<tt>cdbmake</tt> は <tt><i>f</i></tt> がアトミックに更新されることを保証します。そのため、<tt><i>f</i></tt> を読み込んでいるプログラムは <tt>cdbmake</tt> が終わるのを待つ必要はありません。
+最初にデータベースを <tt><i>ftmp</i></tt> に書き、その後に <tt><i>f</i></tt> の先頭に <tt><i>ftmp</i></tt> を移すということを行っているためです。
+<tt><i>ftmp</i></tt> がすでに存在していたら、それは壊されます。
+<tt><i>ftmp</i></tt> と <tt><i>f</i></tt> があるディレクトリは <tt>cdbmake</tt> に対して書き込み可能でなければなりません。また同じファイルシステムになければなりません。
+<p>
+<tt>cdbmake</tt> は <tt><i>ftmp</i></tt> が <tt><i>f</i></tt> を置き換える前に安全にディスクに書き込まれることを常に保証します。
+入力が不正な形式であるあるいは <tt>cdbmake</tt> がディスクに <tt><i>ftmp</i></tt> を書き込むときに問題が生じたら、<tt>cdbmake</tt> はメッセージを出し、<tt><i>f</i></tt> を残して終了します。
+
+<p>
+<pre>
+     cdbdump
+</pre>
+<tt>cdbdump</tt> は標準入力からコンスタント・データベースを読み、標準出力へ <tt>cdbmake</tt> の形式でその内容を出力します。
+
+<h2>レコードの形式</h2>
+レコードは<b>キー</b>によって索引が付けられます。キーは文字列です。
+<tt><i>f</i></tt> はキーから始まる別のプログラムが素早く関係のあるレコードを見つけることができるように構造化されています。
+<tt>cdbmake</tt> は同じキーを持った複数のレコードを許容します。しかしながら、
+<ul>
+<li>大抵の読み込むソフトウェアは最初のレコードのみを取り出し、
+<li>同じキーにたくさんのレコードがあれば、<tt>cdbmake</tt> はいくぶん遅くなります。
+</ul>
+cdbmake</tt> と <tt>cdbdump</tt> はレコードの順序を維持します。
+
+<p>
+レコードは改行が後に続く <tt>+<i>klen</i>,<i>dlen</i>:<i>key</i>-&gt;<i>data</i></tt> のように cdbmake のために符号化されます。
+ここで <tt><i>klen</i></tt> は <tt><i>key</i></tt> のバイト数で、<tt><i>dlen</i></tt> は <tt><i>data</i></tt> のバイト数です。
+データの終りは改行を付加することより示されます。例えば:
+<pre>
+     +3,5:one-&gt;Hello
+     +3,7:two-&gt;Goodbye
+
+</pre>
+<tt><i>key</i></tt> と <tt><i>data</i></tt> はコロン、ダッシュ、改行、null を含んだどんな文字を含んでもかまいません。
+
+<p>
+キーとデータはメモリに収まる必要はありません。
+しかし、<tt>cdbmake</tt> は一レコード毎につきおおよそ16バイトのメモリを必要とします。
+データベースは4ギガバイトを越えることはできません。
+<p>
+<tt><i>f</i></tt> は機種間で可搬性があります。
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat Mar 18 09:48:25 2000
+<!-- hhmts end -->
+</body>
+</html>

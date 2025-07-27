@@ -1,0 +1,67 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>Upgrading from previous versions of ucspi-tcp</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<br><a href="top.html">ucspi-tcp</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp/upgrade.html">ucspi-tcp の以前のバージョンからのアップグレード</a></h1>
+<h2>0.84 から 0.86 や 0.87 へ</h2>
+<p>
+0.86 では全面的な内部変更があります。
+ほとんど全てのコードが書き直されています。
+
+<p>
+<tt>tcpclient</tt>, <tt>tcpserver</tt>, <tt>rblsmtpd</tt> は DNS 検索を行う際に <a href="http://djbdns.jp.qmail.org/djbdns/top.html">djbdns</a> の DNS ライブラリを使用するようになりました。これは、信頼性を向上し、メモリの消費を削減し、新しい <a href="http://djbdns.jp.qmail.org/djbdns/qualify.html">名前の修飾(name-qualification) 機能</a> を追加します。
+ただし、私のライブラリではなくシステムの <tt>res</tt> ルーティンによって提供された他のリゾルバの機能に依存しているものが中にはあると考えられます。
+DNS の振る舞いで何か違いに気づいたら、私に知らせてください。
+
+<p>
+<tt>tcprulescheck</tt> の使い方は変わりました。
+コマンドライン引数の変わりに環境変数を使います。
+
+<p>
+<tt>rblsmtpd</tt> の <tt>-R</tt> オプションは <tt>-c</tt> になりました。
+<tt>-b</tt> や <tt>-c</tt> を使っているのでしたら、<tt>-r</tt> の前にあるか確認してください。
+
+<p>
+以前の <tt>antirbl</tt> プログラムは無くなりました。
+<tt>rblsmtpd</tt>+<tt>antirbl</tt> の組合わせを <tt>-r</tt> と <tt>-a</tt> オプションの付いた一つの <tt>rblsmtpd</tt> に変えるべきです。
+
+<p>
+以前の <tt>fixcr</tt> プログラムは無くなりました。
+新しくて使いやすい <tt>fixcrio</tt> プログラムがあります。
+
+<p>
+現在、全てのプログラムは他のプログラムを走らせるのに <tt>execvp</tt> の代わりに私の <tt>pathexec</tt> ライブラリを使用しています。
+<tt>#!/bin/sh</tt> の無いシェルスクリプトを書いていて、それにもかかわらず <tt>/bin/sh</tt> を呼び出すために <tt>execvp</tt> を当てにしているのでしたら、<tt>pathexec</tt> (あるいは <tt>execve</tt>) と一緒に動くスクリプトの先頭に <tt>#!/bin/sh</tt> を挿入しなければならないでしょう。
+
+<p>
+<tt>http@</tt> はブラウザの真似としての振る舞いが少し改善されました。
+HTTP サーバに <tt>Host</tt> を送ります。
+場合によっては、このことにより応答が変わります。
+
+<p>
+<tt>tcpclient</tt> と <tt>tcpserver</tt>の将来のバージョンではデフォルトで <tt>-D</tt> を使うかも知れません。
+何かの理由で <tt>-d</tt> を使いたいのでしたら、それを明示的に設定してください。
+
+<p>
+<tt>tcpserver</tt> には <a href="../daemontools/envuidgid.html">envuidgid</a> によって設定される環境変数を読む新しい -U オプションがあります。
+数字の uid と gid を写す必要がないように、多分 <tt>-u</tt> と <tt>-g</tt> の代わりにこのオプションを使いたいでしょう。
+
+<h2>0.86 や 0.87 から 0.88 へ</h2>
+<tt>tcpclient</tt> は複数の IP アドレスへの接続するための新しい手順を使います。
+2秒のタイムアウトで各アドレスを試みます。それから、58秒のタイムアウトでタイムアウトしたそれぞれのアドレスを再び試みます。
+これはアドレスの一部が反応しないときに呼び出し時間を徹底的に減らします。
+(システムがサポートしている複数アドレスへの接続機能はよりよくさえあるでしょう)
+しかし、誰かが古い動作に頼っていることは考えられるでしょう。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Nov 19 22:47:40 2000
+<!-- hhmts end -->
+</body>
+</html>

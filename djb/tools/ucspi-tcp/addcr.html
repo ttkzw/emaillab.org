@@ -1,0 +1,27 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The addcr and delcr programs</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<br><a href="top.html">ucspi-tcp</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp/addcr.html"><tt>addcr</tt> プログラムと <tt>delcr</tt> プログラム</a></h1>
+<tt>addcr</tt> は各々の LF (\012) の前、すなわち入力の各行末に CR (\015) を挿入します。
+改行コードのない最終行の行末には CR を挿入しません。
+
+<p>
+<tt>delcr</tt> は入力の各行末に CR があれば、その CR を取り除きます。
+改行コードのない最終行の行末にある CR は取り除きません。
+
+<p>
+<tt>unix2dos</tt> や <tt>dos2unix</tt> のようなプログラムの中には長い行や空行(nulls)に対して問題を起すものもあります。<tt>addcr</tt> と <tt>delcr</tt> は長い行や空行で問題を起しません。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat Mar 18 19:55:08 2000
+<!-- hhmts end -->
+</body>
+</html>

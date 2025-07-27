@@ -1,0 +1,30 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>The envuidgid program</h1>
+<tt>envuidgid</tt>
+runs another program
+with environment variables indicating a specified account's uid and gid.
+<h2>Interface</h2>
+<pre>
+     envuidgid <i>account</i> <i>child</i>
+</pre>
+<tt><i>account</i></tt>
+is a single argument.
+<tt><i>child</i></tt>
+consists of one or more arguments.
+<p>
+<tt>envuidgid</tt>
+sets $UID to <tt><i>account</i></tt>'s uid
+and $GID to <tt><i>account</i></tt>'s gid.
+It then runs <tt><i>child</i></tt>.
+<p>
+<tt>envuidgid</tt>
+exits 111 if it cannot find a UNIX account named <tt><i>account</i></tt>,
+if it runs out of memory for environment variables,
+or if it cannot run <tt><i>child</i></tt>.
+Otherwise its exit code is the same as that of <tt><i>child</i></tt>.
+</body>
+</html>

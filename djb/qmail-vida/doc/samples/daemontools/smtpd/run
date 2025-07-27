@@ -1,0 +1,13 @@
+#!/bin/sh
+#  /service/smtpd/run
+#    Set environment variables IP and HOST.
+#    If it is virtual domain, set DOMAINOWNER.
+#    If it is necessary, set ALLOWPLAIN, FORCEAUTH and TEMPRELAYCLIENT, too.
+#    If it is not necessary, remove 'recordio' line.
+exec 2>&1
+exec envdir ./env sh -c '
+  exec softlimit -d6000000 \
+  tcpserver -vHR -l"$HOST" -c40 -- "$IP" 25 \
+  recordio fixcrio \
+  qmail-smtpup "$HOST" checkpassword qmail-smtpd
+'

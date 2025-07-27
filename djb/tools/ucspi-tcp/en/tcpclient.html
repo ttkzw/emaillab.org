@@ -1,0 +1,96 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../tcpip.html">TCP/IP</a>
+<br><a href="../ucspi-tcp.html">ucspi-tcp</a>
+<h1>The <tt>tcpclient</tt> program</h1>
+<tt>tcpclient</tt> creates an outgoing TCP connection.
+<h2>Interface</h2>
+<pre>
+     tcpclient <i>opts</i> <i>host</i> <i>port</i> <i>prog</i>
+</pre>
+<tt><i>opts</i></tt>
+is a series of <tt>getopt</tt>-style options.
+<tt><i>host</i></tt> is one argument.
+<tt><i>port</i></tt> is one argument.
+<tt><i>prog</i></tt> consists of one or more arguments.
+<p>
+<tt>tcpclient</tt> attempts to connect to a TCP server.
+If it is successful,
+it runs <tt><i>prog</i></tt>,
+with descriptor 6 reading from the network
+and descriptor 7 writing to the network.
+It also sets up several
+<a href="environment.html">environment variables</a>.
+<p>
+The server's address is given by <tt><i>host</i></tt> and <tt><i>port</i></tt>.
+<tt><i>port</i></tt> may be a name from <tt>/etc/services</tt> or a number.
+<tt><i>host</i></tt> may be <tt>0</tt>,
+referring to the local machine,
+or a dotted-decimal IP address,
+or a host name;
+it is fed through
+<a href="../djbdns/qualify.html">qualification</a>
+using <tt>dns_ip4_qualify</tt>.
+<p>
+If the server has several IP addresses,
+<tt>tcpclient</tt> tries each address in turn.
+<h2>Options</h2>
+General options:
+<ul>
+<li><tt>-q</tt>: Quiet. Do not print error messages.
+<li><tt>-Q</tt>: (Default.) Print error messages.
+<li><tt>-v</tt>: Verbose. Print error messages and status messages.
+</ul>
+Connection options:
+<ul>
+<li><tt>-T <i>x</i>+<i>y</i></tt>:
+Give up on the connection attempt after <tt><i>x</i>+<i>y</i></tt> seconds.
+Default: <tt>2+58</tt>.
+When a host has several IP addresses,
+<tt>tcpclient</tt> tries to connect to the first IP address,
+waits <tt><i>x</i></tt> seconds,
+tries to connect to the second IP address,
+waits <tt><i>x</i></tt> seconds, etc.;
+then it retries each address that timed out,
+waiting <tt><i>y</i></tt> seconds per address.
+You may omit <tt>+<i>y</i></tt> to skip the second try.
+Before version 0.88, <tt>tcpserver</tt> will use only <tt><i>x</i></tt>
+(default: <tt>60</tt>).
+<li><tt>-i <i>localip</i></tt>: Use <tt><i>localip</i></tt>
+as the IP address for the local side of the connection;
+quit if <tt><i>localip</i></tt> is not available.
+Normally <tt>tcpclient</tt> lets the operating system choose an address.
+<li><tt>-p <i>localport</i></tt>: Use <tt><i>localport</i></tt>
+as the TCP port for the local side of the connection;
+quit if <tt><i>localport</i></tt> is not available.
+Normally <tt>tcpclient</tt> lets the operating system choose a port.
+<li><tt>-d</tt>: Delay sending data for a fraction of a second
+whenever the remote host is responding slowly.
+This is currently the default, but it may not be in the future;
+if you want it, set it explicitly.
+<li><tt>-D</tt>: Never delay sending data; enable <tt>TCP_NODELAY</tt>.
+</ul>
+Data-gathering options:
+<ul>
+<li><tt>-h</tt>: (Default.)
+Look up the remote host name in DNS
+to set the environment variable <tt>$TCPREMOTEHOST</tt>.
+<li><tt>-H</tt>:
+Do not look up the remote host name in DNS;
+remove the environment variable <tt>$TCPREMOTEHOST</tt>.
+<li><tt>-l <i>localname</i></tt>:
+Do not look up the local host name in DNS;
+use <tt><i>localname</i></tt> for the environment variable <tt>$TCPLOCALHOST</tt>.
+A common choice for <tt><i>localname</i></tt> is <tt>0</tt>.
+<li><tt>-r</tt>: (Default.)
+Attempt to obtain <tt>$TCPREMOTEINFO</tt> from the remote host.
+<li><tt>-R</tt>:
+Do not attempt to obtain <tt>$TCPREMOTEINFO</tt> from the remote host.
+<li><tt>-t <i>n</i></tt>:
+Give up on the <tt>$TCPREMOTEINFO</tt> connection attempt
+after <tt><i>n</i></tt> seconds.
+Default: 26.
+</ul>
+</body>
+</html>

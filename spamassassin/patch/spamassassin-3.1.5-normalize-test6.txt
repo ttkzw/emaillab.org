@@ -1,0 +1,290 @@
+spamassassin-3.1.5-normalize-test6.patch (2006-09-10)
+
+----------------------------------------------------------------------------
+README
+
+----
+概要
+
+オリジナルのSpamAssassinは日本語等のマルチバイト文字の言語を正しく扱う
+ことができません。このパッチを適応することにより、SpamAssassinで正しく
+日本語を扱うことができるようになります。
+
+なお、このパッチは日本SpamAssassinユーザ会(http://spamassassin.jp/)により
+開発が行われています。
+
+----
+このパッチが提供する機能は次のものです。
+
+- ヘッダテストにおける":utf8"クエリ
+  ヘッダテストでヘッダ名に":utf8"を付けることによりパターンをUTF-8の文字
+  エンコーディングで記述できる。
+
+  例)
+       header   SUBJ_MISHODAKU  Subject:utf8 =~ /(未|末)承諾/
+
+- ボディテストにおける"nbody"ルール
+  "nbody"ルールを使うと、ボディテストでUTF-8の文字エンコーディングでパタ
+  ーンを記述できる。
+
+  例)
+       nbody    DEAI            /出(会|逢)/
+
+- ベイズフィルタの日本語対応
+  ベイズフィルタで日本語の文書を正しく学習・判定できるようになる。
+
+
+----
+使い方
+
+1. 設定ファイルlcoal.cfに次の行を記述します。
+       normalize_charset 1
+
+2. tokenizer.pre(別配布)をlocal.cfと同じディレクトリにコピーして次の行の
+   コメントを解除してMeCabプラグインを有効にします。
+       loadplugin Mail::SpamAssassin::Plugin::Tokenizer::MeCab
+   SimpleJAプラグインを使う場合は次の行のコメントを解除して有効にします。
+       loadplugin Mail::SpamAssassin::Plugin::Tokenizer::SimpleJA
+
+   なお、SimpleJAプラグインはMeCabが導入できない、あるいはとりあえず試し
+   たい場合にお使いください。このプラグインの精度は高くありません。
+   そのため、可能な限りMeCabプラグインをお使いください。
+
+3. UTF-8対応のエディタで設定ファイルlocal.cf,user_prefs等を編集して、header
+   テストの":utf8"クエリーと"nbody"ルールにおいて日本語でパターンを記述し
+   ます。記述したら、このファイルを文字エンコーディングをUTF-8に指定して
+   保存してください。
+
+   ルールの記述例:
+       header   SUBJ_MISHODAKU  Subject:utf8 =~ /(未|末)承諾/
+       describe SUBJ_MISHODAKU  Subject: mishodaku
+       score    SUBJ_MISHODAKU  2.5
+
+       nbody    DEAI            /出(会|逢)/
+       describe DEAI            'deai'
+       score    DEAI            0.5
+
+4. "spamassassin --lint"を実行して、ワーニングが出ていないかを確認します。
+
+5. 以上で準備が整いましたのでspamd等のデーモンを利用している人はデーモン
+   を再起動してください。
+
+----------------------------------------------------------------------------
+INSTALL
+
+----
+事前準備
+
+次のソフトウェアを事前にインストールしてください。
+なお、1,2,3に関してはTokenizer::MeCabプラグインを使う場合に必要です。
+
+1. 形態素解析エンジンMeCab
+   必要とするバージョン: 0.92以降
+   配布元: http://mecab.sourceforge.jp/
+   インストール時の注意事項:
+     - ./configureのオプションで"--with-charset=utf8"を付ける必要がある。
+
+2. MeCabの辞書mecab-ipadic
+   必要とするバージョン: 2.7.0-20060707以降
+   配布元: http://mecab.sourceforge.jp/
+   インストール時の注意事項:
+     - 先にMeCab 0.92以降をインストールする必要がある。
+     - char.defを編集して次のように書き換える。
+         # ASCII
+         0x0021..0x002F ALPHA
+         0x0030..0x0039 ALPHA
+         0x003A..0x0040 ALPHA
+         0x0041..0x005A ALPHA
+         0x005B..0x0060 ALPHA
+         0x0061..0x007A ALPHA
+         0x007B..0x007E ALPHA
+
+     - ./configureのオプションで"--with-charset=utf8"を付ける必要がある。
+
+3. MeCabのPerlバインディングText::MeCab
+   必要とするバージョン: 0.12以降
+   配布元: http://search.cpan.org/~dmaki/Text-MeCab/
+
+4. 文字エンコーディング検出器Encode::Detect
+   配布元: http://search.cpan.org/~jgmyers/Encode-Detect/
+   インストール時の注意事項:
+     - バージョン0.01ではモジュールの依存関連の記述等がいい加減であるため
+       ビルドやテストが失敗することがあります。
+       そのため、予め、次のモジュールをインストールしてください。
+         - Module::Build
+         - ExtUtils::ParseXS
+         - ExtUtils::CBuilder
+         - Test::More
+         - Data::Dump
+       なお、Data::Dumpモジュールに関しては実際には利用されていないため、
+       手動でインストールする場合は、t/encoding.tというファイルから
+       "use Data::Dump qw(dump);"の行を削除すればData::Dumpをインストール
+       する必要はありません。
+     - CPANモジュールを使ってインストールする場合の注意事項
+       http://mm.apache.jp/pipermail/spamassassin-jp/2006-July/000318.html より
+         cpan を使って
+         install Bundle::CPAN
+         でCPANモジュール＆関連モジュールを最新版にする
+         cpan の再設定(reload cpan では有効にならないモジュールがある模様）
+         （上記で BuildやYAMLが入ります）
+         install Module::Build
+         install ExtUtils::CBuilder
+         install Data::Dump
+         そして最後に
+         install Encode::Detect
+         を実行してやると入りました
+
+
+----
+SpamAssassin
+
+SpamAssassinのtar ballを展開後、このパッチを当ててください。
+
+    cd Mail-SpamAssassin-3.x.x
+    patch -p1 < spamassassin-3.x.x-normalize-yyyy.patch
+
+後は、通常のSpamAssassinのインストールと同じです。
+
+----------------------------------------------------------------------------
+LICENSE
+
+Apache License, Version 2.0が適応されます。
+
+ライセンスについての詳細は下記URLを参照してください。
+    http://www.apache.org/licenses/LICENSE-2.0
+
+----------------------------------------------------------------------------
+AUTHOR
+
+- John Gardiner Myers <jgmyers at proofpoint.com>
+- Motoharu Kubo <mkubo at 3ware.co.jp>
+- TAKIZAWA Takashi <taki at cyber.email.ne.jp> (Current maintainer)
+
+----------------------------------------------------------------------------
+TODO
+
+- Encode::Detectモジュールはみんなコンパイルとインストールが出来ているのか？
+  CPANを見ると、失敗している人の方が多いようであるが。
+
+----------------------------------------------------------------------------
+Changes
+
+----
+spamassassin-3.1.5-normalize-test6.patch (2006-09-10)
+
+test5からの変更点
+
+- ReplaceTagsプラグインをnbodyルールに対応させた。
+- 設定オプションreport_charsetに従ってreportの文字コードの変換を行うように
+  した。
+- 日本語の大雑把なわかち書きを行うTokenizer::SimpleJAプラグインを追加した。
+
+----
+spamassassin-3.1.4-normalize-test5.patch (2006-07-27)
+
+test4からの変更点
+
+- バグの修正
+-- Message.pmにおいて言語情報を取得できないときに警告が出ていたのを修正した。
+-- \x0が含まれているメッセージが誤ってUTF-16と判定されてしまうことを防止した。
+- パッチと一緒に配布するわかち書きプラグインにText::MeCabを使うことにした。
+- ベイズ処理時に1文字のトークンと2文字のひらがなあるいはカタカナのトークン
+  を削除するようにした。
+- Tokenizer.pmの仕様を変更した。
+- Charset.pmの変換マップの整理を行った。
+- リファクタリングもどきを行った。
+
+----
+spamassassin-3.1.3-normalize-test4.patch (2006-06-06)
+
+test3からの変更点
+
+- バグの修正
+-- Message.pmにおいて言語情報を取得できないときに警告が出ていたのを修正した。
+-- MeCab-0.90rc10以降ではエラーが出ていた件を修正した。
+- Charset.pmの処理コードを整理した。
+  特にUTF-8における言語判定処理は速度が少し向上した。
+
+----
+spamassassin-3.1.2-normalize-test3.patch (2006-05-28)
+
+test2からの変更点
+
+- バグの修正
+  test1の「normalize時に漢字で終わり次の行が漢字で始まる行はunfoldingする。」
+  がtest2において機能していなかったのを修正した。
+  Node.pmにおいてinvisibleなテキストの処理でエラーが発生していたのを修正した。
+- 分かち書きの処理を1行ごとに行っていたのをボディ一括で行うようにした。
+  処理速度がわずかながら向上するはず。
+- 分かち書き処理の前に全角空白文字を空白文字に置換するようにした。
+- 文字コード変換の処理をMail/SpamAssassin/Utils.pmから
+  Mail/SpamAssassin/Util/Charset.pmに移した。
+- 全般的に処理コードを整理した。
+- パッチを3分割し、プラグインの設定ファイルは別ファイルにした。
+  文字符号化方式や言語の判定処理
+    spamassassin-3.1.2-charset-util-test3.patch
+  日本語対応パッチ本体
+    spamassassin-3.1.2-normalize-charset-test3.patch
+  kakasiとMeCabの分かち書きプラグイン
+    spamassassin-3.1.2-tokenizer-plugins-test3.patch
+  tokenizer.pre
+    プラグインの設定ファイル
+
+----
+spamassassin-3.1.1-normalize-test2.patch (2006-04-24)
+
+test1からの変更点
+
+- ルールnbodyを追加した。
+  例)
+    nbody NBODY_DEAI        /出会い/
+    describe NBODY_DEAI     deai
+    score NBODY_DEAI        1.0
+- ヘッダのテストにおいて":utf8"を付けると、normalizeしたヘッダとのルールの
+  比較を行うようにした。
+  例)
+    header SUBJECT_MISHODAKU_UTF8   Subject:utf8 =~ /未承諾広告/
+    describe SUBJECT_MISHODAKU_UTF8 Subject contains mishodaku
+    score SUBJECT_MISHODAKU_UTF8    1.0
+- normalizeのコンフィグ・スイッチを"normalize_charset"に変更した。
+  normalize_charsetの有無にかかわらず、従来のルールは互換性を保っている。
+  normalize_charsetが有効になることにより、新ルールnbodyとテストオプション
+  :utf8が有効になるだけである。
+  例)
+    normalize_charset 1
+- 分かち書きプラグインを言語によって使い分けられるようにした。
+- 分かち書きプラグインのパスを変更した。
+  後で宣言した方が有効になる。
+  例) v310.pre あるいは testplugin.cf に以下のどちらかを記述する。
+  loadplugin Mail::SpamAssassin::Plugin::Tokenizer::Kakasi
+  loadplugin Mail::SpamAssassin::Plugin::Tokenizer::MeCab
+
+----
+spamassassin-3.1.1-normalize-test1.patch (2006-03-20)
+
+本家にマージして貰いやすいように以下のポリシーで作成する。
+
+- 互換性のためデフォルトでは無効にする
+- 無効にした場合のオーバーヘッドを最小にする
+- 世界中の人が幸せになるものはコアなコードにマージする
+- 日本人だけが幸せになるものはプラグインにする
+
+久保さんのパッチからの変更点
+
+- normalizeはコンフィグ・オプション"normalize_encoding"を"1"に設定する
+  ことにより有効になる。このとき、コンフィグファイルに記述されたパターン
+  は全てUTF-8の文字として扱われ、過去(生ベタ書き)とのの互換性は無くなる。
+  無効の場合は過去との互換性は保たれている。
+  例) local.cfに以下の行を追加する。
+      normalize_encoding 1
+- 分かち書きはプラグインで有効になるようにする。
+  後で宣言した方が有効になる。
+  例) v310.pre あるいは testplugin.cf に以下のどちらかを記述する。
+  loadplugin Mail::SpamAssassin::Plugin::TokenizerMeCab
+  loadplugin Mail::SpamAssassin::Plugin::TokenizerKakasi
+- normalize時に漢字で終わり次の行が漢字で始まる行はunfoldingする。
+  これによりrule判定時の単語の分断を防げる。
+- ベイズのトークナイズを行うときに分かち書きを行う。
+
+----------------------------------------------------------------------------
+

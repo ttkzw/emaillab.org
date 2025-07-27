@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<title>qmail-smtpup</title>
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="vida.css" />
+<body>
+<h1>qmail-smtpup</h1>
+<p>SMTPのセッションにおいてユーザ名とパスワードを読み取るプログラム</p>
+</p>
+
+<h2>使い方</h2>
+<p>qmail-smtpup hostname subprogram smtpd</p>
+
+<p>hostname はCRAM-MD5方式の認証に用いるチャレンジの文字列のホスト名である。</p>
+<p>subprogram はqmail-smtpupからユーザ名とパスワードを受け取って認証を行うプログラムである。</p>
+<p>smtpd はsmtpデーモンのプログラムであり、qmail-smtpd が用いられる。</p>
+
+<h2>環境変数</h2>
+<h3>ALLOWPLAIN</h3>
+<p>qmail-smtpupはデフォルトでは平文認証を許可しない。環境変数 ALLOWPLAIN を設定すると平文認証を利用できるようになる。</p>
+<p>tcpserverのアクセス制御の機能を利用して、特定のIPアドレスからのアクセスの場合のみにこの環境変数を設定して平文認証を認めるといったような運用も可能である。ただし、平文認証は常に盗聴される可能性があることに注意してください。 </p>
+
+<h3>FORCEAUTH</h3>
+<p>環境変数 FORCEAUTH が設定されていると認証なしにメールを送ることができない。クライアントからの中継専用のサーバにおいて送信を厳しく制限したい場合に設定する。ただし、外部からメールを受け取るサーバに指定してはいけないことに注意してください。</p>
+
+
+<h2>説明</h2>
+<p>qmail-smtpupはSMTPセッションのユーザ名とパスワードを読み取り、subprogramを起動させる。</p>
+
+<p>qmail-smtpupはたいてい次のようにinetdやtcpserverから起動される。ここで、CHANGEMEはローカルホストの完全修飾ドメイン名に置き換えられる。</p>
+<pre class="example">
+  qmail-smtpup CHANGEME checkpassword qmail-smtpd
+</pre>
+
+<p>qmail-smtpupはネットワークからデータを読むために記述子0を、ネットワークに書き出すために記述子1を用いる。SMTPセッションのELHOコマンドから取得したホスト名を環境変数HELOHOSTに設定する。この次にMAIL FROMコマンドが送られた場合は認証を行わないと判断し、環境変数MAILARGにこのコマンドの引数のメールアドレスを、環境変数AUTHSTATEを0に設定し、smtpdを起動させる。AUTHコマンドが送られた場合は認証の応答によりユーザ名とパスワードを読み取る。そして、環境変数AUTHSTATEを1に設定後、同じ記述子0と1を伴ってsubprogramを起動させる。このとき、「ユーザ名」, 0, 「パスワード」, 0, 「ホスト名から得られるCRAM-MD5のタイムスタンプ」, 0を記述子2に書き込み、subpprogramは記述子3からこの情報を読み取る。qmail-smtpupはsubprogramが終了するのを待つ。subprogramがクラッシュするか0以外の終了コードを返したらエラーメッセージを出力する。</p>
+<p>qmail-smtpupはアイドル時間20分である。</p>
+<p>qmail-smtpupはEric M. Johnsonによって提供されたプログラムを基にしている。</p>
+</body>
+</html>

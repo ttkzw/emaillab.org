@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="ISO-2022-JP"?>
+<?xml-stylesheet href="table.css" type="text/css"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-type" content='text/html; charset=ISO-2022-JP' />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="table.css" type="text/css" />
+<title>MUAs for Windows - explanation of "table 2: header"</title>
+</head>
+<body>
+<div class="header">
+<a href="index.html">目次</a> | 
+<a href="table-basic.html">表1. 基礎情報</a> | 
+<a href="table-header.html">表2. へッダ</a> | 
+<a href="table-japanese.html">表3. 日本語処理</a> | 
+<a href="table-lang.html">表4. 言語</a> | 
+<a href="table-cipher.html">表5. 暗号</a> | 
+<a href="table-otherspec.html">表6. SMTP, POP, IMAP, LDAP</a>
+</div>
+
+<h2>「表2. へッダ」の解説</h2>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sat Jan 13 16:05:23 2001
+<!-- hhmts end -->
+</div>
+<hr />
+
+<h3>Message-ID</h3>
+<h4>問題点</h4>
+<p>メイルなどのメッセージフォーマットを記述した RFC822 によれば、Message-ID フィールドはオプションです。しかし、MUA において、スレッド表示や重複したメイルの削除などの機能を使う上で Message-ID は必要です。実質的にはほぼ付けるべきヘッダーです。電子メイル関連のメイリングリストでこのことを話題にすると、Message-ID: は MTA が付けるべきだという意見が出ることがあります。確かに sendmail は Message-ID を付けます。しかし、メッセージを作成するのは MUA の役割であって MTA の役割ではありません。配送エージェントの MTA は Received: や Return-path などの経路情報を付加するだけです。そういう訳で Message-ID の付かないメイラ─を問題ありとします。詳しくは<a href="../essay/message-id.html">「Message-ID に関する考察」</a>をお読み下さい。</p>
+
+<h4>評価方法</h4>
+<p>メールサーバ名やメールアドレスからFQDNを取得するものは"○", TCP/IP の設定のみから FQDN を取得するものは"△"で示します</p>
+
+<h3>Date</h3>
+<h4>問題点</h4>
+<p>これは RFC822 では付けなければならないヘッダ・フィールドです。この Date フィールドも Message-ID と同様に MTA が付けるべきだという意見があります。確かに sendmail は Date フィールドを付けます。しかし、Date は「メッセージが生成された」日時であって「メッセージがメールサーバに到着した」日時ではありません。そういう訳で Date の付かないメイラ─を問題ありとします。</p>
+<p>Date の形式が不正なものもあります。年の表示に関しては、RFC822 では2桁でしたが、RFC1123 "5.2.14"により4桁にするように改定されています。タイムゾーンに関しては、RFC822 では "PST" などの名前による表示も可能でしたが、RFC1123 により4桁の数字 "(+/-)HHMM"による表示にするべきとなっています。ただし、名前による表示は全く使ってはいけないというわけではないの(好ましくはありませんが)使うこともできます。しかし、"JST" は RFC822 でさえ載っていないため文法的には間違いです。コメントとして数字のタイムゾーンの後に "(JST)" と付けることは問題ありません。</p>
+
+<h4>評価方法</h4>
+<p>Date フィールドを生成するものは"○", 生成しないものは"×"で示します。不正な形式あるいは好ましくない形式については"△"で示し、その後の括弧内に次のようなものを示します。不正なタイムゾーン："TZ"、２桁の年："Y"</p>
+
+<h3>In-Reply-To and References</h3>
+<h4>問題点</h4>
+<p>これらは共に RFC822 ではオプションです。しかし、メイリング・リストを利用する上でこれらのヘッダーが無いとスレッド表示が出来ません。そのため、メイリング・リストに参加されている他の方々に迷惑をかけることになります。これは困るのでここで取り上げます。ちなみに、<a href="../emailref/internet-drafts/draft-ietf-drums-msg-fmt-08.txt">RFC822 の改定案</a>ではこのヘッダーは返信メッセージには "SHOULD have" となっています。なお、興味のある方は「<a href="../essay/thread.html">スレッドの生成(Message-ID, In-Reply-To, References に関して)</a>」をお読み下さい。</p>
+
+<h4>評価方法</h4>
+<p>返信時に "In-Reply-To" あるいは"References"フィールドが付くものは"○"、付かないものは"×"で示します。</p>
+
+<h3>Content-Disposition</h3>
+<h4>問題点</h4>
+<p>Content-Type フィールドに添付ファイル名として name パラメータを付けるものがほとんどなのですが、これは RFC 2046 には定義されていません。現在では <a href="../emailref/RFC/rfc2183.txt">RFC 2183</a> により Content-Disposition フィールドの filename パラメータに添付ファイル名を記述することになっています。詳しくは<a href="../essay/japanese-filename.html">「添付ファイルにおける日本語のファイル名に関して」</a> をお読み下さい。</p>
+
+<h4>評価方法</h4>
+<p>添付ファイルを付けるときに "Content-Disposition" フィールドが付いて filename パラメータにファイル名が記述されるものは"○"、付かないものは"×"で示します。</p>
+
+<h3>適切なMediaType</h3>
+<h4>問題点</h4>
+<p>Content-Type に関して、添付ファイルを付けると何でも "Content-Type: application/octet-stream" にしてしまうものがあります。正しくは、<a href="../emailref/RFC/rfc2046.txt">RFC 2046</a> に従って、そのデータの種類に応じて付けるべきです。例えば、JPEG の画像ファイルならば、"Content-Type: image/jpeg" となるべきです。また、RFC 2046 に存在しないものは IANA に登録されているものを付け、IANA に登録されていない場合に application/octet-stream を付けた方がよいのです。</p>
+
+<h4>評価方法</h4>
+<p>添付したファイルに応じた MediaType/SubType が付けられているかを示します。ここでは、JPEG の画像ファイルを添付したときに、"Content-Type: image/jpeg" となるかどうかで判断します。</p>
+
+<hr />
+<address>
+滝澤 隆史(TAKIZAWA Takashi)
+<a href="mailto:taki@cyber.email.ne.jp">taki@cyber.email.ne.jp</a>
+</address>
+</body>
+</html>

@@ -1,0 +1,315 @@
+Mutt 1.4.2.1用日本語パッチ拡張機能マニュアル
+
+mutt-j 開発チーム
+
+Copyright © 2000-2004 TAKIZAWA Takashi <taki@cyber.email.ne.jp>
+
+Copyright © 2000 Yukinori YOSHIDA <yyo@pjs.nevt.nec.co.jp>
+
+Copyright © 2000 Kawaguti Ginga <ginga@ginganet.org>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+目次
+
+日本語パッチ拡張機能マニュアル
+   
+    設定用変数
+   
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+日本語パッチ拡張機能マニュアル
+
+設定用変数
+
+"Default:" の項目で括弧内()に記述したものは ./configure 時に
+--enalbe-default-japaneseオプションを付けた場合のものです．
+
+assumed_charset
+
+Type: string
+Default: "us-ascii" ("iso-2022-jp:euc-jp:shift_jis:utf-8")
+
+文字符号化方式の指定が行われていないへッダフィールドやボディはデフォルトでは
+us-ascii とみなされます．このオプションを設定すると，設定した文字符号化方式であ
+ると推定を行います．推定できる文字符号化方式はコロンで区切られた複数のものを設
+定できます．例えば，日本語の場合では次のように設定するとよいでしょう．
+
+  set assumed_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
+
+ただし，メッセージボディの場合は最初のものしか有効ではありません．なお，このオ
+プションは strict_mime=no を設定しないと有効になりません．
+
+create_rfc2047_parameters
+
+Type: boolean
+Default: no
+
+この変数を設定すると，Muttは添付ファイルのファイル名として次のようなRFC2047形式
+で符号化されたパラメータをContent-Typeフィールドに追加します．
+
+  name="=?iso-2022-jp?B?GyRCO244MxsoQi50eHQ=?="
+
+注記: このようなRFC2047形式の符号化の使用はRFC2047により明示的に禁止されていま
+す．受信者のメイラーがRFC2231形式のパラメータを解析できない場合のみ，この変数を
+設定してください．なお，このオプションは strict_mime=no を設定しないと有効にな
+りません．
+
+delete_prefix
+
+Type: boolean
+Default: unset
+
+設定するとメーリングリストにおける Subject フィールドのプレフィックス（
+[prefix:0123]のようなもの）をインデックス画面および返信時のメッセージで削除する
+ことができます．削除するプレフィックスのパターンは $delete_regexp で記述できま
+す．
+
+delete_regexp
+
+Type: regular expression
+Default: "^(\[[A-Za-z0-9_.: \-]*\][ ]*)"
+
+$delete_prefix で用いられる正規表現です．
+
+file_charset
+
+Type: string
+Default: "" ("iso-2022-jp:euc-jp:shift_jis:utf-8")
+
+テキストファイルを添付する場合の想定される文字符号化方式を設定します．コロンで
+区切られリストとして記述できます．例えば，日本語を使う場合は次のように設定しま
+す．
+
+  set file_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
+
+iso-2022-* を使う場合は必ずリストの先頭に持ってきてください．このオプションが設
+定されていない場合は，$charset で指定したものが代わりに想定されます．
+
+mh_path
+
+Type: path
+Default: ""
+
+mh_path option で ~/Mailなどと指定しておくと .mh_sequences がなくても ~/Mail以
+下の subdirectory で他の folder 条件に引っ掛からず，なおかつ，さらにその下に
+subdirectory を持たない directory は MH folder として解釈するようになります．他
+の MH tool で生成した folder を mutt で扱う際の "xxx はメールボックスではありま
+せん" の誤判定を減らせます．
+
+msgid
+
+Type: boolean
+Default: yes
+
+このオプションが設定されていると，メール送信時に mutt自身が Message-ID フィール
+ドを生成します．MTAに Message-ID フィールドを生成させたい場合は設定を解除します
+．
+
+msgid_use_from
+
+Type: boolean
+Default: yes
+
+このオプションが設定されていると，Message-ID フィールドに使う文字列を $hostname
+の代わりに $from で設定した文字列（メールアドレス）を使います．そのた
+め,Message-ID のユニーク性が高まります．
+
+例えば，次のように設定してある場合,
+
+    set msgid_use_from=yes
+    set realname="foo"
+    set from="foo@example.org"
+
+次のような From と Message-ID を生成します．
+
+    Message-ID: <20000907080905.A5250%foo@example.org>
+    From: Foo Bar <foo@example.org>
+
+pager_hdrs_only
+
+Type: boolean
+Default: no
+
+インデックスからメッセージを選択したときに，すぐに本文を表示するかを決めます.セ
+ットされていると最初はヘッダ部しか表示せず，ページ送りや行送り動作を行なった時
+点で本文が表示されます．
+
+pager_spoil
+
+Type: boolean
+Default: no
+
+pager_hdrs_only がセットされているときの本文の表示の仕方を決めます．セットされ
+ていると，本文の文字を pager_spoiler に指定されたキャラクタで置き換えます．セッ
+トされていなければ本文の行数だけ空行を出力します．
+
+注意: セットされていないとき，本文の行数は実際のメールの行数をもとに計算します.
+ファイルが添付されている場合や本文が折り返されて表示される場合には，出力される
+空行数と本文を表示したときの行数とが合わなくなります．
+
+pager_spoiler
+
+Type: string
+Default: "*"
+
+pager_hdrs_only と pager_spoil がセットされているときに本文の文字を置き換えるキ
+ャラクタを指定します．
+
+sanitize_ja_chars
+
+Type: boolean
+Default: no
+
+このオプションを設定すると，日本語の機種依存文字を〓に置き換え，また，JIS X
+0201 kana("ESC ) I" の場合のみ) を ? に置き換えて表示が乱れるのを防ぎます．ただ
+し，JIS X 0201 kana が 8bit のままでてきた場合は処理しません．また，$charset が
+EUC-JP に設定している場合は，EUC-JP には JIS X 0201 roman が含まれないため，受
+け取ったメッセージの ISO-2022-JP の文字列にそのエスケープシーケンスが含まれてい
+る場合，EUC-JP には変換できません．逆に，Shift_JIS には ASCII が含まれないため,
+受け取ったメッセージの ISO-2022-JP の文字列にそのエスケープシーケンスが含まれて
+いる場合は Shift_JIS には変換できません．そのため，このようなケースの場合には文
+字化けが生じます．このオプションを設定すると，JIS X 0201 roman と ASCII ののエ
+スケープシーケンスを互いに置き換え，文字化けを防ぐことができます．
+
+strict_mime
+
+Type: boolean
+Default: yes
+
+このオプションを解除すると，MIME に従っていないメッセージなど表示できるようにな
+ります．具体的には，charset の指定がないメッセージを表示します．
+$assumed_charset も見てください．さらに，encoded-word と *text の間の
+linear-white-space を space に置き換えます．これにより，MIME 符号化された
+Subject フィールドの表示が複数行にわかれることを防ぐことができます．
+
+tree_chars
+
+Type: boolean
+Default: no
+
+vt-100 非互換端末では ACS 文字を表示できません．このオプションを設定すると，ス
+レッドや添付ファイルのツリーを表示する際に任意の文字を設定することができます.例
+えば，日本語であれば，JIS 0208 の罫線を用いることもできます．文字の設定は
+$tree_llcorner，$tree_ulcorner，$tree_ltee，$tree_hline，$tree_vline,$tree_ttee
+，$tree_btee，$tree_space，$tree_rarrow，$tree_star，$tree_hiddeni，tree_equals
+，$tree_missing で行います．ただし，設定ファイルの記述で用いられる文字符号化方
+式と $charset に設定したものを同じにしてください．デフォルトでは $ascii_chars
+をセットしたときに使われる文字を使って表示します．
+
+設定例：JIS X 0208 の罫線を用いた例
+
+  set tree_chars=yes
+  set tree_llcorner="└"
+  set tree_ulcorner="┌"
+  set tree_ltee="├"
+  set tree_hline="─"
+  set tree_vline="│"
+  set tree_ttee="┬"
+  set tree_btee="┴"
+  set tree_space="　"
+  set tree_rarrow="＞"
+  set tree_star="＊"
+  set tree_hidden="＆"
+  set tree_equals="＝"
+  set tree_missing="？"
+
+tree_llcorner
+
+Type: string
+Default: "`"
+
+$tree_chars を参照．
+
+tree_ulcorner
+
+Type: string
+Default: ","
+
+$tree_chars を参照．
+
+tree_ltee
+
+Type: string
+Default: "|"
+
+$tree_chars を参照．
+
+tree_hline
+
+Type: string
+Default: "-"
+
+$tree_chars を参照．
+
+tree_vline
+
+Type: string
+Default: "|"
+
+$tree_chars を参照．
+
+tree_ttee
+
+Type: string
+Default: "-"
+
+$tree_chars を参照．
+
+tree_btee
+
+Type: string
+Default: "-"
+
+$tree_chars を参照．
+
+tree_space
+
+Type: string
+Default: " "
+
+$tree_chars を参照．
+
+tree_rarrow
+
+Type: string
+Default: ">"
+
+$tree_chars を参照．
+
+tree_star
+
+Type: string
+Default: "*"
+
+$tree_chars を参照．
+
+tree_hidden
+
+Type: string
+Default: "&"
+
+$tree_chars を参照．
+
+tree_equals
+
+Type: string
+Default: "="
+
+$tree_chars を参照．
+
+tree_missing
+
+Type: string
+Default: "?"
+
+$tree_chars を参照．
+
+use_jisx0208
+
+Type: boolean
+Default: no (yes)
+
+このオプションを設定すると，UTF-8ロケールにおいてJIS X 0208の記号・ギリシャ文字
+・キリル文字の幅が2桁であると判断します．
+

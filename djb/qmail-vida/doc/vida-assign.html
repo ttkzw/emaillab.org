@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<title>vida-assign</title>
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="vida.css" />
+<body>
+<h1>vida-assign</h1>
+<P>users/assignを管理するプログラム。</p>
+
+<h2>使い方</h2
+<p>vida-assign -a [-mM] -u virtualuser</p>
+<p>vida-assign -d [-mM] -u virtualuser</p>
+
+<p>バーチャルユーザvirtualuserの情報をusers/assignに追加・削除を行う。これは管理する実在ドメイン/バーチャルドメインの所有者の権限で実行する必要がある。</p>
+
+<h3>コマンド</h3>
+<dl>
+<dt>-a</dt>
+<dd>仮想ユーザの情報を追加する。</dd>
+<dt>-d</dt>
+<dd>仮想ユーザの情報を削除する。</dd>
+</dl>
+
+<h3>オプション</h3>
+<dl>
+<dt>-m</dt>
+<dd>仮想ユーザの追加・削除を行った後にqmail-newuを実行してusers/cdbを更新する。（デフォルト）</dd>
+<dt>-M</dt>
+<dd>仮想ユーザの追加・削除を行った後にqmail-newuを実行しない。ユーザを連続して追加・削除するときに毎回qmail-newuを実行するのを回避し、後で別途にqmail-newuを実行するような場合にこのオプションを使用する。</dd>
+</dl>
+
+</body>
+</html>

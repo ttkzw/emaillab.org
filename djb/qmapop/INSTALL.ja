@@ -1,0 +1,70 @@
+qmapop は無保証ですので各自の責任において使用してください。
+
+インストールを始める前にすること：
+  DJB の ucspi-tcp と daemontools がインストールされていなければ
+  インストールしてください。
+
+インストール方法：
+1. qmail-1.03/qmail-popup.c に対してパッチを当ててください。
+
+    cd qmail-1.03
+    patch -p1 < ../qmapop-0.52/qmail-popup.c.patch
+
+  このパッチはエラーなしで当たるはずです。何か問題が生じたら、
+  .rej ファイルを調べてください。
+  qmail-1.03 のディレクトリで qmail-popup を再コンパイルしてインス
+  トールしてください。
+
+2. APOP 認証データベース用のユーザ apopdb を作成してください。
+  apopdb のホームディレクトリは /var/qmail/apopdb にしてください。
+
+3. /etc/passwd を使わない POP 専用のアカウントを作るのでしたら、
+  メールスプール用のユーザ pop を作成してください。そのホームディレ
+  クトリ（例えば /home/pop）に各ユーザの Maildir 形式のメールボック
+  ス（~pop/USER/Maildir）が作成されます。
+
+4. POP before SMTP を行うのであれば、シェルスクリプト pop3-record と 
+  age-smtp を編集して、環境変数 RULESDIR にルールのファイルを作成す
+  るディレクトリを指定してください。pop3-record と age-smtp に実行
+  ビットを立てて、/usr/local/bin にコピーして下さい。
+  age-smtp を root 権限の cron で5分毎に動かしてください。
+
+5. conf-apop.h と conf-opensmtp.h を編集して必要なパラメータを設定し
+  てください。
+
+6. 先ほどコンパイルした qmail-1.03 のディレクトリから qmapop-0.52 の
+  ディレクトリへ "compile" と "load" というシェルスクリプトをコピー
+  してください。
+
+    cp -p qmail-1.03/compile qmapop-0.52/
+    cp -p qmail-1.03/load qmapop-0.52/
+
+7. コンパイルしてインストールしてください。
+    make
+    su
+    make install
+  実行ファイルは /var/qmail/bin にインストールされます。
+
+8. 起動ファイルを作成してください。
+  次に示すのは svscan 用の起動ファイルの例です。
+    #!/bin/sh
+    #  /service/pop3d/run
+    exec env - PATH=/usr/local/bin/:/var/qmail/bin \
+    tcpserver -vRH -c 40 -u 0 -g 0 0 pop3 qmail-popup \
+    mydomain checkpassword qmail-pop3d Maildir 2>&1
+
+  デフォルトでは APOP 認証と平文認証(USER/PASS)は併用できます。
+  APOP 認証を強制したい場合は、環境変数 FORCEAPOP を設定して、qmail-popup
+  を起動して下さい。
+  起動ファイルに記述するときは先の例では
+    exec env - PATH=/usr/local/bin/:/var/qmail/bin FORCEAPOP="" \
+    tcpserver -vRH -c 40 -u 0 -g 0 0 pop3 qmail-popup \
+    mydomain checkpassword qmail-pop3d Maildir 2>&1
+  となります。
+  なお、tcpserver のアクセス制御の機能で環境変数を設定することもできます。
+
+9. 認証データベースを初期化してください。
+    apop -i
+
+Bert Gijsbers <bert@mc.bio.uva.nl>
+TAKIZAWA Takashi <taki@cyber.email.ne.jp>

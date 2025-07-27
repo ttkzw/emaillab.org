@@ -1,0 +1,550 @@
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/Charset.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/Charset.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/Charset.pm	1970-01-01 09:00:00.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/Charset.pm	2006-05-28 11:37:28.000000000 +0900
+@@ -0,0 +1,530 @@
++# <@LICENSE>
++# Copyright 2004 Apache Software Foundation
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# </@LICENSE>
++
++
++=head1 NAME
++
++  Mail::SpamAssassin::Util::Charset.pm - Utility for charset and language
++
++=head1 SYNOPSIS
++
++  my ($detected,$decoded) = Mail::SpamAssassin::Util::Charset::normalize_charset($charset,$data);
++
++
++=head1 DESCRIPTION
++
++This module implements utility methods for charset and language.
++
++=cut
++
++package Mail::SpamAssassin::Util::Charset;
++
++use strict;
++use warnings;
++
++use vars qw (
++  @ISA @EXPORT
++);
++
++require Exporter;
++
++@ISA = qw(Exporter);
++@EXPORT = qw(detect_charset normalize_charset get_language);
++
++###########################################################################
++
++use constant HAS_ENCODE => eval { require Encode; require Encode::Guess; require Encode::Alias; };
++use constant HAS_ENCODE_DETECT => eval { require Encode::Detect::Detector; };
++use constant HAS_ENCODE_HANEXTRA => eval { require Encode::HanExtra; };
++
++###########################################################################
++
++our %langmap;
++our %charsetmap;
++our %latinscriptmap;
++our %nonlatinscriptmap;
++our @nonlatinscriptorder;
++
++BEGIN {
++
++  # See the following URL about this map:
++  #   http://czyborra.com/charsets/iso8859.html
++  #   http://czyborra.com/charsets/codepages.html
++  #   http://czyborra.com/charsets/cyrillic.html
++  #   http://www.w3.org/International/O-charset-lang.html
++  %langmap = (
++    # buint-in Encodings and Encode::Byte
++    #   N. America
++    'ascii'         => 'en',
++    'cp437'         => 'en',
++    'cp863'         => 'fr',
++
++    #   W. Europe (Latin1, Latin9)
++    'iso-8859-1'    => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'iso-8859-15'   => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'cp850'         => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'cp860'         => 'pt',
++    'cp1252'        => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'MacRoman'      => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++
++    #   Cntrl. Europe / Latin2 / Latin10
++    'iso-8859-2'    => 'hr cs hu pl ro sr sk sl',
++    'cp852'         => 'hr cs hu pl ro sr sk sl',
++    'cp1250'        => 'hr cs hu pl ro sr sk sl',
++    'MacCentralEurRoman' => 'hr cs hu pl ro sr sk sl',
++    'MacCroatian'   => 'hr',
++    'iso-8859-16'   => 'ro',
++    'MacRomanian'   => 'ro',
++#    'MacRumanian'   => 'ro',
++
++    #   Latin3 (Esperanto, Maltese, and Turkish. Turkish is now on 8859-9.)
++    'iso-8859-3'    => 'eo mt',
++
++    #   Baltics (Latin4, Latin7)
++    'iso-8859-4'    => 'lv',
++    'iso-8859-13'   => 'lv lt',
++    'cp1257'        => 'lv lt',
++#    'cp775'         => 'lv lt',
++
++    #   Nordics (Latin6) : FIXME
++    'iso-8859-10'   => 'et kl iu se',
++    'MacIcelandic'  => 'is',
++#    'cp865'         => 'et kl iu se',
++#    'cp861'         => 'is',
++#    'MacSami'       => 'se',
++
++
++    #   Cyrillics
++    'iso-8859-5'    => 'bg be uk sr mk ru',
++    'cp855'         => 'ru',
++    'cp1251'        => 'mk sr ru',
++    'cp866'         => 'ru',
++    'MacCyrillic'   => 'ru',
++    'koi8-r'        => 'ru',
++    'MacUkrainian'  => 'uk',
++    'koi8-u'        => 'uk',
++#    'koi8-f'        => 'be uk ru',
++
++    #   Arabic
++    'iso-8859-6'    => 'ar',
++    'cp864'         => 'ar',
++    'cp1256'        => 'ar',
++    'MacArabic'     => 'ar',
++    'cp1006'        => 'fa',
++    'MacFarsi'      => 'fa',
++
++    #   Greek
++    'iso-8859-7'    => 'el',
++    'cp1253'        => 'el',
++    'MacGreek'      => 'el',
++#    'cp737'         => 'el',
++#    'cp869'         => 'el',
++
++    #   Hebrew
++    'iso-8859-8'    => 'he yi',
++    'cp862'         => 'he yi',
++    'cp1255'        => 'he yi',
++    'MacHebrew'     => 'he yi',
++#    'cp424'         => 'he yi',
++#    'cp856'         => 'he yi',
++
++    #   Turkish
++    'iso-8859-9'    => 'tr',
++    'cp857'         => 'tr',
++    'cp1254'        => 'tr',
++    'MacTurkish'    => 'tr',
++
++    #   Thai
++    'iso-8859-11'   => 'th',
++    'cp874'         => 'th',
++#    'MacThai'       => 'th',
++
++    #   Celtics (Latin8)
++    'iso-8859-14'   => 'gd cy br',
++
++
++    #   Vietnamese
++    'viscii'        => 'vi',
++    'cp1258'        => 'vi',
++
++    # Encode::CN
++    'euc-cn'        => 'zh',
++    'cp936'         => 'zh',
++    'hz'            => 'zh',
++
++    # Encode::TW
++    'big5-eten'     => 'zh',
++    'big5-hkscs'    => 'zh',
++    'cp950'         => 'zh',
++
++    # Encode::JP
++    'euc-jp'        => 'ja',
++    'shiftjis'      => 'ja',
++    '7bit-jis'      => 'ja',
++    'iso-2022-jp'   => 'ja',
++    'iso-2022-jp-1' => 'ja',
++    'cp932'         => 'ja',
++
++    # Encode::KR
++    'euc-kr'        => 'ko',
++    'cp949'         => 'ko',
++    'johab'         => 'ko',
++    'iso-2022-kr'   => 'ko',
++
++    # Encode::HanExtra
++    'euc-tw'        => 'zh',
++    'gb18030'       => 'zh',
++
++    # Encode::JIS2K
++    'euc-jisx0213'  => 'ja',
++    'shiftjisx0123' => 'ja',
++    'iso-2022-jp-3' => 'ja',
++
++  );
++
++  %charsetmap = (
++    # Latin1
++    'en' => ['us-ascii'],
++    'fr' => ['cp1252'],
++    'es' => ['cp1252'],
++    'ca' => ['cp1252'],
++    'eu' => ['cp1252'],
++    'pt' => ['cp1252'],
++    'it' => ['cp1252'],
++    'sq' => ['cp1252'],
++    'rm' => ['cp1252'],
++    'nl' => ['cp1252'],
++    'de' => ['cp1252'],
++    'da' => ['cp1252'],
++    'sv' => ['cp1252'],
++    'no' => ['cp1252'],
++    'fi' => ['cp1252'],
++    'fo' => ['cp1252'],
++    'is' => ['cp1252'],
++    'ga' => ['cp1252'],
++    'gd' => ['cp1252'],
++    'af' => ['cp1252'],
++
++    # Latin2
++    'hr' => ['cp1250'],
++    'cs' => ['cp1250'],
++    'hu' => ['cp1250'],
++    'pl' => ['cp1250'],
++    'ro' => ['cp1250'],
++    'sr' => ['cp1250'],
++    'sk' => ['cp1250'],
++    'sl' => ['cp1250'],
++
++    # Latin3
++    'eo' => ['iso-8859-3'],
++    'mt' => ['iso-8859-3'],
++
++    # Latin4
++    'lv' => ['iso-8859-4'],
++
++    # Latin5
++    'tr' => ['cp1254'],
++
++    # Latin6
++    'et' => ['iso-8859-10'],
++    'kl' => ['iso-8859-10'],
++    'iu' => ['iso-8859-10'],
++    'se' => ['iso-8859-10'],
++    'is' => ['cp861'],
++
++    # Latin7
++    'lv' => ['cp1257'],
++    'lt' => ['cp1257'],
++
++    # Latin8
++    'gd' => ['iso-8859-14'],
++    'cy' => ['iso-8859-14'],
++    'br' => ['iso-8859-14'],
++
++    # Non Latin
++    'bg' => ['iso-8859-5'],
++    'be' => ['iso-8859-5'],
++    'mk' => ['cp1251', 'iso-8859-5'],
++    'ru' => ['koi8-r', 'cp1251', 'iso-8859-5'],
++    'sr' => ['cp1251', 'iso-8859-5'],
++    'uk' => ['koi8-u'],
++
++    'ar' => ['cp1256'],
++    'el' => ['cp1253'],
++    'he' => ['cp1255'],
++    'yi' => ['cp1255'],
++    'th' => ['cp874'],
++    'vi' => ['viscii', 'cp1258'],
++    'zh' => ['euc-cn', 'cp950'],
++    'ja' => ['euc-jp', 'cp932'],
++    'ko' => ['euc-kr', 'cp949'],
++
++  );
++
++  %latinscriptmap = (
++    'InLatin1Supplement' => [
++      'fr', 'es', 'ca', 'eu', 'pt', 'it', 'sq', 'rm', 'nl', 'de', 'da', 'sv',
++      'no', 'fi', 'fo', 'is', 'ga', 'gd', 'af'
++    ],
++    'InLatinExtendedA' => [
++      'hr', 'cs', 'hu', 'pl', 'ro', 'sr', 'sk', 'sl',
++      'eo', 'mt',
++      'lv',
++      'tr',
++      'vi'
++    ],
++    'InLatinExtendedB' => [
++      'et', 'kl', 'iu', 'se', 'is',
++      'lv', 'lt',
++      'gd', 'cy', 'br'
++    ],
++    'Thai'   => ['th'],
++    'Cyrillic' => ['ru', 'uk'],
++    'Arabic' => ['ar'],
++    'Greek'  => ['el'],
++    'Hebrew' => ['he', 'yi'],
++  );
++
++  @nonlatinscriptorder = ('Hiragana','Katakana','Hangul','Han');
++  %nonlatinscriptmap = (
++    'Hiragana' => ['ja'],
++    'Katakana' => ['ja'],
++    'Hangul' => ['ko'],
++    'Han'    => ['zh', 'ja', 'ko'],
++  );
++
++  if (HAS_ENCODE) {
++    unless (HAS_ENCODE_HANEXTRA) {
++      Encode::Alias::define_alias( qr/^gb18030$/i => ' "euc-cn"' );
++    }
++    Encode::Alias::define_alias( qr/^x-euc-tw$/i => ' "euc-tw"' );
++    Encode::Alias::define_alias( qr/^TIS-620$/i => ' "iso-8859-11"' );
++    Encode::Alias::define_alias( qr/^x-mac-(.+)$/i => ' "Mac$1"' );
++  }
++}
++
++sub get_language {
++  my $charset = shift;
++  my $utf8str = shift;
++
++  return undef unless $charset;
++  if ($charset =~ /^utf/i && defined($utf8str)) {
++    return _detect_language($utf8str);
++  }
++  else {
++    my @langs;
++    foreach my $enc (split(' ',$charset)) {
++      if (exists($langmap{$enc})) {
++        my $lang = $langmap{$enc};
++        push(@langs,$lang) unless (grep(/^$lang$/,@langs))
++      }
++    }
++    return join(' ',@langs);
++  }
++}
++
++sub _detect_language {
++  my $data = shift;
++  my @langs;
++
++  $data =~ s/[\x00-\x7F]//g;
++  $data = Encode::decode_utf8($data);
++  return 'en' if ($data eq '');
++  foreach my $script (@nonlatinscriptorder) {
++    if ($data =~ /\p{$script}/) {
++      foreach my $lang (@{$nonlatinscriptmap{$script}}) {
++        push(@langs,$lang) unless (grep(/^$lang$/,@langs))
++      }
++    }
++  }
++  foreach my $script (keys(%latinscriptmap)) {
++    if ($data =~ /\p{$script}/) {
++      foreach my $lang (@{$latinscriptmap{$script}}) {
++        push(@langs,$lang) unless (grep(/^$lang$/,@langs))
++      }
++    }
++  }
++
++  my @charsets;
++  foreach my $lang (@langs) {
++    foreach my $charset (@{$charsetmap{$lang}}) {
++      push(@charsets,$charset) unless (grep(/^$charset$/,@charsets))
++    }
++  }
++  my $decoded;
++  foreach my $charset (@charsets) {
++    eval {$decoded = Encode::encode($charset,$data,1);};
++    return $langmap{$charset} if (!$@ && $decoded);
++  }
++  return undef;
++}
++
++
++# TEST 1: try conversion to use the specified charset. 
++# TEST 2: try conversion to use Encode::Detect.
++# TEST 3: try conversion to use Encode::Guess.
++sub normalize_charset {
++  my $charset = shift;
++  my $data = shift;
++  my $decoded;
++  my $detected;
++
++  return ($charset,$data) unless HAS_ENCODE;
++  return ('ascii',$data) unless ($data);
++
++  if ($charset) {
++    ($detected,$decoded) = _specified_charset($charset,$data,1);
++  }
++  unless (defined($detected)) {
++    ($detected,$decoded) = _encode_detect($data,1)
++  }
++  unless (defined($detected)) {
++    ($detected,$decoded) = _encode_guess($charset,$data,1)
++  }
++  unless ($detected) {
++    return (undef,$data);
++  }
++  # unfold hiragana, katakana and han
++  if ($detected =~ /^(?:UTF|EUC|BIG5|GB|SHIFTJIS|ISO-2022|CP969$|CP932$|CP949$)/i) {
++    $decoded =~ s/([\x{3040}-\x{30FF}\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}])\r?\n([\x{3040}-\x{30FF}\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}])/$1$2/g;
++  }
++  return ($detected,Encode::encode_utf8($decoded));
++}
++
++sub detect_charset {
++  my $charset = shift;
++  my $data = shift;
++
++  return $charset unless HAS_ENCODE;
++  return 'ascii' unless ($data);
++
++  my $detected;
++  if ($charset) {
++    $detected = _specified_charset($charset,$data);
++  }
++  unless (defined($detected)) {
++    $detected = _encode_detect($data);
++  }
++  unless (defined($detected)) {
++    $detected = _encode_guess($charset,$data);
++  }
++  return $detected;
++}
++
++sub _specified_charset {
++  my $charset = shift;
++  my $data = shift;
++  my $decode = shift;
++
++  my $detected;
++  my $decoded;
++  # note: iso-2022-* is not deistinguish from ascii
++  my $escseq = ($data =~ /\x1B/);
++  if ($charset && (!$escseq || $charset =~ /^iso-2022/i)) {
++    my $encoder = Encode::find_encoding($charset);
++    if (defined($encoder)) {
++      eval {$decoded = $encoder->decode($data,1);};
++      if (!$@ && $decoded) {
++        $detected = $encoder->name;
++      }
++    }
++  }
++  if ($decode) {
++    return ($detected,$decoded);
++  }
++  else {
++    return $detected;
++  }
++}
++
++sub _encode_detect {
++  return undef unless HAS_ENCODE_DETECT;
++  my $data = shift;
++  my $decode = shift;
++
++  my $encoder;
++  my $detected = Encode::Detect::Detector::detect($data);
++  if (defined($detected)) {
++    $encoder = Encode::find_encoding($detected);
++    $detected = defined($encoder) ? $encoder->name : undef;
++  }
++  if ($decode) {
++    my $decoded = defined($encoder) ? $encoder->decode($data) : undef;
++    return ($detected,$decoded);
++  }
++  else {
++    return $detected;
++  }
++}
++
++sub _encode_guess {
++  my $encoding = shift;
++  my $data = shift;
++  my $decode = shift;
++
++  my $detected;
++  my $decoded;
++  my $encoder;
++  if ($encoding) {
++    my $ce = Encode::resolve_alias($encoding);
++    if ($ce && $ce !~ /ascii/i) {
++      $encoder = Encode::Guess::guess_encoding($data, $ce);
++    }
++  }
++  unless (ref($encoder)) {
++    if ($data =~ /\x1B/) {
++      $encoder = Encode::Guess::guess_encoding($data, qw/iso-2022-jp iso-2022-kr/);
++    }
++    elsif ($data =~ /[\x80-\xFF]{2}/) {
++      $encoder = Encode::Guess::guess_encoding($data, qw/euc-cn big5-eten euc-jp cp932 euc-kr cp949/);
++    }
++    else {
++      $encoder = Encode::Guess::guess_encoding($data, qw/iso-8859-1 cp1252 ascii/);
++    }
++  }
++  if (ref($encoder)) {
++    $detected = $encoder->name;
++  }
++  elsif ($encoder =~ / or /) {
++    $detected = $encoder;
++    $detected =~ s/ or / /g;
++  }
++
++  if ($decode) {
++    my $decoded;
++    if (defined($detected)) {
++      if (ref($encoder)) {
++        $decoded = $encoder->decode($data);
++      }
++      else {
++        foreach my $enc (split(/ /,$detected)) {
++          eval {$decoded = Encode::decode($enc,$data,1);};
++          if (!$@ && $decoded) {
++            $detected = $enc;
++            last;
++          }
++        }
++      }
++    }
++    return ($detected,$decoded);
++  }
++  else {
++    return $detected;
++  }
++}
++
++1;
++
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/DependencyInfo.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/DependencyInfo.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/DependencyInfo.pm	2006-03-11 04:29:53.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/DependencyInfo.pm	2006-05-26 22:49:46.000000000 +0900
+@@ -168,6 +168,12 @@
+   desc => 'The "sa-update" script requires this module to access compressed
+   update archive files.',
+ },
++{
++  module => 'Encode::Detect',
++  version => '0.00',
++  desc => 'If this module is installed, SpamAssassin will detect charsets
++  and convert them into Unicode.',
++},
+ );
+ 
+ ###########################################################################

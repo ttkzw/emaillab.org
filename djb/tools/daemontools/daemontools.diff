@@ -1,0 +1,184 @@
+Only in en.old/: daemontools-0.70.tar.gz
+diff -c en.old/install.html en/install.html
+*** en.old/install.html	Mon Mar  6 17:43:22 2000
+--- en/install.html	Sat May  6 14:39:50 2000
+***************
+*** 45,50 ****
+--- 45,54 ----
+       cmp rts.out rts.exp
+  </pre>
+  Normally this prints nothing.
++ Exception: Some SVR4 variants allow multiple exclusive locks
++ on the same file by the same process,
++ making the ``already locked'' tests fail.
++ The next version of <tt>rts</tt> will work around this silliness.
+  <p>
+  Check some timestamps:
+  <pre>
+***************
+*** 62,68 ****
+  <p>
+  To report success:
+  <pre>
+!      ( echo 'First M. Last'; cat `cat SYSDEPS` ) \
+       | mail djb-sysdeps@cr.yp.to
+  </pre>
+  Replace <tt>First M. Last</tt> with your name.
+--- 66,74 ----
+  <p>
+  To report success:
+  <pre>
+!      ( echo 'First M. Last'; cat VERSION systype \
+!      direntry.h fork.h hasflock.h hasmkffo.h hassgact.h \
+!      hasshsgr.h haswaitp.h iopause.h select.h uint64.h ) \
+       | mail djb-sysdeps@cr.yp.to
+  </pre>
+  Replace <tt>First M. Last</tt> with your name.
+diff -c en.old/multilog.html en/multilog.html
+*** en.old/multilog.html	Mon Mar  6 17:43:22 2000
+--- en/multilog.html	Sat May  6 14:40:47 2000
+***************
+*** 119,124 ****
+--- 119,125 ----
+  inserts an @, a precise timestamp, and a space in front of each line,
+  using the same format as <a href="tai64n.html">tai64n</a>.
+  This is required to be the first action.
++ Patterns apply to the line after the timestamp is inserted.
+  <p>
+  You can use
+  <a href="tai64nlocal.html">tai64nlocal</a>
+diff -c en.old/svscan.html en/svscan.html
+*** en.old/svscan.html	Mon Mar  6 17:43:22 2000
+--- en/svscan.html	Sat May  6 14:40:34 2000
+***************
+*** 12,17 ****
+--- 12,18 ----
+  <a href="supervise.html">supervise</a>
+  process for each subdirectory of the current directory,
+  up to a limit of 1000 subdirectories.
++ <tt>svscan</tt> skips subdirectory names starting with dots.
+  <tt>supervise</tt>
+  must be in <tt>svscan</tt>'s path.
+  <p>
+***************
+*** 24,30 ****
+  <tt>svscan</tt>
+  needs two free descriptors for each pipe.
+  <p>
+! Every minute,
+  <tt>svscan</tt>
+  checks for subdirectories again.
+  If it sees a new subdirectory,
+--- 25,31 ----
+  <tt>svscan</tt>
+  needs two free descriptors for each pipe.
+  <p>
+! Every five seconds,
+  <tt>svscan</tt>
+  checks for subdirectories again.
+  If it sees a new subdirectory,
+***************
+*** 38,61 ****
+  is designed to run forever.
+  If it has trouble creating a pipe or running <tt>supervise</tt>,
+  it prints a message to stderr;
+! it will try again a minute later.
+  <p>
+- Starting in version 0.70:
+- <tt>svscan</tt> checks for subdirectories every five seconds.
+- <tt>svscan</tt> skips subdirectory names starting with dot.
+  If <tt>svscan</tt> is given a command-line argument,
+  it switches to that directory when it starts.
+  <h2><a name="boot"></a>The <tt>/service</tt> directory</h2>
+  Normally <tt>svscan</tt> is started at boot time
+  in a new <tt>/service</tt> directory.
+! To set this up, first create <tt>/service</tt> as root:
+  <pre>
+       mkdir /service
+       chmod 755 /service
+  </pre>
+  Then put
+  <pre>
+!      ( cd /service &amp;&amp; csh -cf 'svscan &amp;' )
+  </pre>
+  into your system's boot scripts,
+  typically <tt>/etc/rc.local</tt> or <tt>/etc/init.d/boot</tt>.
+--- 39,60 ----
+  is designed to run forever.
+  If it has trouble creating a pipe or running <tt>supervise</tt>,
+  it prints a message to stderr;
+! it will try again five seconds later.
+  <p>
+  If <tt>svscan</tt> is given a command-line argument,
+  it switches to that directory when it starts.
+  <h2><a name="boot"></a>The <tt>/service</tt> directory</h2>
+  Normally <tt>svscan</tt> is started at boot time
+  in a new <tt>/service</tt> directory.
+! To set this up (under version 0.70 or above),
+! first create <tt>/service</tt> as root:
+  <pre>
+       mkdir /service
+       chmod 755 /service
+  </pre>
+  Then put
+  <pre>
+!      csh -cf 'svscan /service &amp;'
+  </pre>
+  into your system's boot scripts,
+  typically <tt>/etc/rc.local</tt> or <tt>/etc/init.d/boot</tt>.
+***************
+*** 63,76 ****
+  and it must contain the directory where <tt>svscan</tt> is installed.
+  If it doesn't, set your favorite path explicitly:
+  <pre>
+!      ( cd /service &amp;&amp; env - PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin csh -cf 'svscan &amp;' )
+  </pre>
+  Reboot now, and verify that <tt>svscan</tt> is running.
+  <p>
+  To install a new service,
+  make a symbolic link from <tt>/service/<i>sub</i></tt>
+  to a directory elsewhere in the filesystem.
+! <tt>svscan</tt> will spot the link within a minute
+  and will start a <tt>supervise</tt> process,
+  or two <tt>supervise</tt> processes if <tt><i>sub</i></tt> is sticky.
+  You can then use
+--- 62,75 ----
+  and it must contain the directory where <tt>svscan</tt> is installed.
+  If it doesn't, set your favorite path explicitly:
+  <pre>
+!      env - PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin csh -cf 'svscan /service &amp;'
+  </pre>
+  Reboot now, and verify that <tt>svscan</tt> is running.
+  <p>
+  To install a new service,
+  make a symbolic link from <tt>/service/<i>sub</i></tt>
+  to a directory elsewhere in the filesystem.
+! <tt>svscan</tt> will spot the link within five seconds
+  and will start a <tt>supervise</tt> process,
+  or two <tt>supervise</tt> processes if <tt><i>sub</i></tt> is sticky.
+  You can then use
+diff -c en.old/upgrade.html en/upgrade.html
+*** en.old/upgrade.html	Mon Mar  6 17:43:22 2000
+--- en/upgrade.html	Sat May  6 14:39:57 2000
+***************
+*** 25,33 ****
+  <p>
+  <tt>setuser</tt> is now called <tt>setuidgid</tt>.
+  <h2>0.61 to 0.70</h2>
+! There are many internal changes but no interface changes. 
+  There are two new utilities,
+  <tt>setlock</tt> (from the <tt>serialmail</tt> package)
+  and <tt>envdir</tt>.
+  </body>
+  </html>
+--- 25,34 ----
+  <p>
+  <tt>setuser</tt> is now called <tt>setuidgid</tt>.
+  <h2>0.61 to 0.70</h2>
+! There are many internal changes.
+  There are two new utilities,
+  <tt>setlock</tt> (from the <tt>serialmail</tt> package)
+  and <tt>envdir</tt>.
++ <tt>svscan</tt> now allows a command-line <tt>/service</tt> argument.
+  </body>
+  </html>

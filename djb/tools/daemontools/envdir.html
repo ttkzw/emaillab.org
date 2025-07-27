@@ -1,0 +1,45 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The envdir program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<br><a href="top.html">daemontools</a>
+<h1><a href="http://cr.yp.to/daemontools/envdir.html">envdir プログラム</a></h1>
+<tt>envdir</tt>
+は指定したディレクトリにあるファイルによって修正された環境を設定して別のプログラムを起動させます。
+
+<h2>使い方</h2>
+<pre>
+     envdir <i>d</i> <i>child</i>
+</pre>
+<tt><i>d</i></tt> は一つの引数です。
+<tt><i>child</i></tt> は一つ以上の引数から成ります。
+
+<p>
+<tt>envdir</tt>
+はディレクトリ <tt><i>d</i></tt> にあるファイルに明記された様々な環境変数を設定します。
+それから <tt><i>child</i></tt> を起動させます。
+
+<p>
+その最初の行が <tt><i>t</i></tt> であるファイル <tt><i>s</i></tt> が<tt><i>d</i></tt> にあれば、<tt>envdir</tt> は環境変数 <tt><i>s</i></tt> が存在すればそれを取り除き、それから、環境変数 <tt><i>s</i></tt> を値 <tt><i>t</i></tt> として追加します。
+環境変数名 <tt><i>s</i></tt> は <tt>=</tt> を含めてはいけません。
+<tt><i>t</i></tt> の終りのスペースとタブは取り除かれます。
+<tt><i>t</i></tt> にある null は環境変数では改行に変えられます。
+
+<p>
+ファイル <tt><i>s</i></tt> が完全に空（0バイト）であれば、<tt>envdir</tt> は環境変数 <tt><i>s</i></tt> があればそれを取り除き、新しい変数を追加しません。
+
+<p>
+<tt>envdir</tt> は <tt><i>d</i></tt> を読むときに問題が生じる、あるいは環境変数のメモリが足らない、あるいは <tt><i>child</i></tt> を起動できないときには、コード 111 で終了します。
+そうでなければ、その終了コードは <tt><i>child</i></tt> の終了コードと同じです。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Apr 16 17:48:31 2000
+<!-- hhmts end -->
+</body>
+</html>

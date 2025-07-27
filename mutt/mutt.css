@@ -1,0 +1,91 @@
+body {
+    color: black;
+    background-color: white;
+}
+
+h1 {
+    color: white;
+    background-color: blue;
+    font-size: 2em;
+    margin: 5px;
+}
+
+h2 {
+    color: blue;
+    background-color: white;
+    font-size: 1.6em;
+}
+
+h3 {
+    color: blue;
+    background-color: white;
+    font-size: 1.2em;
+}
+
+h4 {
+    color: blue;
+    background-color: white;
+    font-size: 1em;
+}
+
+h2,h3,h4 {
+    color: blue;
+    background-color: white;
+}
+
+td.header {
+    color: white;
+    background-color: blue;
+    border-color: blue;
+    text-align: center;
+}
+
+td.toc, td.toc a:link, td.toc a:visited {
+    color: white;
+    background-color: #7777FF;
+}
+
+td.toc a:hover {
+    color: yellow;
+    background-color: #7777FF;
+}
+
+td.toc th {
+    color: white;
+    background-color: #3333FF;
+}
+
+td.contents {
+    color: black;
+    background-color: white;
+}
+
+td.footer, td.footer a:link, td.footer a:visited {
+    color: white;
+    background-color: black;
+    text-align: right;
+}
+
+p.caption {
+    color: green;
+    font-weight: bold;
+}
+
+.author {
+    text-align: right;
+}
+.update {
+    text-align: right;
+}
+.example, .uri {
+    color: blue;
+    font-family: monospace;
+    margin-left: 2em;
+}
+.foot-menu {
+    fontsize: 0.9em
+}
+.header {
+    background-color: #bfffbf;
+    fontsize: 0.95em;
+}

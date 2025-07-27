@@ -1,0 +1,143 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>The supervise program</h1>
+<tt>supervise</tt>
+starts and monitors a service.
+<h2>Interface</h2>
+<pre>
+     supervise <i>service</i>
+</pre>
+<p>
+<tt>supervise</tt>
+switches to the directory named <tt><i>service</i></tt>
+and starts <tt>./run</tt>.
+It restarts <tt>./run</tt> if <tt>./run</tt> exits.
+It pauses for a second before starting <tt>./run</tt>,
+so that it does not loop too quickly if <tt>./run</tt> exits immediately.
+<p>
+If the file <tt><i>service</i>/down</tt> exists,
+<tt>supervise</tt> does not start <tt>./run</tt> immediately.
+You can use <a href="svc.html">svc</a>
+to start <tt>./run</tt>
+and to give other commands to <tt>supervise</tt>.
+<p>
+<tt>supervise</tt>
+maintains status information in a binary format
+inside the directory <tt><i>service</i>/supervise</tt>,
+which must be writable to <tt>supervise</tt>.
+The status information can be read by
+<a href="svstat.html">svstat</a>.
+<p>
+<tt>supervise</tt>
+may exit immediately after startup
+if it cannot find the files it needs in <tt><i>service</i></tt>
+or if another copy of <tt>supervise</tt>
+is already running in <tt><i>service</i></tt>.
+Once <tt>supervise</tt> is successfully running,
+it will not exit unless it is killed or specifically asked to exit.
+You can use
+<a href="svok.html">svok</a>
+to check whether <tt>supervise</tt> is successfully running.
+You can use
+<a href="svscan.html">svscan</a>
+to reliably start a collection of <tt>supervise</tt> processes.
+<p>
+Starting in version 0.70:
+<tt>supervise</tt> pauses for a second <i>after</i> starting <tt>./run</tt>.
+<h2>Advice on creating <tt>./run</tt></h2>
+Typically <tt>./run</tt> is a shell script. For example:
+<pre>
+     #!/bin/sh
+     exec clockspeed
+</pre>
+The <tt>exec</tt> here tells <tt>sh</tt>
+to replace itself with <tt>clockspeed</tt>.
+This lets you use <tt>svc</tt> to send signals directly to <tt>clockspeed</tt>.
+<p>
+Note that the service should <i>not</i> run in the background:
+<pre>
+     #!/bin/sh
+     # will be repeatedly restarted by supervise
+     exec clockspeed &amp;
+</pre>
+You can use <a href="fghack.html">fghack</a>
+to let <tt>supervise</tt> monitor (but not control) some programs
+that put themselves into the background:
+<pre>
+     #!/bin/sh
+     exec fghack inetd
+</pre>
+<p>
+If you have root privileges,
+you can use <a href="setuidgid.html">setuidgid</a>
+to run a service under another account:
+<pre>
+     #!/bin/sh
+     exec \
+     setuidgid qmaill \
+     multilog t ./main '-*' '+* status: *' =status
+</pre>
+<p>
+It is generally not a good idea to use shell pipelines:
+<pre>
+     #!/bin/sh
+     generate-crucial-data | save-crucial-data
+</pre>
+If <tt>save-crucial-data</tt> fails to start up,
+any data already written to the pipe by <tt>generate-crucial-data</tt>
+will be discarded.
+You can use <tt>svscan</tt> to reliably start a pipeline of <tt>supervise</tt>
+processes, with
+<pre>
+     #!/bin/sh
+     exec generate-crucial-data
+</pre>
+in <tt>./run</tt>
+and
+<pre>
+     #!/bin/sh
+     exec save-crucial-data
+</pre>
+in <tt>./log/run</tt>.
+<h2>Advice on changing <tt>./run</tt></h2>
+<tt>supervise</tt> may restart <tt>./run</tt> at any moment
+if <tt>./run</tt> suddenly dies,
+so it is not safe to edit <tt>./run</tt> in place
+while the service is up.
+Here are three solutions:
+<ul>
+<li>Edit <tt>./run.new</tt> and atomically rename <tt>./run.new</tt>
+to <tt>./run</tt>.
+Then use <tt>svc -t</tt> to send a TERM signal to the service;
+<tt>supervise</tt> will start the new <tt>./run</tt>
+after the service exits.
+<li>Use <tt>svc -d</tt>
+to send a TERM signal to the service
+and to tell <tt>supervise</tt> not to restart the service.
+Edit <tt>./run</tt>.
+Use <tt>svc -u</tt>
+to tell <tt>supervise</tt> to restart the service.
+<li>Use <tt>svc -o</tt>
+to tell <tt>supervise</tt> not to restart the service.
+Edit <tt>./run</tt>.
+Use <tt>svc -tu</tt> to send a TERM signal to the service
+and to tell <tt>supervise</tt> to restart the service.
+</ul>
+Note that some services,
+including anything using <tt>fghack</tt>,
+cannot be controlled with signals from <tt>supervise</tt>,
+and have to be brought down in other ways.
+<p>
+Sometimes data is piped to <tt>supervise</tt>
+to be processed by <tt>./run</tt>.
+Beware that many programs will discard unprocessed input data
+when they receive a TERM signal.
+The
+<a href="multilog.html">multilog</a>
+program is specially designed to process all data it has read
+before it exits.
+</body>
+</html>

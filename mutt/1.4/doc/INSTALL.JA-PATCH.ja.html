@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="EUC-JP"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=EUC-JP" /><title>Mutt 1.4.2.1i用日本語版パッチインストール方法</title><meta name="generator" content="DocBook XSL Stylesheets V1.61.2" /></head><body><div class="article" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h1 class="title"><a id="id2425019"></a>Mutt 1.4.2.1i用日本語版パッチインストール方法</h1></div><div><div class="authorgroup"><h3 class="corpauthor">mutt-j 開発チーム</h3></div></div><div><p class="copyright">Copyright  © 2000-2001 Oota Toshiya &lt;ribbon@ns.ribbon.or.jp&gt;</p></div><div><p class="copyright">Copyright  © 2000-2001 Kawaguti Ginga &lt;ginga@ginganet.org&gt;</p></div><div><p class="copyright">Copyright  © 2000-2004 TAKIZAWA Takashi &lt;taki@cyber.email.ne.jp&gt;</p></div></div><div></div><hr /></div><div class="toc"><p><b>目次</b></p><dl><dt><a href="#id2430512">必要なもの</a></dt><dd><dl><dt><a href="#id2430517">Mutt日本語版のコンパイル前に取りそろえておくもの</a></dt><dt><a href="#id2432340">Mutt日本語版をコンパイルするため必要なもの</a></dt></dl></dd><dt><a href="#id2432444">インストール方法</a></dt><dd><dl><dt><a href="#id2432450">S-Lang をインストールする</a></dt><dt><a href="#id2432542">libiconv をインストールする</a></dt><dt><a href="#id2432596">Mutt のソースに日本語パッチを当てる</a></dt><dt><a href="#id2432628">./configure に必要なオプションを付けて実行する</a></dt><dt><a href="#id2432759">コンパイル後インストールする</a></dt><dt><a href="#id2432779">日本語版のドキュメントをインストールする</a></dt><dt><a href="#id2430748">メッセージカタログに関する注意事項</a></dt><dt><a href="#id2430769">関連ツールをインストールする</a></dt><dt><a href="#id2430785">送信用プログラムをインストールする</a></dt></dl></dd><dt><a href="#id2430807">設定</a></dt></dl></div><hr /><div class="sect1" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2430512"></a>必要なもの</h2></div></div><div></div></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2430517"></a>Mutt日本語版のコンパイル前に取りそろえておくもの</h3></div></div><div></div></div><p>
+無い場合は修行が必要な物もあります．
+</p><div class="itemizedlist"><ul type="disc"><li><p>GNU automake</p></li><li><p>GNU autoconf</p></li><li><p>GNU m4</p></li><li><p>GNU make(gmake)</p></li><li><p>日本語を表示できるターミナルエミュレータ─と日本語フォント</p></li><li><p>C のプログラミングに関する多少の知識</p></li><li><p>コンパイルが上手くいかなくても自分で修正する根性</p></li><li><p>若干の英語読解力</p></li></ul></div><p>
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2432340"></a>Mutt日本語版をコンパイルするため必要なもの</h3></div></div><div></div></div><div class="itemizedlist"><ul type="disc"><li><p>mutt-1.4.2.1 オリジナルソース</p></li><li><p>mutt-1.4.2.1用日本語パッチ</p></li><li><p>S-Lang</p></li><li><p>文字符号化方式の変換関数 iconv を実装している C ライブラリで日本語の文字符号化方式と UTF-8 に対応しているもの（恐らく，GNU/Linux(glibc-2.2)，Solaris 2.7，AIX 4.3 以上）あるいは GNU libiconv</p></li><li><p>
+ワイド文字関数を実装している C ライブラリで日本語のロケールの実装がまともであるもの．（恐らく，GNU/Linux(glibc-2.2)，Solaris 2.7，AIX 4.3 以上）（無い場合は Mutt 付属のものでもかまわない (*2)）
+</p></li></ul></div><p>
+以上のものは次の URL あるいはこのページからリンクされているページからダウンロードできるようにしています．<a href="http://www.emaillab.org/mutt/" target="_top"><i class="citetitle">http://www.emaillab.org/mutt/</i></a>
+</p><p>
+以上で挙げた他に POP/IMAP over TLS/SSL を使いたい人は OpenSSL を，POP/IMAP でSASL 認証が必要な方は Cyrus SASL Library を，PGP を使いたい人は PGP あるいはGnuPG を，S/MIME を使いたい人は OpenSSL を予めインストールしてください．
+</p><p>
+*2) 簡易的な実装であるため，表示／入力用の文字符号化方式としては EUC-JP かShift_JIS しか扱えません．Mutt 付属のワイド文字関数を使うためには ./configureするときに --without-wc-funcs を指定してください．</p></div></div><hr /><div class="sect1" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2432444"></a>インストール方法</h2></div></div><div></div></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2432450"></a>S-Lang をインストールする</h3></div></div><div></div></div><p>
+すでに，日本語パッチの当った S-Lang がインストールされている，あるいはオリジナルの S-Lang で SLANG_HAS_KANJI_SUPPORT が定義されてインストールされていれば次の項目に移ってください．
+</p><p>
+適当なディレクトリに展開し，そのディレクトリに移ります．オリジナルの S-Lang の場合は src/sl-feat.h を次のように編集して，SLANG_HAS_KANJI_SUPPORT を 1 に定義します．
+</p><p>
+</p><pre class="programlisting">
+    #define SLANG_HAS_KANJI_SUPPORT         1
+</pre><p>
+</p><p>
+コンパイルします．
+</p><p>
+</p><pre class="programlisting">
+    $ ./configure --prefix=/usr/local
+    $ make
+    $ make runtests
+</pre><p>
+</p><p>
+静的ライブラリとしてインストールする場合は次にようにします．
+</p><p>
+</p><pre class="programlisting">
+    # make install
+</pre><p>
+</p><p>
+ELF形式の共有ライブラリとしてインストールする場合はさらに次のようにします．
+</p><p>
+</p><pre class="programlisting">
+    $ make elf
+    # make install-elf
+    # make install-links
+</pre><p>
+</p><p>
+この場合はインストール後に ldconfig などでキャッシュの更新を行なってください．
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2432542"></a>libiconv をインストールする</h3></div></div><div></div></div><p>
+すでに，GNU libiconv が実装されている方および日本語や UTF-8 に完全に対応したiconv を含んでいる C ライブラリを持っている環境方は次の項目に移ってください．ただし，標準の C ライブラリの iconv を使ってもうまくいかない場合は，GNU libiconv を使ってみてください．
+</p><p>
+適当なディレクトリに展開し，そのディレクトリに移り，./configure;make;make install でできます．インストール後に libiconv を使うための環境変数の設定や共有ライブラリのキャッシュの更新(ldconfig)を行ってください．
+</p><p>
+</p><pre class="programlisting">
+  GNU/Linux(glibc-2.1) と Solaris
+      Bsh 系
+        $ LD_PRELOAD=/usr/local/lib/libiconv_plug.so
+        $ export LD_PRELOAD
+      csh 系
+        % setenv LD_PRELOAD /usr/local/lib/libiconv_plug.so
+  その他
+      Bsh 系
+        $ LD_LIBRARY_PATH=/usr/local/lib
+        $ export LD_LIBRARY_PATH
+      csh 系
+        % setenv LD_LIBRARY_PATH /usr/local/lib
+</pre><p>
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2432596"></a>Mutt のソースに日本語パッチを当てる</h3></div></div><div></div></div><p>
+Mutt の tar ball を展開し，日本語パッチを当ててください．
+</p><p>
+例）
+</p><p>
+</p><pre class="programlisting">
+    $ gzip -dc mutt-1.4.2.1i-ja.1.tar.gz | tar xvf -
+    $ gzip -dc mutt-1.4.2.1i.tar.gz | tar xvf -
+    $ cd mutt-1.4.2.1
+    $ patch -p1 &lt; ../mutt-1.4.2.1i-ja.1/patch-1.4.2.1.tt.ja.1
+</pre><p>
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2432628"></a>./configure に必要なオプションを付けて実行する</h3></div></div><div></div></div><p>
+次のオプションは Mutt で日本語を使うために必要です．
+</p><p>
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+--with-libiconv-prefix=DIR
+</p><p>
+GNU libiconv を使う場合はこのオプションを付けないとうまくいかないことがあります．
+</p><p>
+例) --with-libiconv-prefix=/usr/local
+</p></li><li><p>
+--without-wc-funcs
+</p><p>
+ワイド文字関数と日本語のロケールデータがまともに動く環境（恐らく GNU/Linux/glibc-2.2，Solaris 2.7，AIX 4.3 以上）以外の方はこのオプションを忘れずに付けてください．
+</p></li><li><p>
+--with-slang[=DIR]
+</p><p>
+S-Lang を使う場合は必ず付けてください．システムにライブラリとして存在する場合は基本的にはディレクトリを指定する必要はありません．
+</p><p>
+例) --with-slang=/usr/local
+</p></li><li><p>
+--with-slanglib[=NAME]
+</p><p>
+共有ライブラリ名が libslang.so 以外の場合に，このオプションで共有ライブラリ名を指定してください．例えば，共有ライブラリ名のファイル名が libslang-ja.so の場合は以下のように指定します．
+</p><p>
+例) --with-slanglib=slang-ja
+</p></li><li><p>
+--enable-default-japanese
+</p><p>
+設定変数のデフォルト値を日本語を使うために適したものに設定します．このオプションを無効にしても，設定変数を適切に設定すれば日本語を使うことができます．
+</p></li></ul></div><p>
+</p><p>
+./configure にはそのほかにもいくつかのオプションがあります．./configure --help で確認してください．なお，make したときに aclocal，autoconf，automake
+に関連したエラーが出た場合は付属文書の applying-patches.txt を読んでください．
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2432759"></a>コンパイル後インストールする</h3></div></div><div></div></div><p>
+make;make install でいけます．
+</p><p>
+</p><pre class="programlisting">
+    $ make
+    # make install
+</pre><p>
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2432779"></a>日本語版のドキュメントをインストールする</h3></div></div><div></div></div><p>
+まず，オリジナルのMuttのドキュメントがインストールされたディレクトリを確認するために，オリジナルのソースディレクトリで次のコマンドを実行します．
+</p><p>
+</p><pre class="programlisting">
+    $ grep docdir Makefile
+</pre><p>
+</p><p>
+次に，日本語パッチのディレクトリに移動してMakefileのDOCDIRの値を修正し，rootになって，make installを実行します．
+</p><p>
+</p><pre class="programlisting">
+    $ cd ../mutt-1.4.2.1i-ja.1
+    [Makefileを修正]
+    # make install
+</pre><p>
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2430748"></a>メッセージカタログに関する注意事項</h3></div></div><div></div></div><p>
+NEC UX/4800のように，標準のlocaleが変則的なものは，Muttが使う ja locale ディレクトリと標準のディレクトリ(UX/4800シリーズでは japan)をシンボリックリンクしてください．こうすることで，メッセージカタログが正常にに利用できます．
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2430769"></a>関連ツールをインストールする</h3></div></div><div></div></div><p>
+必要なら，urlview と metamail もインストールしてください．Mutt から直接 Web ブラウザを起動したり，色々と便利なことができます．
+</p></div><div class="sect2" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h3 class="title"><a id="id2430785"></a>送信用プログラムをインストールする</h3></div></div><div></div></div><p>
+Muttでは送信に関しては外部プログラムを使います．システムにMTAがインストールされていて，外部のドメインあるいは中継用サーバに送信できる環境であれば，特に別のプログラムをインストールする必要はありません．そうでない場合は，qmail，exim, postfixなどの MTA や Nomail，nullmailer，ssmtp などの送信専用のプログラムをインストールする必要があります．ダイアルアップ環境でしたら Nomail が，常時接続環境であれば ssmtp が設定が簡単です．
+</p></div></div><hr /><div class="sect1" lang="ja" xml:lang="ja"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="id2430807"></a>設定</h2></div></div><div></div></div><p>
+日本語環境の設定は <a href="usage-japanese.ja.html" target="_top">usage-japanese.ja.html</a> をご覧下さい．1.2.x 以前のものも基本的には使えますが，日本語回りでいくつか不具合がでる可能性があるため設定を再確認してください．
+</p><p>
+どうしても日本語の表示がうまくいかないという方は前のインストールの手順を確認し，S-Lang，iconv，ワイド文字関数を使うようになっているかを確かめてください．
+</p></div></div></body></html>

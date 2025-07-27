@@ -1,0 +1,4 @@
+POP before SMTP について
+
+このパッケージは POP before SMTP の機能を提供しています。
+その動作原理は POP の認証が成功したら

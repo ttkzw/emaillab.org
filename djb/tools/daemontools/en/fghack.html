@@ -1,0 +1,39 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>The fghack program</h1>
+<tt>fghack</tt>
+is an anti-backgrounding tool.
+<h2>Interface</h2>
+<pre>
+     fghack <i>child</i>
+</pre>
+<p>
+<tt>fghack</tt>
+runs <tt><i>child</i></tt> with many extra descriptors writing to a pipe.
+<tt>fghack</tt> reads and discards any data written to the pipe.
+After <tt><i>child</i></tt> has exited and the pipe has been closed,
+<tt>fghack</tt> exits.
+<p>
+<tt>fghack</tt> is designed to allow
+<a href="supervise.html">supervise</a>
+to monitor <tt><i>child</i></tt>
+even if <tt><i>child</i></tt> is a silly daemon
+that insists on putting itself into the background.
+Normally <tt>fghack</tt> will not exit until all
+<tt><i>child</i></tt>'s descendants have exited,
+since <tt><i>child</i></tt>'s descendants
+will inherit the open pipe from <tt><i>child</i></tt>.
+However,
+<tt>fghack</tt> will exit early
+if <tt><i>child</i></tt> goes out of its way to close extra descriptors.
+(Some programs close most descriptors but leave stdin open,
+even though they do not use stdin; so you can try
+<pre>
+     fghack <i>child</i> &lt;&amp;-
+</pre>
+from <tt>/bin/sh</tt>.)
+</body>
+</html>

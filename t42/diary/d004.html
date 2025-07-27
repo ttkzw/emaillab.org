@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+<title>Java Mailer T42 Project - diary:004</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../../taki.css">
+</head>
+<body lang="ja">
+<h1>Java Mailer T42 Project</h1>
+<h2>製作日誌</h2>
+<h3>第4回: ディレクトリ構造</h3>
+<p>1999年5月24日</p>
+<hr>
+<p>ディレクトリ構造として次のようなものとする。なお、outbox の下に queue と draft を持って来ようかなという考えもあるが保留中。</p>
+<pre>
+MailDir -+- AccountName1 -+- inbox
+         |                +- outbox
+         |                +- queue
+         |                +- draft
+         |                +- trash
+         |                +- DirMadeByUser -+- SubDir1
+         |                                  +- SubDir2
+         |
+         +- AccountName2 -+- inbox
+         |                +- outbox
+         |                +- queue
+         |                +- draft
+         |                +- trash
+</pre>
+
+<p>主要なディレクトリは次の役割を持つ。</p>
+<dl>
+<dt>inbox
+<dd>他から取得したメッセージを保管するディレクトリ。
+<dt>outbox
+<dd>送信したメッセージを保管するディレクトリ。
+<dt>queue
+<dd>送信待機状態のメッセージを保管するディレクトリ。作成したメッセージはここに保管され、送信されると outbox へ移動する。
+<dt>draft
+<dd>作成中のメッセージを一時保管するディレクトリ。
+<dt>trash
+<dd>削除コマンドが実行されたメッセージを保管するディレクトリ。
+</dl>
+
+<p>各ディレクトリ内にはシーケンスナンバーの付いたメッセージファイル以外には "."(dot) で始まるインデックス情報/設定情報などを納めたファイルを設ける。</p>
+
+<hr>
+<a href="index.html">目次</a>
+</body>
+</html>

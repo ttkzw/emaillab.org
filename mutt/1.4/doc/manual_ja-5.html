@@ -1,0 +1,408 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.20">
+ <TITLE>The Mutt E-Mail Client : Mutt の MIME サポート</TITLE>
+ <LINK HREF="manual_ja-6.html" REL=next>
+ <LINK HREF="manual_ja-4.html" REL=previous>
+ <LINK HREF="manual_ja.html#toc5" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="manual_ja-6.html">次のページ</A>
+<A HREF="manual_ja-4.html">前のページ</A>
+<A HREF="manual_ja.html#toc5">目次へ</A>
+<HR>
+<H2><A NAME="s5">5.</A> <A HREF="manual_ja.html#toc5">Mutt の MIME サポート</A></H2>
+
+<P>Mutt を最高のテキストベースの MIME MUA にするための多大な努力が払われてきました。すべての努力は眼識のある
+MIMEユーザーの要望を実装するように、また可能な限り標準に従うようにするために払われてきました。MIMEの設定を
+Muttで行うために Muttが使う2つの別のタイプのファイルがあります。一つは
+mime.types ファイルでこのファイルはファイルの拡張子と IANA MIME タイプとの対応付けが書かれています。もう一つは
+mailcap ファイルでこれは特定の MIME タイプを扱うのにどの外部コマンドを利用するかを指
+定します。</P>
+<H2><A NAME="ss5.1">5.1</A> <A HREF="manual_ja.html#toc5.1">Mutt で MIME を使う</A>
+</H2>
+
+<P>Mutt には MIME を扱う3つの場所/メニューがあります。ページャー(メールを閲覧する間)、ファイル添付メニュー、メール作成メニューです。</P>
+<H3>ページャーで MIME メールを閲覧する</H3>
+
+<P>インデックスでメールを選択してページャーで閲覧するときに Mutt
+はメールをテキストとして表示するようにデコードします。Mutt は自身でいくつかの
+MIMEタイプをサポートしています。text/plain、text/enriched、message/rfc822、
+message/news に加え、輸出管理されたバージョンの Mutt では PGP/MIME
+と application/pgp を含めさまざまな PGP MIME タイプを理解できます。</P>
+<P>Mutt は添付ファイルをそれらを記述する二つの行とともに示します。これらの行は次の形式です:</P>
+<P>
+<PRE>
+[-- Attachment #1: Description --]  
+[-- Type: text/plain, Encoding: 7bit, Size: 10000 --] 
+</PRE>
+</P>
+<P>Descriptionは添付ファイルに関する説明やファイル名です。Encodingは
+7bit、8bit、quoted-printable、base64、binary のうちのどれかです。</P>
+<P>もし Mutt がある MIME タイプを自分自身では扱うことができない場合次のようなメッセージが表示されます:</P>
+<P>
+<PRE>
+[-- image/gif is unsupported (use 'v' to view this part) --]  
+</PRE>
+</P>
+<H3><A NAME="attach_menu"></A> 添付ファイルメニュー</H3>
+
+<P>添付ファイルを見る機能(view-attachments)へのデフォルトのキー割り当ては
+`v' でそのメールの添付ファイルメニューを表示します。添付ファイルメニューはメールの添付ファイルのリストを表示し、そこから添付ファイルを保存したり印刷したりパイプに通したり削除したり閲覧したりできます。tag-prefix
+演算子を用いて複数の添付ファイルに対してタグつけを行い、これらの操作を複数の添付ファイルにたいして一度にまとめて行うこともできます。また、このメニューで読んでいるメールに対して返事を書くこともでき、その場合はカーソルのある(もしくはタグ付けされている)添付ファイルのみが返事の中で引用されます。添付ファイルをテキストとして閲覧でき、メイルキャップを使ってビューワーを定義して閲覧することもできます。</P>
+<P>また、添付ファイルのタイプが <CODE>message/rfc822</CODE>なら（
+<A HREF="manual_ja-2.html#resend-message">resend-message</A>、リプライ、転送機能のような）普通のメッセージに関連する機能が使えます</P>
+<P>詳しい情報に関しては添付ファイルメニューでのヘルプをご覧下さい。</P>
+<H3><A NAME="compose_menu"></A> メール作成メニュー</H3>
+
+<P>メール作成メニューはメールを送る前に現れるメニューのことです。このメニューではそのメールに関する受信者のリストを編集したりサブジェクトを編集したりそして他のものも編集することができます。本文やメールの添付ファイルのリストを編集することもできます。印刷したり、フィルターをかけたり、パイプに通したり、編集したり、作成したり、もう一度確認のために閲覧したり、一つの添付ファイルもしくはタグ付けされた添付ファイルのリストの名前を変更したりすることが可能です。また添付ファイルに関する情報(特にタイプ、エンコード方式、属性)を変更することもできます。</P>
+<P>添付ファイルは次のよう表示されます。</P>
+<P>
+<PRE>
+-   1 [text/plain, 7bit, 1K]             /tmp/mutt-euler-8082-0 &lt;no description&gt;  
+    2 [applica/x-gunzip, base64, 422K]   ~/src/mutt-0.85.tar.gz &lt;no description&gt; 
+</PRE>
+</P>
+<P>'-' はメールを送信(または送信の延期、キャンセル)した後に Mutt
+がそのファイルを削除することを示してい ます。リンクを外す/つなぐを切り替える(toggle-unlink/初期値:
+u)コマンドを使うことで '-' のオン/オフを切り替えることができます。次のフィールド
+は MIMEのコンテントタイプを示しておりこれはタイプを編集する(edit-type/
+初期値: ^T)コマンドで変更することができます。次のフィールドはファイルのエンコード方式を示しており、バイナリーメールを
+7bit で配送するためにエンコードすることができます。エンコード方式を変更する(edit-encoding/初期値:
+^E)コマンドを使って変更することができます。次のフィールドはファイルサイズでキロバイトかメガバイトに切り捨てられて表示されます。次のフィールドはファイル名でファイル名を変更する
+(rename-file/初期値: R)コマンドで変更することができます。最後のフィールドは添付ファイルの説明で、説明を編集する(edit-description/初期値:
+d)コマンドで変更することができます。</P>
+<H2><A NAME="ss5.2">5.2</A> <A HREF="manual_ja.html#toc5.2">mime.typesファイルを使って MIME タイプの設定を行う</A>
+</H2>
+
+<P>メールにファイルの添付を行った場合、Muttは MIMEタイプファイルを
+<CODE>${HOME}/.mime.types</CODE>に探しに行きそれからシステムの
+MIMEタイプファイルを <CODE>/usr/local/share/mutt/mime.types</CODE> か <CODE>/etc/mime.types</CODE>
+に探しに行きます</P>
+<P>MIME タイプファイルは MIME タイプとスペースで隔てられた拡張子のリストか
+らなる行で構成されます。例えば:</P>
+<P>
+<PRE>
+application/postscript          ps eps  
+application/pgp                 pgp 
+audio/x-aiff                    aif aifc aiff 
+</PRE>
+</P>
+<P>MIMEタイプファイルのサンプルは Muttの配布物に含まれており、使いたい
+MIME タイプのほとんどは含まれているはずです。</P>
+<P>Muttが添付されたファイルの拡張子から MIMEタイプを判断できなければ実際にファイルを見て確認します。ファイルがバイナリーの情報を含んでいなければ
+Muttはファイルをプレインテキストだとみなし、text/plainとマークします。ファイルがバイナリーの情報を含んでいれば
+application/octet-streamとマークします。Mutt が割り振る添付ファイルの
+MIME タイプを <CODE>edit-type</CODE>コマンド(初期値: T)を使って変更することができます。MIMEタイプはメジャー
+MIMEタイプとサブタイプが /で区切られてできています。application、
+text、 image、 video、 audio、それにインターネットでの議論の末あとから加えられた
+modelが6つのメジャータイプです。Muttはこれらすべてを mine.typesファイルに適当な項目があるかぎり認識します。またこれ以外のメジャータイプも認識します。例えば
+chemicalタイプは様々なフォーマットの分子データを色々な分子ビューアに渡すために分子モデルを作る集団ではよく使われています。ただし非標準的な
+MIMEタイプを使うのはメッセージの受取り手がそのような添付ファイルがくるとわかっている場合だけにしてください。</P>
+<H2><A NAME="ss5.3">5.3</A> <A HREF="manual_ja.html#toc5.3">メールキャップファイルを編集して MIME ビューワーを設定する</A>
+</H2>
+
+<P>Muttは RFC 1524の MIMEコンフィギュレーションを特に Unixに特有のフォーマットとして
+RFC 1524の Appendix Aで定義されるものに関してサポートしています。このファイルフォーマットは一般にメールキャップフォーマットと呼ばれます。多くの
+MIME 対応プログラムはメールキャップフォーマットを利用しており、すべてのプログラムでのすべてのMIME
+タイプの扱いを一か所で指定することができるようになっています。Netscape、XMosaic、lynx、metamail等がこのフォーマットを使っています。</P>
+<P>Mutt が内部で扱うことができない様々な MIME タイプを扱うために
+Mutt は一連の外部のコンフィギュレーションファイルを解析して、扱うことができる外部のプログラムを探します。デフォルトのこれらのファイルを検索するための文字列はコロンで分けられたリストで次のようにセットされています。</P>
+<P>
+<PRE>
+${HOME}/.mailcap:/usr/local/share/mutt/mailcap:/etc/mailcap:\
+/etc/mailcap:/usr/etc/mailcap:/usr/local/etc/mailcap
+</PRE>
+</P>
+<P>$HOME はホームディレクトリです。</P>
+<P>特に、metamailの配布物にはメールキャップファイルが含まれており、普通
+は /usr/local/etc/mailcapにインストールされ、これにはいくつかの基本的なエントリーが含まれています。</P>
+<H3>メールキャップファイルの基本</H3>
+
+<P>メールキャップファイルはコメント行、空行、定義行からなる一連の行で構成されます。</P>
+<P>コメント行は # 文字とそれに続く任意の文字で構成されます。</P>
+<P>空行は空の行です。</P>
+<P>定義行はコンテントタイプ、閲覧コマンド、任意の数のオプショナルなフィー
+ルドから構成されます。定義行のそれぞれのフィールドはセミコロン(;)文字で分けられます。</P>
+<P>コンテントタイプは MIME で標準的な タイプ/サブタイプ 方式で指定します。例えば、text/plain、text/html、image/gif等とします。さらに、メールキャップの形式はワイルドカードを二つの形式で記述することができます。一つは
+'*' サブタイプを使う方法でもう一つはメジャータイプのみを記述する方法です。例えば、image/*
+もしくは video はすべての画像タイプとビデオタイプにそれぞれマッチします。</P>
+<P>閲覧コマンドは指定されたタイプを閲覧するための Unixコマンドです。2つの異なるタイプのコマンドがサポートされています。デフォルトでは
+MIMEメッセージのボディー部をコマンドに標準入力として渡します。閲覧コマンドの変数に
+%sを使うことでこの動作を変更することができます。%sを使うと
+Muttは MIMEメッセージのボディー部を一時的なファイルに保存し、それから閲覧コマンドを呼び出します。この時
+%s は一時的なファイルの名前で置き換えられます。どちらの場合でも
+Mutt は閲覧プログラムが終了するまでそのプログラムに端末を渡します。閲覧プログラムが終了したときに一時的なファイ
+ルも(存在すれば)削除されます。</P>
+<P>一番単純な形では、text/plain のメールを外部ページャープログラムの
+more に標準入力として渡すことができます:</P>
+<P>
+<PRE>
+text/plain; more  
+</PRE>
+</P>
+<P>もしくは、メールを一つのファイルとして渡すこともできます:</P>
+<P>
+<PRE>
+text/plain; more %s  
+</PRE>
+</P>
+<P>たぶん text/html のメールを閲覧するのに lynx を呼び出したいでしょう:</P>
+<P>
+<PRE>
+text/html; lynx %s  
+</PRE>
+</P>
+<P>この場合 lynx は標準入力からファイルを閲覧することをサポートしてませんから
+%s 構文を使わなければなりません。</P>
+<P><B>注意</B>: いくらか古いバージョンの lynx には text/html ファイルを閲覧するためにメールキャップファイルをチェックするところにバグがありました。これらのバージョンでは
+lynx を呼び出す行を探してそれを実行します。このため対象を閲覧するために絶え間なく自分自身を起動していたのです。</P>
+<P>一方、lynx を対話的には使いたいのではなく、単に text/html を
+text/plain に変換したいだけかもしれません。そうであれば次のようにしてください:</P>
+<P>
+<PRE>
+text/html; lynx -dump %s | more  
+</PRE>
+</P>
+<P>あるいは text/html ファイルを閲覧する場合は lynx を使って、そのほかのテキスト形式を閲覧するにはページャーを使いたいと思うかもしれません。そうであれば次のようにしてください:</P>
+<P>
+<PRE>
+text/html; lynx %s  
+text/*; more 
+</PRE>
+</P>
+<P>これはメールキャップファイルのもっとも単純な形式です。</P>
+<H3>メールキャップの安全な使い方</H3>
+
+<P>MIMEパラメータの中にあるシェルのメタキャラクタの解釈は一般にセキュリティの問題を引き起こす可能性があります。Muttは
+%s構文の展開で正しくパラメータを引用して危険な文字を代替して取り除こうとします。
+<A HREF="manual_ja-6.html#mailcap_sanitize">mailcap_sanitize</A>変数を見てください。</P>
+<P>Muttはメールキャップからプログラムを実行するのに安全な方法をとっているのですが、他のメールキャップを使うプログラムはそれほど安全性に気をつけていないかも知れません。したがって次のようなことに注意する必要があります。</P>
+<P><B>%変数を引用符で囲まないこと</B><EM>。</EM>引用符(' )、ダブルクオート(&quot;)で%変数を囲まないでください。Muttがメールキャップを使う他のプログラムと同様に正しい方法で行ないます。またバッククオートを使った展開も使わないでください。eval
+文を使うときには特に注意して使うこと。できれば使わないでください。問題を直そうと思ってクオートを導入すると別の問題を引き起こします。</P>
+<P>もし%変数の値がクオートやバッククオートの中に入れなければならない場合は、その値をシェル変数に代入して必要ならその変数を使うようにしてください。次の例では
+$charsetというシェル変数に代入して、それをバッククオートの中で使ってます。こうするとそれ自身がそれ以上の展開の対象にならないので安全です。</P>
+<P>
+<PRE>
+text/test-mailcap-bug; cat %s; copiousoutput; test=charset=%{charset} \   
+        &amp;&amp; test &quot;`echo $charset | tr '[A-Z]' '[a-z]'`&quot; != iso-8859-1 
+</PRE>
+</P>
+<H3>メールキャップの進んだ使い方</H3>
+
+<H3>オプショナルフィールド</H3>
+
+<P>コンテントタイプと閲覧コマンドのフィールドは最低限必要ですが、それに加えてセミコロン
+';' で区切られたフィールドをフラグをセットしたり他のオプションをセットするのに加えることができます。Mutt
+は次のフィールドをサポートしています:</P>
+<P>
+<DL>
+<DT><B>copiousoutput</B><DD><P>このフラグは Mutt にそのコマンドがたくさんの量のテキストを標準出力に渡し得るということを教えます。これによって
+Mutt は閲覧コマンドの出力に対してページャーを起動します(内蔵のページャーを使うか外部のページャーを使うかは
+pager 変数の設定によります)。もしこのフラグがなければ Mutt はそのコマンドが対話的な操作が必要だと判断します。これは基本セクションで示した
+lynx -dump の例での more コマンドへのパ イプを置き換えることができます:
+<PRE>
+text/html; lynx -dump %s ; copiousoutput  
+ 
+</PRE>
+</P>
+</DL>
+</P>
+<P>こうすることで lynx は text/html の出力を text/plain の形式に変換し、
+Mutt はその結果を表示するのに標準のページャーを用います。</P>
+<P>
+<DL>
+<DT><B>needsterminal</B><DD><P>Mutt は自動閲覧機能
+<A HREF="#auto_view">autoview</A>で添付ファイルを閲覧する時に
+<A HREF="manual_ja-6.html#wait_key">$wait_key</A>変数の設 定を使うかどうかを決定するためにこのフラグを使います。もし対話的なプログラムを使って添付ファイルを閲覧し、そして対応するメールキャップエントリーに
+needsterminal フラグがあれば、Mutt は 
+<A HREF="manual_ja-6.html#wait_key">$wait_key</A>変数を使い、そして外部プログラムを終了するときに終了状態によって何かのキーを押すように要求するかどうかを決めます。そのほかのすべての場合では何かのキーを押すように促したりはしません。</P>
+<DT><B>compose=&lt;command&gt;</B><DD><P>このフラグは指定した MIME タイプで新たな添付ファイルを作成する時のコマンドを指定します。Mutt
+はこれをメール作成メニューでサポートしています。</P>
+<DT><B>composetyped=&lt;command&gt;</B><DD><P>このフラグは指定した MIME
+タイプで新たな添付ファイルを作成する時のコマンドを指定します。composeコマンドとの違いはこのコマンドでは
+Muttがそのデータに標準的な MIMEタイプを期待することです。これは特定のパラメーターやファイル名や説明書きなどで使うことができます。
+Muttはこれをメール作成メニューでサポートしています。</P>
+<DT><B>print=&lt;command&gt;</B><DD><P>このフラグは指定した MIMEタイプを印刷するときに使うコマンドを指定します。Muttはこのコマンドをファイル添付メニューとメール作成メニューでサポートしています。</P>
+<DT><B>edit=&lt;command&gt;</B><DD><P>このフラグは指定した MIME タイプを編集する時に使うコマンドを指定します。Mutt
+はこのコマンドをメール作成メニューでサポートしており、また新しい添付ファイルを作成する時にそれを使います。Muttはここで定義されたエディタをテキストの添付ファイルのためのデフォルトにします。</P>
+<DT><B>nametemplate=&lt;template&gt;</B><DD><P>このフィールドはコマンドフィールドで
+%sで示されるファイルの形式を指定します。なんらかのプログラムは、例えば正しく閲覧するのに特定の拡張子を持つファイルであることを要求します。例えば、lynx
+はファイルが .html で終わっている場合のみファイルを text/html として解釈します。ですから
+lynx を text/html を閲覧するコマンドに指定する場合 はメールキャップファイルに次のようにします:
+<PRE>
+text/html; lynx %s; nametemplate=%s.html  
+ 
+</PRE>
+</P>
+<DT><B>test=&lt;command&gt;</B><DD><P>このフィールドは使おうとするメールキャップエントリーを本当に使うべきかどうかを試すコマンドを指定します。コマンドは次のセクションで定義されているコマンド展開ルールで定義します。コマンドが0を返した場合はテストに通ったとされ、Mutt
+はそのエントリーを使います。もしコマンドが0以外の値を返した場合はテストに通らなかったとされ、Mutt
+は正しいエントリーを探し続けます。<B>注意</B>: まずコンテントタイプがマッチしていた場合のみにテストは実行されます。例えば:
+<PRE>
+text/html; netscape -remote 'openURL(%s)' ; test=RunningX  
+text/html; lynx %s 
+ 
+</PRE>
+</P>
+</DL>
+</P>
+<P>この例では Muttは RunningXプログラムを走らせます。このプログラムは
+X Window managerが起動していれば0を返し、そうでなければ0以外の値を返します。RunningX
+が0を返せば Mutt は text/html オブジェクトを表示するのに Netscapeを呼び出し、0以外の値を返せば
+Mutt は次のエントリーに行き、text/html オブジェクトを表示するのに
+lynx を使います。</P>
+<H3>検索順序</H3>
+
+<P>メールキャップファイルの中のエントリーを検索する時、Muttはもっとも目的にかなったエントリーを探します。例えば、もし
+image/gif を印刷しようとしていて次のようなエントリーがメールキャップファイルにあれば
+Mutt は printコマンドを含んでいるエントリーを検索します:</P>
+<P>
+<PRE>
+image/*;        xv %s  
+image/gif;      ; print= anytopnm %s | pnmtops | lpr;  \   
+                nametemplate=%s.gif 
+</PRE>
+</P>
+<P>Mutt は image/* エントリーをスキップして print コマンドを含む
+image/gif エントリーを使います。</P>
+<P>また、添付ファイルを閲覧するために2つのコマンドを指定することでこれを自動閲覧機能
+<A HREF="#auto_view">Autoview</A>といっしょに使うことができます。1つは自動的に閲覧するためのコマンドでもう1つは添付ファイルメニューで対話的に閲覧するためのコマンドです。さらにそれから
+test 機能を利用することで環境にあわせて対話的にビューワー を決めることができます。</P>
+
+<P>
+<PRE>
+text/html;      netscape -remote 'openURL(%s)' ; test=RunningX  
+text/html;      lynx %s; nametemplate=%s.html 
+text/html;      lynx -dump %s; nametemplate=%s.html; copiousoutput 
+</PRE>
+</P>
+<P>copiousoutput タグがついているので自動閲覧
+<A HREF="#auto_view">Autoview</A>するのに Mutt は3番目のエントリーを選択します。対話的に閲覧するのに
+Mutt はまず1番目のエントリーを使うべきかどうか RunningX プログラムを走らせ、もし0以外の値をプログラムが
+返せば2番目のエントリーを使います。</P>
+<H3>コマンドの展開</H3>
+
+<P>メールキャップファイルで定義されている様々なコマンドは system()
+関数を通して /bin/sh シェルに渡されます。コマンドが /bin/sh -c に渡される前に情報を持つ様々な特殊なパラメーターは
+Mutt によって展開されます。Muttが展開するキーワードは:</P>
+<P>
+<DL>
+<DT><B>%s</B><DD><P>メールキャップファイルの基本の章でみたように、この変数は呼び出すプログラムによって指定されたファイル名に展開されます。このファイルは閲覧/印刷/編集するメッセージのボディを含んでおり、もしくは作成プログラムが作成結果に置き換えるメッセージのボディを含んでいます。さらに、このキーワードを使うことで
+Mutt がメッセージのボディを閲覧/印刷/編集するプログラムに標準入力として渡さないようにすることができます。</P>
+<DT><B>%t</B><DD><P>Mutt は %t をメッセージのコンテントタイプのテキスト表示に置き換えます。形式はメールキャップ定義行の始めのパラメーターと同じで、
+text/htmlとか image/gif とかです。</P>
+<DT><B>%{&lt;parameter&gt;}</B><DD><P>Mutt はこれをメールの
+Content-Type: 行の中の指定されたパラメータの値に展開します。例えば、メールが次の行を含んでいると:
+<PRE>
+Content-Type: text/plain; charset=iso-8859-1  
+ 
+</PRE>
+</P>
+</DL>
+</P>
+<P>Mutt は %{charset} を iso-8859-1 に展開します。デフォルトの
+metamail のメールキャップファイルはこの機能をメールを閲覧するのに正しい文字セットを使って
+xterm を起動するために文字セットをチェックするのに使っています。</P>
+<P>
+<DL>
+<DT><B>\%</B><DD><P>は % に置き換えられます。 Mutt は今のところ
+RFC 1524 で定義されている %F と %n キーワードはサポートしていません。これらパラメーターの主な目的は
+Mutt の内部でマルチパートメールを扱うことです。</P>
+</DL>
+</P>
+<H3>メールキャップファイルの例</H3>
+
+<P>このメールキャップファイルはかなり単純でそして標準的なものです:</P>
+<P>
+<HR>
+<PRE>
+# 常に X を起動しています :)
+video/*;        xanim %s &gt; /dev/null 
+image/*;        xv %s &gt; /dev/null 
+# 常に Netscape を起動しています(多くのメモリーがある場合だけでしょう)
+text/html;      netscape -remote 'openURL(%s)'  
+</PRE>
+<HR>
+</P>
+<P>このメールキャップファイルはたくさんの例を示しています:</P>
+<P>
+<HR>
+<PRE>
+# すべてのビデオを閲覧するのに xanim を使い、xanim が起動時に生成するヘ 
+# ッダーをみたくないのでそれを /dev/null に送ります。 
+video/*; xanim %s &gt; /dev/null 
+# HTML をリモートを使って動いている Netscape に送ります。 
+text/html; netscape -remote 'openURL(%s)'; test=RunningNetscape 
+# X は起動していても Netscape は起動していない場合は Netscape を起動して 
+# オブジェクトを閲覧します。 
+text/html; netscape %s; test=RunningX 
+# それ以外は lynx を使ってテキストとして閲覧します。 
+text/html; lynx %s 
+# この書き方では text/html を text/plain に変換します。 
+text/html; lynx -dump %s; copiousoutput
+# enriched.sh は text/enriched を text/html に変換します。それから lynx 
+# -dump を使って text/plain に変換します。 
+text/enriched; enriched.sh ; copiousoutput
+# テキストを印刷するのに enscript コマンドを使って1ページを2列にします
+text/*; more %s; print=enscript -2Gr %s
+# Netscape は JPEG を内部で閲覧するためにフラグを加えます。 
+image/jpeg;xv %s; x-mozilla-flags=internal
+# X を起動していれば画像を閲覧するのに xv を使います。 
+# さらに \ を使って行を分割し、画像を編集するコマンドを指定しています。 
+image/*;xv %s; test=RunningX; \ 
+edit=xpaint %s
+# 画像を netpbm ツールを使ってテキストに変換しています。 
+image/*; (anytopnm %s | pnmscale -xysize 80 46 | ppmtopgm | pgmtopbm |  
+pbmtoascii -1x2 ) 2&gt;&amp;1 ; copiousoutput
+# Excel のスプレッドシートを NT に送っています。 
+application/ms-excel; open.pl %s
+</PRE>
+<HR>
+</P>
+<H2><A NAME="auto_view"></A> <A NAME="ss5.4">5.4</A> <A HREF="manual_ja.html#toc5.4">MIME 自動閲覧</A>
+</H2>
+
+<P>メールキャップファイルで添付ファイルを閲覧するための MIME 閲覧コマンドを
+Mutt に明示的に教えてやる他に、Mutt はページャーの中で MIME 添付ファイルを自動的に閲覧する機能を備えています。</P>
+<P>機能させるにはメールキャップファイルの中で、対話的でないコマンドであることを示す
+copiousoutput オプションを含む閲覧コマンドを指定しなければなりません。また一般的には、ページャーで閲覧できるように添付ファイルをテキスト表示に変換するエントリーを指定することになります。</P>
+<P>それから muttrc で auto_view コマンドを使って自動的に閲覧したいコンテントタイプをリストします。</P>
+<P>例えば、次のように auto_view を指定していると:</P>
+<P>
+<PRE>
+auto_view text/html text/enriched application/x-gunzip applic
+ation/postscript image/gif application/x-tar-gz  
+</PRE>
+</P>
+<P>Mutt は(もしあれば)次のようなメールキャップエントリーをこれらのタイプの添付ファイルを自動的に閲覧するのに使います。</P>
+<P>
+<PRE>
+text/html;      lynx -dump %s; copiousoutput; nametemplate=%s.html  
+text/enriched;  enriched.sh  ; copiousoutput 
+image/*;        anytopnm %s | pnmscale -xsize 80 -ysize 50 | ppmtopgm | pgmtopbm | pbmtoascii ; copiousoutput 
+application/x-gunzip;   gzcat; copiousoutput 
+application/x-tar-gz; gunzip -c %s | tar -tf - ; copiousoutput 
+application/postscript; ps2ascii %s; copiousoutput 
+</PRE>
+</P>
+<H2><A NAME="alternative_order"></A> <A NAME="ss5.5">5.5</A> <A HREF="manual_ja.html#toc5.5">MIME Multipart/Alternative</A>
+</H2>
+
+<P>Mutt は multipart/alternative タイプの添付ファイルを表示するのにいくらか発見的な手法を用いています。まず第一に
+Mutt alternative_order リストをチェックして可能なタイプのうちの一つが設定されていればそれに決めます。alternative_orderはたくさんの
+MIMEタイプを順に並べたリストで、明示的/暗示的なワイルドカードのサポートも含みます。例:</P>
+<P>
+<PRE>
+alternative_order text/enriched text/plain text application/postscript image/*  
+</PRE>
+</P>
+<P>次に Mutt はタイプが 
+<A HREF="#auto_view">auto_view</A>のうちのどれかのタイプで定義されていないかどうかをチェックし、それを使います。それに失敗すると
+Muttはなんらかのテキストタイプを探します。最後に Muttはそれを扱うことができるなんらかのタイプを探そうとします。</P>
+<HR>
+<A HREF="manual_ja-6.html">次のページ</A>
+<A HREF="manual_ja-4.html">前のページ</A>
+<A HREF="manual_ja.html#toc5">目次へ</A>
+</BODY>
+</HTML>

@@ -1,0 +1,48 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../tcpip.html">TCP/IP</a>
+<br><a href="../ucspi-tcp.html">ucspi-tcp</a>
+<h1>The <tt>argv0</tt> program</h1>
+<tt>argv0</tt> runs a program with a specified 0th argument.
+<h2>Interface</h2>
+<pre>
+     argv0 <i>realname</i> <i>zero</i> <i>args</i>
+</pre>
+<tt><i>realname</i></tt> is one argument.
+<tt><i>zero</i></tt> is one argument.
+<tt><i>args</i></tt> is any number of arguments.
+<p>
+<tt>argv0</tt> runs the program stored as <tt><i>realname</i></tt> on disk,
+with <tt><i>zero</i></tt> as the 0th argument
+(rather than <tt><i>realname</i></tt>)
+and <tt><i>args</i></tt> as the remaining arguments.
+<h2>Applications</h2>
+Some programs pay special attention to the 0th argument.
+<tt>argv0</tt> makes these programs usable from shell scripts.
+<p>
+For example,
+<pre>
+     argv0 /bin/csh -csh
+</pre>
+runs <tt>/bin/csh</tt> with a 0th argument of <tt>-csh</tt>.
+<tt>/bin/csh</tt> will think it is a login shell and behave accordingly.
+<p>
+As another example, the command
+<pre>
+     tcpserver 0 ftp argv0 tcpd ftpd -l -A
+</pre>
+has a similar effect to the line
+<pre>
+     ftp stream tcp nowait root tcpd ftpd -l -A
+</pre>
+in <tt>/etc/inetd.conf</tt>.
+The <tt>tcpd</tt> program is run with 0th argument <tt>ftpd</tt>
+and remaining arguments <tt>-l -A</tt>.
+Note that <tt>tcpd</tt> can and should be replaced by the <tt>-x</tt> option of
+<a href="tcpserver.html"><tt>tcpserver</tt></a>:
+<pre>
+     tcpserver -x ftp.tcp 0 ftp ftpd -l -A
+</pre>
+</body>
+</html>

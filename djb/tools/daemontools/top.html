@@ -1,0 +1,53 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>daemontools</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<h1><a href="http://cr.yp.to/daemontools.html">daemontools</a></h1>
+<a href="install.html">daemontools のインストール</a>
+<br><a href="upgrade.html">以前のバージョンの daemontools からのアップグレード</a>
+<p>
+<a href="supervise.html">supervise プログラム</a>
+<br><a href="svc.html">svc プログラム</a>
+<br><a href="svok.html">svok プログラム</a>
+<br><a href="svstat.html">svstat プログラム</a>
+<br><a href="svscan.html">svscan プログラム</a>
+<br><a href="fghack.html">fghack プログラム</a>
+<p>
+<a href="multilog.html">multilog プログラム</a>
+<br><a href="tai64n.html">tai64n プログラム</a>
+<br><a href="tai64nlocal.html">tai64nlocal プログラム</a>
+<p>
+<a href="setuidgid.html">setuidgid プログラム</a>
+<br><a href="envuidgid.html">envuidgid プログラム</a>
+<br><a href="envdir.html">envdir プログラム</a>
+<br><a href="softlimit.html">softlimit プログラム</a>
+<br><a href="setlock.html">setlock プログラム</a>
+<hr>
+daemontools のロギング・ユーティリティについては
+<a href="http://cr.yp.to/lists.html#log">log mailing list</a>
+で議論されています。
+<p>
+<h2>それは何か？</h2>
+daemontools は UNIX のサービスを管理するツール集です。
+<p>
+<tt>supervise</tt> はサービスを監視します。
+サービスを起動させ、そのサービスが死んだら再起動させます。
+新しいサービスの設定は簡単です:
+サービスを動かすスクリプト <tt>run</tt> のあるディレクトリさえあれば、<tt>supervise</tt> はサービスを起動できます。
+
+<p>
+<tt>multilog</tt> はエラーメッセージを一つ以上のログに保存します。
+各行にタイムスタンプを付けたり、各ログに特定のパターンに一致した行を含めたり除いたりすることもできます。
+ディスクスペースの使用量を制限するために自動的にログを循環させます。
+ディスクがいっぱいになったら、一旦停止して再び書き込もうとし、データを失うことはありません。
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Wed Apr 19 14:10:20 2000
+<!-- hhmts end -->
+</body>
+</html>

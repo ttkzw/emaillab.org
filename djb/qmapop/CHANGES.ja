@@ -1,0 +1,18 @@
+0.1: Initial version.
+
+0.2: Update for use with qmail-1.00.
+
+0.3: Improved addpopbox script.
+
+0.4: このバージョンから滝澤による改変。
+     qmail-1.03 に対応。
+     checkpassword-0.81 に基づいて checkpassword を改変。
+     仮想メイルボックスへの配送は users/assign を利用。
+     Russell Nelson 氏の opensmtp パッケージをマージ。
+
+0.5: checkpassword の改良。
+     APOP認証と平文認証を併用可にした。
+     ユーザ登録用スクリプト addpopbox, delpopbox を作成。
+
+0.51: 各種日本語ドキュメントの追加。
+      APOP の強制方法を環境変数を使う方法に変更。

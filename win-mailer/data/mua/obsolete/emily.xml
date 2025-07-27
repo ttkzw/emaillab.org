@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="EUC-JP"?>
+<product name="Emily">
+<basic-information>
+  <name>Emily</name>
+  <version>2.0.10</version>
+  <person-company>(株)アイフォー</person-company>
+  <uri>http://www.ifour.co.jp/emily/documents/index.htm</uri>
+  <distribution>package</distribution>
+  <price>10000, 14,800(Ver.2.0+)</price>
+  <release>
+    <year>2000<year>
+    <month>4</month>
+    <day>4</day>
+  </release>
+</basic-information>
+
+<header>
+  <message-id>
+    <is-generated>no</is-generated>
+    <uniqueness></uniqueness>
+    <comment></comment>
+  </message-id>
+  <date>
+    <is-generated>yes</is-generated>
+  </date>
+  <in-reply-to>
+    <is-generated>yes</is-generated>
+  </in-reply-to>
+  <references>
+    <is-generated>yes</is-generated>
+  </references>
+  <content-disposition>
+    <is-generated></is-generated>
+  </content-disposition>
+  <mediatype>
+    <suitable-mediatype></suitable-mediatype>
+    <mediatype-parameter></mediatype-parameter>
+  </mediatype>
+</header>
+
+<japanese>
+  <jisx0201kana>全角に変換</jisx0201kana>
+  <os-dependent-char>そのまま</os-dependent-char>
+  <subject-encoding>partial</subject-encoding>
+  <filename-encoding>B</filename-encoding>
+  <rfc2231-decoding></rfc2231-decoding>
+</japanese>
+
+
+<cipher>
+  <pgp>
+    <is-implemented>no</is-implemented>
+    <pgp-version></pgp-version>
+    <pgp-mime></pgp-mime>
+  </pgp>
+  <smime>
+    <is-implemented>no</is-implemented>
+  </smime>
+  <tls>
+    <smtp>no</smtp>
+    <pop>no</pop>
+    <imap></imap>
+  </tls>
+</cipher>
+
+
+<other-specifications>
+  <binary-encode>base64, uuencode, uuencode, quoted-printable</binary-encode>
+  <smtp>
+    <is-implemented>yes</is-implemented>
+    <pop-before-smtp>incomplete</pop-before-smtp>
+    <authentication>no</authentication>
+  </smtp>
+  <pop>
+    <is-implemented>yes</is-implemented>
+    <authentication>plain</authentication>
+  </pop>
+  <imap>
+    <is-implemented>no</is-implemented>
+    <authentication></authentication>
+  </imap>
+  <ldap>
+    <is-implemented>no</is-implemented>
+    <jp-char></jp-char>
+  </ldap>
+</other-specifications>
+
+<note>
+</note>
+</product>

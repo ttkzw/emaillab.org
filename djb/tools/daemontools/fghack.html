@@ -1,0 +1,37 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The fghack program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<br><a href="top.html">daemontools</a>
+<h1><a href="http://cr.yp.to/daemontools/fghack.html">fghack プログラム</a></h1>
+<tt>fghack</tt>
+はバックグランドに移るのを防ぐツールです。
+
+<h2>使い方</h2>
+<pre>
+     fghack <i>child</i>
+</pre>
+<p>
+<tt>fghack</tt> はパイプへ書き込むたくさんの特別な記述子と共に <tt><i>child</i></tt> を起動させます。
+<tt>fghack</tt> はパイプへ書き込まれるデータを読んだり捨てたりします。
+<tt><i>child</i></tt> が終了し、パイプが閉じられた後に <tt>fghack</tt> は終了します。
+
+<p>
+<tt>fghack</tt> は <tt><i>child</i></tt> が自らをバックグランドに移らせる馬鹿なデーモンであってさえも、<a href="supervise.html">supervise</a> が <tt><i>child</i></tt> を監視できるように設計されています。
+通常 <tt>fghack</tt> は全ての <tt><i>child</i></tt> の子孫が終了するまで終了しません。<tt><i>child</i></tt> の子孫が <tt><i>child</i></tt> からの開いているパイプを受け継いでいるからです。
+しかし、<tt><i>child</i></tt> が特別な記述子を閉じる方法をなくせば、<tt>fghack</tt> は早く終了するでしょう。（標準入力を使わないものでさえ、大抵の記述子は閉じるものの標準入力を開いたままにするプログラムがあります。<tt>/bin/sh</tt> から次のコマンドを試すことができます。
+<pre>
+     fghack <i>child</i> &lt;&amp;-
+</pre>
+）
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Apr 16 18:27:49 2000
+<!-- hhmts end -->
+</body>
+</html>

@@ -1,0 +1,229 @@
+diff -uNr mutt-1.5.14.orig/charset.c mutt-1.5.14/charset.c
+--- mutt-1.5.14.orig/charset.c	2006-05-19 02:34:07.000000000 +0900
++++ mutt-1.5.14/charset.c	2007-02-26 00:01:28.000000000 +0900
+@@ -282,6 +282,19 @@
+   return !ascii_strcasecmp (buffer, chs);
+ }
+ 
++char *mutt_get_default_charset ()
++{
++  static char fcharset[SHORT_STRING];
++  const char *c = AssumedCharset;
++  const char *c1;
++
++  if (c && *c) {
++    c1 = strchr (c, ':');
++    strfcpy (fcharset, c, c1 ? (c1 - c + 1) : sizeof (fcharset));
++    return fcharset;
++  }
++  return strcpy (fcharset, "us-ascii"); /* __STRCPY_CHECKED__ */
++}
+ 
+ #ifndef HAVE_ICONV
+ 
+diff -uNr mutt-1.5.14.orig/charset.h mutt-1.5.14/charset.h
+--- mutt-1.5.14.orig/charset.h	2005-09-18 05:18:23.000000000 +0900
++++ mutt-1.5.14/charset.h	2007-02-26 00:01:28.000000000 +0900
+@@ -47,6 +47,7 @@
+ void fgetconv_close (FGETCONV **);
+ 
+ void mutt_set_langinfo_charset (void);
++char *mutt_get_default_charset ();
+ 
+ #define M_ICONV_HOOK_FROM 1
+ #define M_ICONV_HOOK_TO   2
+diff -uNr mutt-1.5.14.orig/globals.h mutt-1.5.14/globals.h
+--- mutt-1.5.14.orig/globals.h	2007-01-31 04:49:02.000000000 +0900
++++ mutt-1.5.14/globals.h	2007-02-26 00:01:28.000000000 +0900
+@@ -33,6 +33,7 @@
+ 
+ WHERE char *AliasFile;
+ WHERE char *AliasFmt;
++WHERE char *AssumedCharset;
+ WHERE char *AttachSep;
+ WHERE char *Attribution;
+ WHERE char *AttachFormat;
+diff -uNr mutt-1.5.14.orig/handler.c mutt-1.5.14/handler.c
+--- mutt-1.5.14.orig/handler.c	2005-12-17 03:46:59.000000000 +0900
++++ mutt-1.5.14/handler.c	2007-02-26 00:01:28.000000000 +0900
+@@ -1746,6 +1746,8 @@
+   if (istext && s->flags & M_CHARCONV)
+   {
+     char *charset = mutt_get_parameter ("charset", b->parameter);
++    if (!charset && AssumedCharset && *AssumedCharset)
++      charset = mutt_get_default_charset ();
+     if (charset && Charset)
+       cd = mutt_iconv_open (Charset, charset, M_ICONV_HOOK_FROM);
+   }
+diff -uNr mutt-1.5.14.orig/init.h mutt-1.5.14/init.h
+--- mutt-1.5.14.orig/init.h	2006-11-21 02:49:08.000000000 +0900
++++ mutt-1.5.14/init.h	2007-02-26 00:01:28.000000000 +0900
+@@ -215,6 +215,22 @@
+   ** If set, Mutt will prompt you for carbon-copy (Cc) recipients before
+   ** editing the body of an outgoing message.
+   */  
++  { "assumed_charset", DT_STR, R_NONE, UL &AssumedCharset, UL 0},
++  /*
++  ** .pp
++  ** This variable is a colon-separated list of character encoding
++  ** schemes for messages without character encoding indication.
++  ** Header field values and message body content without character encoding
++  ** indication would be assumed that they are written in one of this list.
++  ** By default, all the header fields and message body without any charset
++  ** indication are assumed to be in "us-ascii".
++  ** .pp
++  ** For example, Japanese users might prefer this:
++  ** .pp
++  **   set assumed_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
++  ** .pp
++  ** However, only the first content is valid for the message body.
++  */
+   { "attach_format",	DT_STR,  R_NONE, UL &AttachFormat, UL "%u%D%I %t%4n %T%.40d%> [%.7m/%.10M, %.6e%?C?, %C?, %s] " },
+   /*
+   ** .pp
+diff -uNr mutt-1.5.14.orig/parse.c mutt-1.5.14/parse.c
+--- mutt-1.5.14.orig/parse.c	2006-04-30 04:10:54.000000000 +0900
++++ mutt-1.5.14/parse.c	2007-02-26 00:01:28.000000000 +0900
+@@ -213,9 +213,23 @@
+ 
+       if (*s == '"')
+       {
++        int state_ascii = 1;
+ 	s++;
+-	for (i=0; *s && *s != '"' && i < sizeof (buffer) - 1; i++, s++)
++	for (i=0; *s && i < sizeof (buffer) - 1; i++, s++)
+ 	{
++	  if (AssumedCharset && *AssumedCharset) {
++            /* As iso-2022-* has a characer of '"' with non-ascii state,
++	     * ignore it. */
++            if (*s == 0x1b && i < sizeof (buffer) - 2)
++            {
++              if (s[1] == '(' && (s[2] == 'B' || s[2] == 'J'))
++                state_ascii = 1;
++              else
++                state_ascii = 0;
++            }
++          }
++          if (state_ascii && *s == '"')
++            break;
+ 	  if (*s == '\\')
+ 	  {
+ 	    /* Quote the next character */
+@@ -388,7 +402,9 @@
+   if (ct->type == TYPETEXT)
+   {
+     if (!(pc = mutt_get_parameter ("charset", ct->parameter)))
+-      mutt_set_parameter ("charset", "us-ascii", &ct->parameter);
++      mutt_set_parameter ("charset", (AssumedCharset && *AssumedCharset) ?
++                         (const char *) mutt_get_default_charset ()
++                         : "us-ascii", &ct->parameter);
+   }
+ 
+ }
+diff -uNr mutt-1.5.14.orig/rfc2047.c mutt-1.5.14/rfc2047.c
+--- mutt-1.5.14.orig/rfc2047.c	2006-07-18 10:19:28.000000000 +0900
++++ mutt-1.5.14/rfc2047.c	2007-02-26 00:01:28.000000000 +0900
+@@ -87,6 +87,43 @@
+   return n;
+ }
+ 
++int convert_nonmime_string (char **ps)
++{
++  const char *c, *c1;
++
++  for (c = AssumedCharset; c; c = c1 ? c1 + 1 : 0)
++  {
++    char *u = *ps;
++    char *s;
++    char *fromcode;
++    size_t m, n;
++    size_t ulen = mutt_strlen (*ps);
++    size_t slen;
++
++    if (!u || !*u)
++      return 0;
++
++    c1 = strchr (c, ':');
++    n = c1 ? c1 - c : mutt_strlen (c);
++    if (!n)
++      return 0;
++    fromcode = safe_malloc (n + 1);
++    strfcpy (fromcode, c, n + 1);
++    m = convert_string (u, ulen, fromcode, Charset, &s, &slen);
++    FREE (&fromcode);
++    if (m != (size_t)(-1))
++    {
++      FREE (ps);
++      *ps = s;
++      return 0;
++    }
++  }
++  mutt_convert_string (ps,
++      (const char *)mutt_get_default_charset (AssumedCharset),
++      Charset, M_ICONV_HOOK_FROM);
++  return -1;
++}
++
+ char *mutt_choose_charset (const char *fromcode, const char *charsets,
+ 		      char *u, size_t ulen, char **d, size_t *dlen)
+ {
+@@ -734,6 +771,21 @@
+     if (!(p = find_encoded_word (s, &q)))
+     {
+       /* no encoded words */
++      if (AssumedCharset && *AssumedCharset)
++      {
++	char *t;
++	size_t tlen;
++
++	n = mutt_strlen (s);
++	t = safe_malloc (n + 1);
++	strfcpy (t, s, n + 1);
++	convert_nonmime_string (&t);
++	tlen = mutt_strlen (t);
++	strncpy (d, t, tlen);
++	d += tlen;
++	FREE (&t);
++	break;
++      }
+       strncpy (d, s, dlen);
+       d += dlen;
+       break;
+@@ -771,7 +823,8 @@
+ {
+   while (a)
+   {
+-    if (a->personal && strstr (a->personal, "=?") != NULL)
++    if (a->personal && ((strstr (a->personal, "=?") != NULL) || 
++			(AssumedCharset && *AssumedCharset)))
+       rfc2047_decode (&a->personal);
+ #ifdef EXACT_ADDRESS
+     if (a->val && strstr (a->val, "=?") != NULL)
+diff -uNr mutt-1.5.14.orig/rfc2047.h mutt-1.5.14/rfc2047.h
+--- mutt-1.5.14.orig/rfc2047.h	2005-09-18 05:18:23.000000000 +0900
++++ mutt-1.5.14/rfc2047.h	2007-02-26 00:01:28.000000000 +0900
+@@ -18,6 +18,7 @@
+ 
+ char *mutt_choose_charset (const char *fromcode, const char *charsets,
+ 		      char *u, size_t ulen, char **d, size_t *dlen);
++int convert_nonmime_string (char **);
+ 
+ void _rfc2047_encode_string (char **, int, int);
+ void rfc2047_encode_adrlist (ADDRESS *, const char *);
+diff -uNr mutt-1.5.14.orig/rfc2231.c mutt-1.5.14/rfc2231.c
+--- mutt-1.5.14.orig/rfc2231.c	2006-07-18 10:19:28.000000000 +0900
++++ mutt-1.5.14/rfc2231.c	2007-02-26 00:01:28.000000000 +0900
+@@ -117,6 +117,8 @@
+ 
+       if (option (OPTRFC2047PARAMS) && p->value && strstr (p->value, "=?"))
+ 	rfc2047_decode (&p->value);
++      else if (AssumedCharset && *AssumedCharset)
++        convert_nonmime_string (&p->value);
+ 
+       *last = p;
+       last = &p->next;
+diff -uNr mutt-1.5.14.orig/PATCHES mutt-1.5.14/PATCHES
+--- mutt-1.5.14.orig/PATCHES	2006-10-30 11:30:55.000000000 +0900
++++ mutt-1.5.14/PATCHES	2007-02-26 00:01:37.000000000 +0900
+@@ -0,0 +1 @@
++patch-1.5.14.tt+tamo.assumed_charset.1

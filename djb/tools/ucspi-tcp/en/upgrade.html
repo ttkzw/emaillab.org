@@ -1,0 +1,68 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../tcpip.html">TCP/IP</a>
+<br><a href="../ucspi-tcp.html">ucspi-tcp</a>
+<h1>Upgrading from previous versions of ucspi-tcp</h1>
+<h2>0.84 to 0.86 or 0.87</h2>
+There are sweeping internal changes in 0.86;
+almost all of the code has been rewritten.
+<p>
+<tt>tcpclient</tt>, <tt>tcpserver</tt>, and <tt>rblsmtpd</tt>
+now use the DNS library from 
+<a href="../djbdns.html">djbdns</a>
+to perform DNS lookups.
+This improves reliability, reduces memory consumption, and adds new
+<a href="../djbdns/qualify.html">name-qualification features</a>.
+It's conceivable, however,
+that someone is relying on some other client feature
+provided by the system's <tt>res</tt> routines
+but not by my library.
+If you notice any differences in DNS behavior, please let me know.
+<p>
+The <tt>tcprulescheck</tt> interface has changed.
+It now uses environment variables instead of command-line arguments.
+<p>
+The <tt>-R</tt> option to <tt>rblsmtpd</tt> is now called <tt>-c</tt>.
+If you're using <tt>-b</tt> or <tt>-c</tt>,
+make sure that they appear <i>before</i> <tt>-r</tt>.
+<p>
+The old <tt>antirbl</tt> program is gone.
+You should convert an <tt>rblsmtpd</tt>+<tt>antirbl</tt> chain
+to a single <tt>rblsmtpd</tt>
+with a series of <tt>-r</tt> and <tt>-a</tt> options.
+<p>
+The old <tt>fixcr</tt> program is gone.
+There's a new, easier-to-use <tt>fixcrio</tt> program.
+<p>
+All the programs now use my <tt>pathexec</tt> library to run other programs,
+instead of <tt>execvp</tt>.
+If you've written a shell script without <tt>#!/bin/sh</tt>,
+and you're relying on <tt>execvp</tt> to invoke <tt>/bin/sh</tt> anyway,
+you'll have to insert <tt>#!/bin/sh</tt> at the top of the script
+to make it work with <tt>pathexec</tt> (or <tt>execve</tt>).
+<p>
+<tt>http@</tt> now does a slightly better imitation of a browser:
+it sends <tt>Host</tt> to the HTTP server.
+In some cases this changes the response.
+<p>
+Future versions of <tt>tcpclient</tt> and <tt>tcpserver</tt>
+may use <tt>-D</tt> by default.
+If you want <tt>-d</tt> for some reason, set it explicitly.
+<p>
+<tt>tcpserver</tt> has a new <tt>-U</tt> option
+that reads environment variables set by
+<a href="../daemontools/envuidgid.html">envuidgid</a>.
+You will probably want to use this in place of <tt>-u</tt> and <tt>-g</tt>
+so that you don't have to copy numeric uids and gids.
+<h2>0.86 or 0.87 to 0.88</h2>
+<tt>tcpclient</tt> uses a new strategy for connecting to multiple IP addresses:
+it tries each address with a 2-second timeout,
+then retries the addresses that timed out with a 58-second timeout.
+This drastically reduces latency when some of the addresses are unresponsive.
+(A system-supported connect-to-multiple-addresses feature
+would be even better.)
+It's conceivable, however,
+that someone is relying on the old behavior.
+</body>
+</html>

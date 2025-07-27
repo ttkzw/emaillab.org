@@ -1,0 +1,84 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>How to install cdb</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/data.html">Data structures</a>
+<br><a href="top.html">cdb</a>
+<h1><a href="http://cr.yp.to/cdb/install.html">cdb のインストール</a></h1>
+他のソフトウェアと情報一般と同様に、cdb には保証書は付いていません。
+
+<h2>必要なシステム</h2>
+cdb は UNIX でしか動きません。
+
+<h2>インストール</h2>
+cdb パッケージをダウンロードしてください。
+cdb パッケージの最新版は
+<a href="cdb-0.75.tar.gz">cdb-0.75.tar.gz</a>.
+です。
+<p>
+cdb パッケージを展開してください:
+<pre>
+     gunzip cdb-0.75.tar
+     tar -xf cdb-0.75.tar
+     cd cdb-0.75
+</pre>
+<p>
+cdb プログラムをコンパイルしてください:
+<pre>
+     make
+</pre>
+<p>
+ルートになって、<tt>/usr/local</tt> に cdb プログラムをインストールしてください:
+<pre>
+     make setup check
+</pre>
+<h2>自動試験</h2>
+このテストを行うためには <a href="../daemontools/softlimit.html"><tt>softlimit</tt></a> （訳注：daemontools パッケージに含まれています）が必要です:
+<pre>
+     make rts
+     ./rts &gt; rts.out
+     cmp rts.out rts.exp
+</pre>
+普通は何も出力しません。
+<p>
+（バージョン0.75から含まれている）rts は動作に時間がかかることに気をつけてください。例えば、Pentium II-350 では155秒かかります。（<tt>/dev/null</tt> へ3つの4GBのデータベースを書き込んでいます。）
+
+<h2>手動試験</h2>
+<tt>/etc/services</tt> からデータベースを作成してください:
+<pre>
+     ./cdbmake-sv test.cdb test.tmp < /etc/services
+</pre>
+データベースを試験するために <a href="cdbstats.html"><tt>cdbtest</tt></a> を使用してください:
+<pre>
+     ./cdbtest < test.cdb
+</pre>
+<tt>bad length</tt> と <tt>not found</tt> 記録は 0 になるはずです。
+<tt>/etc/services</tt> に複数行で同じサービスが載っていなければ、<tt>different record</tt> の記録は 0 になるはずです。
+<p>
+データベースから特定のレコードの取り出してみましょう:
+<pre>
+     ./cdbget smtp/tcp < test.cdb && echo ''
+     ./cdbget @25/tcp < test.cdb && echo ''
+</pre>
+データベースの統計情報を出力してみましょう:
+<pre>
+     ./cdbstats < test.cdb
+</pre>
+数値は <tt>d0</tt> を過ぎたら急速に減少するはずです。
+<p>
+成功を報告したいときは:
+<pre>
+     ( echo 'First M. Last'; cat `cat SYSDEPS` ) \
+     | mail djb-sysdeps@cr.yp.to
+</pre>
+<tt>First M. Last</tt> をあなたの名前で置き換えてください。
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat Mar 18 09:48:50 2000
+<!-- hhmts end -->
+</body>
+</html>

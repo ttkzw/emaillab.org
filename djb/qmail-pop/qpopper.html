@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="iso-2022-jp"?>
+<?xml-stylesheet href="../djb.css" type="text/css"?>
+<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<title>Qpopper</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp" />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="../djb.css" />
+</head>
+<body>
+<h1>Qpopper</h1>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sun May 14 10:19:21 2000
+<!-- hhmts end -->
+</div>
+<hr />
+<h2><a id="toc" name="toc">目次</a></h2>
+<ul class="toc">
+<li><a href="#chap1">1. Qpopper とは</a></li>
+<li><a href="#chap2">2. インストール</a></li>
+</ul>
+
+<hr />
+<h2><a id="chap1" name="chap1">1. Qpopper とは</a></h2>
+<p>Qpopper とは Berkeley "popper" を Qualcomm 社が拡張した POP3 サーバです。最新版 3.0 ではかなり機能の拡張がなされており RFC 1939 と RFC 2449 を完全実装しています。恐らく、POP3 サーバとしては最も高機能のものの一つであります（現状のクライアントがそこまで要求しているかはともかくとして）。</p>
+
+<p>しかし、Qpopper にはときどきセキュリティホールが見つかります。特に、2.41 以前および3.0 beta 21 以前には重大なセキュリティホールが見つかっています。そのため、Qpopper を使うのであれば常に最新版の動向をつかむ必要があります。参考までに <a href="http://www.cert.org/">CERT/CC</a> や <a href="http://www.securityfocus.com/">SecurityFocus (BAGTRAQ)</a> などで 2000年5月7日現在で報告されたものの一覧を載せます。要は最新版以外のものは使うべきではないということです。</p>
+<ul>
+<li><a href="http://www.cert.org/advisories/CA-98.08.qpopper_vul.html">CERT Advisory CA-98.08 "Buffer overflows in some POP servers"</a></li>
+<li><a href="http://www.securityfocus.com/bid/133">1998-06-27: Qualcomm POP Server Buffer Overflow Vulnerability</a></li>
+<li><a href="http://www.securityfocus.com/bid/830">1999-11-30: Qualcomm qpopper Remote Buffer Overflow Vulnerability</a></li>
+<li><a href="http://www.securityfocus.com/bid/948">2000-01-26: Qualcomm qpopper 'LIST' Buffer Overflow Vulnerability</a></li>
+<li><a href="http://www.securityfocus.com/bid/1132">2000-04-19: Multiple Vendor popd Lock File Denial of Service Vulnerability</a></li>
+<li><a href="http://www.securityfocus.com/bid/1133">2000-04-21: Qualcomm Qpopper Unsafe fgets() Vulnerability</a></li>
+</ul>
+
+<p>なお、3.0 から加わった新しい機能の主だったものを並べてみます。詳細は doc/Release.Notes を読んでください。</p>
+<ul>
+  <li>RFC 2449 のサポート(CAPA, X-MANGLE, LOGIN-DELAY and EXPIRE)</li>
+  <li>SASL をサポート(SCRAM-MD5 のみ)
+  <li>クライアントのIPアドレスの逆引きを無効化</li>
+  <li>RETR したメッセージの自動削除</li>
+  <li>home directory でのスプールファイルの指定（以前はソースコードを直接編集する必要があった。つまり、qmail の ~/Mailbox への対応が楽になった）</li>
+  <li>POP before SMTP 用の認証ログの出力（MTA が対応していなければ意味がないが）</li>
+  <li>PAM のサポート</li>
+  <li>UW IMAP の status message (最初に入っている邪魔な奴:-))を隠蔽</li>
+</ul>
+
+<hr />
+<h2><a id="chap2" name="chap2">2. インストール</a></h2>
+<h3>方針</h3>
+<p>ここでは、次の条件のもとでインストールを行うことにします。</p>
+<ul>
+  <li>認証には APOP のみを用いる。</li>
+  <li>MTA に qmail を用いる。つまり、スプールファイルは ~/Mailbox になるということ。なお、qmail の Maildir 形式のスプールは Qpopper では使えません。</li>
+</ul>
+
+<h3>インストール方法</h3>
+<p>Qualcomm 社の<a href="http://www.eudora.com/freeware/qpop.html">Qpopper Home Page</a> あるいはミラーサイト（国内であれば、<a href="http://ring.gr.jp/pub/net/mail/qpopper/">RingServer</a> がお勧め）からパッケージを取得してください。2000年5月7日時点での最新版は 3.0.1 です。</p>
+
+<p>パッケージを展開します。</p>
+<div class="example">
+<kbd>
+$ uncompress qpopper3.0.1.tar.Z<br />
+$ tar xvf qpopper3.0.1.tar<br />
+$ cd qpopper3.0.1
+</kbd>
+</div>
+<p>README, INSTALL を読みます。</p>
+<p>APOP 用のアカウント pop を追加します。
+<p>コンパイルしてインストールします。</p>
+<div class="example">
+<kbd>
+$ ./configure --enable-apop=/etc/pop.auth --with-popuid=pop \ <br />
+  --enable-home-dir-mail=Mailbox <br />
+$ make<br />
+# cp popper/popper /usr/local/lib<br />
+# cp popper/popauth /usr/local/bin<br />
+# cp man/*.8 /usr/local/man/man8<br />
+# chown pop /usr/local/bin/popauth<br />
+# chmod u+s /usr/local/bin/popauth
+</kbd>
+</div>
+<p>APOP データベースの初期化を行います。</p>
+<div class="example">
+<kbd># popauth -init</kbd>
+</div>
+<p>/etc/service に次の行があることを確認します。</p>
+<div class="example">
+<samp>pop3 &#0008; 110/tcp</samp>
+</div>
+<p>inetd から popper を起動するのであれば、/etc/inetd.conf に次の行を設定し、起動している inetd に対して SIGHUP を送ってください。この例では tcpd 経由で起動させているので、tcpd の設定(hosts.allow, hosts.deny)も合わせて行ってください。</p>
+<div class="example">
+<samp>pop3 stream tcp nowait root /usr/sbin/tcpd /usr/local/lib/popper -s</samp>
+</div>
+
+<p>tcpserver と daemontools を組み合わせて、popper を起動するのであれば、次のような ./run を作ってください。詳しくは <cite><a href="../daemontools/daemontools-howto.html">daemontools-HOW-TO</a></cite> をご覧下さい。</p>
+<pre class="example">
+#!/bin/sh
+#  qpopper
+exec env - PATH="/usr/local/lib:$PATH" \
+tcpserver -vR -c 40 -xtcp.cdb -u 0 -g 0 0 pop3 popper -s 2&gt;&amp;1
+</pre>
+
+<hr />
+<p>
+<a href="index.html">qmail と POP</a> 
+</p>
+<hr />
+</body>
+</html>

@@ -1,0 +1,124 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The tcprules program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<br><a href="top.html">ucspi-tcp</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp/tcprules.html"><tt>tcprules</tt> プログラム</a></h1>
+<tt>tcprules</tt> は <a href="tcpserver.html"><tt>tcpserver</tt></a> 用の規則をコンパイルします。
+
+<h2>使い方</h2>
+<pre>
+     tcprules <i>cdb</i> <i>tmp</i>
+</pre>
+<p>
+<tt>tcpserver</tt> では TCP 接続を許可するかどうかを決めるために規則が書けます。
+例えば、
+<pre>
+     18.23.0.32:deny
+</pre>
+という規則は IP アドレス 18.23.0.32 からの接続を禁止します。
+
+<p>
+<tt>tcprules</tt> は標準入力から規則を読み、<tt>tcpserver</tt> が高速アクセスできるようなバイナリ形式で <tt><i>cdb</i></tt> に書き出します。
+
+<p>
+<tt>tcprules</tt> は <tt>tcpserver</tt> が動作中でも使えます。
+<tt><i>cdb</i></tt> がアトミックに更新されることを保証します。
+まず始めに <tt><i>tmp</i></tt> に規則を書き、それから <tt><i>cdb</i></tt> として <tt><i>tmp</i></tt> を移動します。
+<tt><i>tmp</i></tt> がすでに存在していたら、壊されます。
+<tt><i>cdb</i></tt> と <tt><i>tmp</i></tt> を含むディレクトリは <tt>tcprules</tt> にとって書き込み可能でなければなりません。
+また同一ファイルシステム上になければなりません。
+
+<p>
+入力 や <tt><i>tmp</i></tt>に問題があれば、<tt>tcprules</tt> はメッセージを出し、<tt><i>cdb</i></tt> を変更せずに終了します。
+
+<p>
+バイナリ <tt><i>cdb</i></tt> 形式はマシン間で可搬性があります。
+
+<h2>規則形式</h2>
+規則は一行ずつ取り扱われます。
+規則のファイルはコメントも含められます。
+<tt>#</tt> で始まる行は無視されます。
+
+<p>
+各規則は余計なスペースを含めずに、<b>アドレス</b>、コロン、<b>命令</b>の一覧の順に書きます。
+<tt>tcpserver</tt> がそのアドレスから接続されると、その命令に従います。
+
+<h2>アドレス</h2>
+<tt>tcpserver</tt> は様々なアドレスで規則を探します:
+<ol>
+<li><tt>$TCPREMOTEINFO@$TCPREMOTEIP</tt> (<tt>$TCPREMOTEINFO</tt> が設定されていれば)
+<li><tt>$TCPREMOTEINFO@=$TCPREMOTEHOST</tt> (<tt>$TCPREMOTEINFO</tt> と <tt>$TCPREMOTEHOST</tt> が設定されていれば)
+<li><tt>$TCPREMOTEIP</tt>
+<li><tt>=$TCPREMOTEHOST</tt> (<tt>$TCPREMOTEHOST</tt> が設定されていれば)
+<li>ドットで終っている <tt>$TCPREMOTEIP</tt> のさらに短いプレフィックス
+<li>= の後に続き、ドットで始まっている <tt>$TCPREMOTEHOST</tt> のさらに短いサフィックス (<tt>$TCPREMOTEHOST</tt> が設定されていれば)
+<li><tt>=</tt> (<tt>$TCPREMOTEHOST</tt> が設定されていれば)
+<li>空文字
+</ol>
+<tt>tcpserver</tt> は初めに見つかったの規則を使用します。
+ここで <tt>$TCPREMOTEHOST</tt> に頼った規則を用いる場合は、<tt>tcpserver</tt> に <tt>-p</tt> オプションを付けて使うべきです。
+
+<p>
+例えば、次のような規則があったとします:
+<pre>
+     joe@127.0.0.1:first
+     18.23.0.32:second
+     :third
+     127.:fourth
+</pre>
+<tt>$TCPREMOTEIP</tt> が <tt>10.119.75.38</tt> であれば、<tt>tcpserver</tt> は <tt>third</tt> の命令に従うでしょう。
+
+<p>
+<tt>$TCPREMOTEIP</tt> が <tt>18.23.0.32</tt> であれば、<tt>tcpserver</tt> は <tt>second</tt> の命令に従うでしょう。
+
+<p>
+<tt>$TCPREMOTEIP</tt> が <tt>127.0.0.1</tt> であり、<tt>$TCPREMOTEINFO</tt> が <tt>bill</tt> であれば、<tt>tcpserver</tt> は <tt>fourth</tt> の命令に従うでしょう。
+
+<p>
+<tt>$TCPREMOTEIP</tt> が <tt>127.0.0.1</tt> であり、<tt>$TCPREMOTEINFO</tt> が <tt>joe</tt> であれば、<tt>tcpserver</tt> は <tt>first</tt> の命令に従うでしょう。
+
+<p>
+<a href="tcprulescheck.html"><tt>tcprulescheck</tt></a> を使えば、<tt>tcpserver</tt> が <tt><i>cdb</i></tt> の規則をどのように解釈しているかわかります。
+
+<h2>アドレス範囲</h2>
+<tt>tcprules</tt> は <tt>1.2.3.37-53:ins</tt> を <tt>1.2.3.37:ins</tt>, <tt>1.2.3.38:ins</tt> そして、<tt>1.2.3.53:ins</tt> までの規則の省略形として扱います。
+同様に、<tt>10.2-3.:ins</tt> は <tt>10.2.:ins</tt> と <tt>10.3.:ins</tt> の省略形です。
+
+<h2>命令</h2>
+規則における命令は <tt>allow</tt> か <tt>deny</tt> のどちらかで始めなければなりません。
+<tt>deny</tt> は <tt>tcpserver</tt> が何も起動せずに接続を切るように命令します。
+例えば、規則
+<pre>
+     :deny
+</pre>
+は他のどの規則も適応されなかったアドレスからの接続を切るように <tt>tcpserver</tt> に命令します。
+
+<p>
+命令は <tt><i>var</i>="<i>x</i>"</tt> という形式でいくつかの環境変数を設定して続けられます。
+<tt>tcpserver</tt> は <tt><i>x</i></tt> という値を持つ環境変数 <tt>$<i>var</i></tt> を付け加えます。
+例えば、
+<pre>
+     10.0.:allow,RELAYCLIENT="@fix.me"
+</pre>
+は <tt>@fix.me</tt> という値を持った環境変数 <tt>$RELAYCLIENT</tt> を付け加えます。
+ここで引用符は次のように繰り返される任意の文字で置き換えてかまいません。
+<pre>
+     10.0.:allow,RELAYCLIENT=/@fix.me/
+</pre>
+次のように変数は何個でも並べることができます:
+<pre>
+     127.0.0.1:allow,RELAYCLIENT="",TCPLOCALHOST="movie.edu"
+</pre>
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Nov 19 22:15:38 2000
+<!-- hhmts end -->
+</body>
+</html>

@@ -1,0 +1,12 @@
+diff -ur Text-MeCab-0.12.orig/tools/probe_mecab.pl Text-MeCab-0.12/tools/probe_mecab.pl
+--- Text-MeCab-0.12.orig/tools/probe_mecab.pl	2006-07-15 12:36:27.000000000 +0900
++++ Text-MeCab-0.12/tools/probe_mecab.pl	2006-07-15 21:53:36.000000000 +0900
+@@ -92,7 +92,7 @@
+     print "No linker flags specified\n";
+ }
+ 
+-my $encoding = 'euc-jp';
++my $encoding = 'utf8';
+ print 
+     "Text::MeCab needs to know what encoding you built your dictionary with\n",
+     "to properly execute tests.\n",

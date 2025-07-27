@@ -1,0 +1,82 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>How to install daemontools</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/unix.html">UNIX</a>
+<br><a href="top.html">daemontools</a>
+<h1><a href="http://cr.yp.to/daemontools/install.html">daemontools のインストール</a></h1>
+他のソフトウェアと情報一般と同様に、daemontools には保証書は付いていません。
+
+<h2>必要なシステム</h2>
+daemontools は UNIX でしか動きません。
+
+<h2>インストール</h2>
+daemontools パッケージをダウンロードしてください。
+daemontools パッケージの最新バージョンは
+<a href="daemontools-0.70.tar.gz">daemontools-0.70.tar.gz</a>.
+です。
+<p>
+daemontools パッケージを展開してください:
+<pre>
+     gunzip daemontools-0.70.tar
+     tar -xf daemontools-0.70.tar
+     cd daemontools-0.70
+</pre>
+<p>
+daemontools をインストールする場所を決めてください。
+デフォルトは <tt>/usr/local</tt> です。
+このディレクトリを変えるためには、すぐに <tt>conf-home</tt> を編集してください。
+<p>
+daemontools プログラムをコンパイルしてください:
+<pre>
+     make
+</pre>
+<p>
+ルートになって、daemontools プログラムをインストールしてください:
+<pre>
+     make setup check
+</pre>
+<p>
+最後に、<a href="svscan.html#boot"><tt>/service</tt> で <tt>svscan</tt> を開始してください。</a>
+他のパッケージは新しいサービスを開始したり、リブート時にサービスを再開したりする <tt>svscan</tt> に依存します。
+
+<h2>試験</h2>
+自動試験を試してください:
+<pre>
+     ./rts &gt; rts.out
+     cmp rts.out rts.exp
+</pre>
+普通は何も出力しません。
+例外: SVR4 亜種の中には同じプロセスによる同じファイルの複数の排他ロックを許可するものもあります。そのため、``already locked''試験は失敗します。<tt>rts</tt> の次のバージョンではこの馬鹿げたものでも動くようになるでしょう。
+<p>
+タイムスタンプを確かめてください:
+<pre>
+     date | ./tai64n | ./tai64nlocal
+     date | sh -c './multilog t e 2&gt;&amp;1' | ./tai64nlocal
+</pre>
+その出力は次のようなものなるはずです。
+<pre>
+     1999-08-24 11:56:13.847803500 Tue Aug 24 11:56:13 CDT 1999
+     1999-08-24 11:56:21.418571500 Tue Aug 24 11:56:21 CDT 1999
+</pre>
+各行の始まりの日時は各行の終りの日時と同じになるか、または端数がとても小さければ1秒後になるはずです。
+
+<p>
+成功を報告したいときは:
+<pre>
+     ( echo 'First M. Last'; cat VERSION systype \
+     direntry.h fork.h hasflock.h hasmkffo.h hassgact.h \
+     hasshsgr.h haswaitp.h iopause.h select.h uint64.h ) \
+     | mail djb-sysdeps@cr.yp.to
+</pre>
+<tt>First M. Last</tt> をあなたの名前で置き換えてください。
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat May  6 14:37:01 2000
+<!-- hhmts end -->
+</body>
+</html>

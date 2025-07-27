@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="EUC-JP"?>
+<product name="">
+<basic-information>
+  <name></name>
+  <version></version>
+  <person-company></person-company>
+  <uri></uri>
+  <distribution></distribution>
+  <price></price>
+  <release>
+    <year></year>
+    <month></month>
+    <day></day>
+  </release>
+</basic-information>
+
+<header>
+  <message-id>
+    <is-generated></is-generated>
+    <uniqueness></uniqueness>
+    <comment></comment>
+  </message-id>
+  <date>
+    <is-generated></is-generated>
+  </date>
+  <in-reply-to>
+    <is-generated></is-generated>
+  </in-reply-to>
+  <references>
+    <is-generated></is-generated>
+  </references>
+  <content-disposition>
+    <is-generated></is-generated>
+  </content-disposition>
+  <mediatype>
+    <suitable-mediatype></suitable-mediatype>
+    <mediatype-parameter></mediatype-parameter>
+  </mediatype>
+</header>
+
+<japanese>
+  <jisx0201kana></jisx0201kana>
+  <os-dependent-char></os-dependent-char>
+  <subject-encoding></subject-encoding>
+  <filename-encoding></filename-encoding>
+  <rfc2231-decoding></rfc2231-decoding>
+</japanese>
+
+<cipher>
+  <pgp>
+    <is-implemented></is-implemented>
+    <pgp-version></pgp-version>
+    <pgp-mime></pgp-mime>
+  </pgp>
+  <smime>
+    <is-implemented></is-implemented>
+  </smime>
+  <tls>
+    <smtp></smtp>
+    <pop></pop>
+    <imap></imap>
+  </tls>
+</cipher>
+
+<other-specifications>
+  <binary-encode></binary-encode>
+  <smtp>
+    <is-implemented></is-implemented>
+    <pop-before-smtp></pop-before-smtp>
+    <authentication></authentication>
+  </smtp>
+  <pop>
+    <is-implemented></is-implemented>
+    <authentication></authentication>
+  </pop>
+  <imap>
+    <is-implemented></is-implemented>
+    <authentication></authentication>
+  </imap>
+  <ldap>
+    <is-implemented></is-implemented>
+    <jp-char></jp-char>
+  </ldap>
+</other-specifications>
+
+<note>
+</note>
+</product>

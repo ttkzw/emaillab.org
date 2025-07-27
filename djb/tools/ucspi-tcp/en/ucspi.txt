@@ -1,0 +1,131 @@
+UNIX Client-Server Program Interface, UCSPI-1996
+Copyright 1996
+D. J. Bernstein, djb@pobox.com
+
+
+1. Introduction
+
+This document describes the UNIX Client-Server Program Interface, UCSPI
+(ooks-pie), a command-line interface to client-server communications
+tools.
+
+UCSPI provides several benefits. First, the UCSPI interface is
+independent of the underlying communications medium; UCSPI applications
+don't even have to be recompiled as the Internet upgrades from IPv4 to
+IPv6. Second, UCSPI lets shell scripts take advantage of networking.
+Third, UCSPI clients and servers conventionally set up environment
+variables that display the local and remote addresses, so the
+information is readily available to applications and users.
+
+Here is the general UCSPI framework. An UCSPI tool is a program that
+understands how to talk to some communications medium. It sets up two
+descriptors and then invokes an UCSPI application, which can read from
+one descriptor and write to the other. Every communications medium
+provides reliable two-way full-duplex strictly ordered not necessarily
+timed stream communication. Some media may provide other types of
+communication, such as expedited (``out-of-band'') transmission, in
+which the stream is no longer ordered, but most UCSPI applications are
+medium-independent and do not rely on such features.
+
+
+2. Tools
+
+UCSPI tools are executable programs. They accept command lines in the
+following general format:
+
+   [tool] [options] [address] [application]
+
+Here [tool] is the name of the tool, [options] are zero or more option
+arguments, [address] is a protocol-specific address, and [application]
+is a user-specified program to run for each connection.
+
+[options] are processed by the getopt standard; thus an argument of --
+terminates [options]. [tool] supports three options to control how
+much information it prints to stderr:
+
+   -v all available messages
+   -Q all available error messages; no messages in case of success
+   -q no messages in any case
+
+The default is -Q; later arguments override earlier arguments. [tool]
+may support many further options.
+
+[application] consists of one or more arguments, handled by the
+conventions of execvp(). [tool] passes on all [application] arguments
+without change, no matter what characters appear in those arguments.
+
+[tool] always changes certain file descriptors, as described in section
+3, and environment variables, as described in section 4, before
+executing [application].
+
+[tool] might fork before executing [application], and it might reset
+some signals that were previously ignored. Other than this, [tool] does
+not change its process state before executing [application].
+
+[tool] does not assume that any particular descriptors are open or
+closed upon entry. [tool] does not force itself into the background; nor
+does it attempt to detach from a controlling terminal.
+
+If [tool] cannot perform its functions, it exits with a nonzero code.
+
+
+3. Clients and servers
+
+There are two types of UCSPI tools: clients and servers.
+
+An UCSPI client closes descriptors 6 and 7 and connects to a server at
+[address]. Upon connecting, it spawns [application] with descriptor 6
+reading from the connection and descriptor 7 writing to the connection.
+The client does not make any further connections. When [application]
+dies, the client dies; the client exits with a zero code if and only if
+[application] exited with a zero code.
+
+An UCSPI server closes descriptors 0 and 1 and waits for a client to
+connect to [address]. Upon accepting a connection, it spawns
+[application] with descriptor 0 reading from the connection and
+descriptor 1 writing to the connection. Meanwhile, and subsequently, it
+continues accepting connections to [address]. If the server receives
+signal SIGTERM, it exits with code 0; this does not affect any current
+connections.
+
+
+4. Protocols
+
+Each UCSPI tool supports a protocol. A protocol definition provides
+three pieces of information: the name of the protocol; the format and
+meaning of [address]; and the environment variables set up by the tool.
+
+A protocol name is a sequence of one or more alphanumeric characters.
+See section 5 for information about the allocation of protocol names.
+
+A protocol definition always states the number of arguments taken by
+[address] and the allowed form for each argument. It also states an
+underlying communications medium to be used by the tool, and gives the
+interpretation of [address] in terms of that medium.
+
+Each tool passes the following environment variables to [application]:
+PROTO=[PROTO], the name of the supported protocol; zero or more
+variables beginning with [PROTO]LOCAL, as stated in the protocol
+definition; and zero or more variables beginning with [PROTO]REMOTE, as
+stated in the protocol definition. For clients, [PROTO]LOCAL variables
+give information about the client, and [PROTO]REMOTE variables give
+information about the server; vice versa for servers.
+
+Protocol definitions may specify environment variables that, in some
+situations, are not set. Those variables might be set upon entry to an
+UCSPI tool; if so, they must be unset, not passed along.
+
+A protocol definition may impose further requirements on clients and
+servers, such as supported options, forking behavior, and the nature of
+the descriptors passed to [application].
+
+
+5. Protocol management
+
+Public protocol definitions may be registered with me. I may refuse a
+registration request on the grounds of a namespace problem, but in that
+case I will suggest an acceptable replacement name.
+
+Protocol names beginning with x will be parcelled out to organizations
+that would like to define their own protocols. Protocol names beginning
+with X are reserved for experimental use.

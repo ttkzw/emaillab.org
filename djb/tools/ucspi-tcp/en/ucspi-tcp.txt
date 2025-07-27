@@ -1,0 +1,45 @@
+TCP UCSPI protocol definition
+Copyright 1996
+D. J. Bernstein, djb@pobox.com
+
+
+This document defines the TCP protocol for UCSPI-1996 tools. A TCP
+client communicates with a TCP server, on the same machine or on a
+different machine, via the TCP/IP protocol through an Internet-domain
+socket. The descriptors passed to a TCP UCSPI application are copies of
+that socket, dup()ed from a single connect() or accept().
+
+[address] consists of two arguments: [hostname] [port].
+
+There are three possibilities for [hostname]: the number 0, referring to
+the local host; a dotted-decimal IP address, such as 192.48.96.5; or a
+name understood by the system's resolver, such as mail.uu.net. TCP UCSPI
+servers use only the first IP address from the resolver; TCP UCSPI
+clients try each address in turn.
+
+There are three possibilities for [port]: a positive numeric TCP port
+number, such as 25; the number 0, which permits selection of any port
+number; or a name understood by the system's getservbyname(), such as
+smtp.
+
+The client and server set up the following environment variables:
+
+   PROTO: the string TCP
+   TCPLOCALIP: the dotted-decimal IP address of the local host
+   TCPLOCALPORT: the local TCP port number, in decimal
+   TCPREMOTEIP: the dotted-decimal IP address of the remote host
+   TCPREMOTEPORT: the remote TCP port number, in decimal
+   TCPLOCALHOST, if possible: the resolver's name for TCPLOCALIP
+   TCPREMOTEHOST, if possible: the resolver's name for TCPREMOTEIP
+   TCPREMOTEINFO, if possible: the result of a 931/1413/IDENT/TAP query
+
+Uppercase letters in TCPLOCALHOST and TCPREMOTEHOST are converted to
+lowercase. TCPREMOTEINFO is a connection-specific string supplied by the
+remote host via 931/1413/IDENT/TAP.
+
+TCP UCSPI tools take a -R option to turn off 931/1413/IDENT/TAP
+querying, and a -r option to turn it back on. TCP UCSPI clients take a
+-p [locport] option to require a particular TCP port on the local side
+of the connection. TCP UCSPI servers take a -1 option to print the local
+port number (in decimal, followed by a newline) to descriptor 1 before
+closing descriptor 1 and after preparing to receive connections.

@@ -1,0 +1,29 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../tcpip.html">TCP/IP</a>
+<br><a href="../ucspi-tcp.html">ucspi-tcp</a>
+<h1>The <tt>who@</tt> program</h1>
+<tt>who@</tt> prints the list of active users on a remote host.
+<h2>Interface</h2>
+<pre>
+     who@ <i>host</i>
+</pre>
+<tt>who@</tt> connects to TCP port 11 (Systat)
+on <tt><i>host</i></tt>
+and prints any data it receives.
+It removes CR (\015) and converts unprintable characters
+to a visible format.
+<p>
+If <tt><i>host</i></tt> is not supplied,
+<tt>who@</tt> connects to the local host.
+<p>
+Some computers respond to port 11
+with a list of active users.
+For example, they may be running
+<pre>
+     tcpserver -RHl0 0 11 who
+</pre>
+using <a href="tcpserver.html"><tt>tcpserver</tt></a>.
+</body>
+</html>

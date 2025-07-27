@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.20">
+ <TITLE>The Mutt E-Mail Client </TITLE>
+ <LINK HREF="manual_ja-1.html" REL=next>
+
+
+</HEAD>
+<BODY>
+<A HREF="manual_ja-1.html">次のページ</A>
+前のページ
+目次へ
+<HR>
+<H1>The Mutt E-Mail Client </H1>
+
+<H2>by Michael Elkins 
+<A HREF="mailto:me@cs.hmc.edu">&lt;me@cs.hmc.edu></A></H2>version 1.4
+<HR>
+<EM>``All mail clients suck.  This one just sucks less.'' -me, circa
+ 1995 </EM>
+<HR>
+<P>
+<H2><A NAME="toc1">1.</A> <A HREF="manual_ja-1.html">イントロダクション</A></H2>
+
+<UL>
+<LI><A NAME="toc1.1">1.1</A> <A HREF="manual_ja-1.html#ss1.1">Muttのホームページ</A>
+<LI><A NAME="toc1.2">1.2</A> <A HREF="manual_ja-1.html#ss1.2">メーリングリスト</A>
+<LI><A NAME="toc1.3">1.3</A> <A HREF="manual_ja-1.html#ss1.3">ソフトウエア配布サイト</A>
+<LI><A NAME="toc1.4">1.4</A> <A HREF="manual_ja-1.html#ss1.4">IRC </A>
+<LI><A NAME="toc1.5">1.5</A> <A HREF="manual_ja-1.html#ss1.5">USENET </A>
+<LI><A NAME="toc1.6">1.6</A> <A HREF="manual_ja-1.html#ss1.6">Copyright </A>
+</UL>
+<P>
+<H2><A NAME="toc2">2.</A> <A HREF="manual_ja-2.html">さあ始めよう</A></H2>
+
+<UL>
+<LI><A NAME="toc2.1">2.1</A> <A HREF="manual_ja-2.html#ss2.1">メニュー内の移動</A>
+<LI><A NAME="toc2.2">2.2</A> <A HREF="manual_ja-2.html#ss2.2">入力フィールドを編集する</A>
+<LI><A NAME="toc2.3">2.3</A> <A HREF="manual_ja-2.html#ss2.3">メールを読む - インデックスとぺージャー</A>
+<LI><A NAME="toc2.4">2.4</A> <A HREF="manual_ja-2.html#ss2.4">メールを送る</A>
+<LI><A NAME="toc2.5">2.5</A> <A HREF="manual_ja-2.html#ss2.5">メールの転送と中継</A>
+<LI><A NAME="toc2.6">2.6</A> <A HREF="manual_ja-2.html#ss2.6">メールの送信を延期する</A>
+</UL>
+<P>
+<H2><A NAME="toc3">3.</A> <A HREF="manual_ja-3.html">設定</A></H2>
+
+<UL>
+<LI><A NAME="toc3.1">3.1</A> <A HREF="manual_ja-3.html#ss3.1">初期化ファイルの構文</A>
+<LI><A NAME="toc3.2">3.2</A> <A HREF="manual_ja-3.html#ss3.2">エイリアスを定義/使用する</A>
+<LI><A NAME="toc3.3">3.3</A> <A HREF="manual_ja-3.html#ss3.3">デフォルトのキーバインディングを変更する</A>
+<LI><A NAME="toc3.4">3.4</A> <A HREF="manual_ja-3.html#ss3.4">文字セットのエイリアスを定義する </A>
+<LI><A NAME="toc3.5">3.5</A> <A HREF="manual_ja-3.html#ss3.5">メールボックスに関係する変数の設定</A>
+<LI><A NAME="toc3.6">3.6</A> <A HREF="manual_ja-3.html#ss3.6">キーボードマクロ</A>
+<LI><A NAME="toc3.7">3.7</A> <A HREF="manual_ja-3.html#ss3.7">色属性と白黒属性を使う</A>
+<LI><A NAME="toc3.8">3.8</A> <A HREF="manual_ja-3.html#ss3.8">不要なメールヘッダを隠す</A>
+<LI><A NAME="toc3.9">3.9</A> <A HREF="manual_ja-3.html#ss3.9">メーリングリスト</A>
+<LI><A NAME="toc3.10">3.10</A> <A HREF="manual_ja-3.html#ss3.10">複数のスプールするメールボックスを使う</A>
+<LI><A NAME="toc3.11">3.11</A> <A HREF="manual_ja-3.html#ss3.11">メールを取り込むメールボックスを定義する</A>
+<LI><A NAME="toc3.12">3.12</A> <A HREF="manual_ja-3.html#ss3.12">ユーザが定義するへッダ</A>
+<LI><A NAME="toc3.13">3.13</A> <A HREF="manual_ja-3.html#ss3.13">メールを閲覧する時のヘッダの並び方を決める</A>
+<LI><A NAME="toc3.14">3.14</A> <A HREF="manual_ja-3.html#ss3.14">セーブする時のデフォルトのファイル名を指定する</A>
+<LI><A NAME="toc3.15">3.15</A> <A HREF="manual_ja-3.html#ss3.15">Fcc:としてセーブするデフォルトのメールボックスを指定する</A>
+<LI><A NAME="toc3.16">3.16</A> <A HREF="manual_ja-3.html#ss3.16">セーブするファイル名のデフォルトと Fcc: するメールボックスのデフォルトを一度に指定する。</A>
+<LI><A NAME="toc3.17">3.17</A> <A HREF="manual_ja-3.html#ss3.17">メールの宛先によって設定を変更する</A>
+<LI><A NAME="toc3.18">3.18</A> <A HREF="manual_ja-3.html#ss3.18">メッセージを整形する前に設定を変える</A>
+<LI><A NAME="toc3.19">3.19</A> <A HREF="manual_ja-3.html#ss3.19">受取人の PGP キーを選ぶ</A>
+<LI><A NAME="toc3.20">3.20</A> <A HREF="manual_ja-3.html#ss3.20">一連のキーをキーボードバッファーに加える</A>
+<LI><A NAME="toc3.21">3.21</A> <A HREF="manual_ja-3.html#ss3.21">関数の実行</A>
+<LI><A NAME="toc3.22">3.22</A> <A HREF="manual_ja-3.html#ss3.22">メールにスコア付けする</A>
+<LI><A NAME="toc3.23">3.23</A> <A HREF="manual_ja-3.html#ss3.23">変数を設定する</A>
+<LI><A NAME="toc3.24">3.24</A> <A HREF="manual_ja-3.html#ss3.24">他のファイルから初期化コマンドを読み込む</A>
+<LI><A NAME="toc3.25">3.25</A> <A HREF="manual_ja-3.html#ss3.25">フックを取り除く</A>
+</UL>
+<P>
+<H2><A NAME="toc4">4.</A> <A HREF="manual_ja-4.html">高度な使い方</A></H2>
+
+<UL>
+<LI><A NAME="toc4.1">4.1</A> <A HREF="manual_ja-4.html#ss4.1">正規表現</A>
+<LI><A NAME="toc4.2">4.2</A> <A HREF="manual_ja-4.html#ss4.2">パターン</A>
+<LI><A NAME="toc4.3">4.3</A> <A HREF="manual_ja-4.html#ss4.3">タグを使う</A>
+<LI><A NAME="toc4.4">4.4</A> <A HREF="manual_ja-4.html#ss4.4">フックを使う</A>
+<LI><A NAME="toc4.5">4.5</A> <A HREF="manual_ja-4.html#ss4.5">外部にアドレスを問い合わせる</A>
+<LI><A NAME="toc4.6">4.6</A> <A HREF="manual_ja-4.html#ss4.6">メールボックスの形式</A>
+<LI><A NAME="toc4.7">4.7</A> <A HREF="manual_ja-4.html#ss4.7">メールボックスへのショートカット</A>
+<LI><A NAME="toc4.8">4.8</A> <A HREF="manual_ja-4.html#ss4.8">メーリングリストを扱う</A>
+<LI><A NAME="toc4.9">4.9</A> <A HREF="manual_ja-4.html#ss4.9">配送状態の通知(DSN)のサポート</A>
+<LI><A NAME="toc4.10">4.10</A> <A HREF="manual_ja-4.html#ss4.10">POP3 サポート(オプション)</A>
+<LI><A NAME="toc4.11">4.11</A> <A HREF="manual_ja-4.html#ss4.11">IMAP サポート(オプション)</A>
+<LI><A NAME="toc4.12">4.12</A> <A HREF="manual_ja-4.html#ss4.12">複数の IMAP/POP アカウントを使う (OPTIONAL)</A>
+<LI><A NAME="toc4.13">4.13</A> <A HREF="manual_ja-4.html#ss4.13">WWW ブラウザーを起動して URL の場所に行く</A>
+</UL>
+<P>
+<H2><A NAME="toc5">5.</A> <A HREF="manual_ja-5.html">Mutt の MIME サポート</A></H2>
+
+<UL>
+<LI><A NAME="toc5.1">5.1</A> <A HREF="manual_ja-5.html#ss5.1">Mutt で MIME を使う</A>
+<LI><A NAME="toc5.2">5.2</A> <A HREF="manual_ja-5.html#ss5.2">mime.typesファイルを使って MIME タイプの設定を行う</A>
+<LI><A NAME="toc5.3">5.3</A> <A HREF="manual_ja-5.html#ss5.3">メールキャップファイルを編集して MIME ビューワーを設定する</A>
+<LI><A NAME="toc5.4">5.4</A> <A HREF="manual_ja-5.html#ss5.4">MIME 自動閲覧</A>
+<LI><A NAME="toc5.5">5.5</A> <A HREF="manual_ja-5.html#ss5.5">MIME Multipart/Alternative</A>
+</UL>
+<P>
+<H2><A NAME="toc6">6.</A> <A HREF="manual_ja-6.html">Reference </A></H2>
+
+<UL>
+<LI><A NAME="toc6.1">6.1</A> <A HREF="manual_ja-6.html#ss6.1">コマンドラインオプション</A>
+<LI><A NAME="toc6.2">6.2</A> <A HREF="manual_ja-6.html#ss6.2">設定コマンド</A>
+<LI><A NAME="toc6.3">6.3</A> <A HREF="manual_ja-6.html#ss6.3">設定用変数</A>
+<LI><A NAME="toc6.4">6.4</A> <A HREF="manual_ja-6.html#ss6.4">Functions</A>
+</UL>
+<P>
+<H2><A NAME="toc7">7.</A> <A HREF="manual_ja-7.html">Miscellany </A></H2>
+
+<UL>
+<LI><A NAME="toc7.1">7.1</A> <A HREF="manual_ja-7.html#ss7.1">Acknowledgements </A>
+<LI><A NAME="toc7.2">7.2</A> <A HREF="manual_ja-7.html#ss7.2">この文章について</A>
+</UL>
+<HR>
+<A HREF="manual_ja-1.html">次のページ</A>
+前のページ
+目次へ
+</BODY>
+</HTML>

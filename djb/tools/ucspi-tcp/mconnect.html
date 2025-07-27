@@ -1,0 +1,33 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The mconnect program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<br><a href="top.html">ucspi-tcp</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp/mconnect.html"><tt>mconnect</tt> プログラム</a></h1>
+<tt>mconnect</tt> はリモート SMTP サーバに接続します。
+
+<h2>使い方</h2>
+<pre>
+     mconnect <i>host</i> <i>port</i>
+</pre>
+<tt>mconnect</tt> は <tt><i>host</i></tt> の <tt><i>port</i></tt> 番のポートに接続します。
+各行に CR を加えて <tt><i>host</i></tt> にその入力を送ります。
+その間に、<tt><i>host</i></tt> から受け取ったどんなものも出力します。
+
+<p>
+<tt>port</tt> が指定されなかったら、<tt>mconnect</tt> は 25 番ポート (SMTP) に接続します。
+
+<p>
+<tt>host</tt> が指定されなかったら、<tt>mconnect</tt> はローカルホストに接続します。
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat Mar 18 20:13:46 2000
+<!-- hhmts end -->
+</body>
+</html>

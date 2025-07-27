@@ -1,0 +1,283 @@
+日本語環境の設定方法 - Version 0.6.3
+
+mutt-j 開発チーム
+
+Copyright © 2000-2004 TAKIZAWA Takashi <taki@cyber.email.ne.jp>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+目次
+
+環境変数の設定
+Mutt の設定
+   
+    日本語を使うために必要な設定
+    日本語回りの動作に関連する設定
+    ユーザの情報の設定
+    ディレクトリの設定
+    エディタの設定
+    PGP の設定例
+    色の設定
+    メイリングリストの場合に便利かもしれない設定例
+    その他
+   
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+環境変数の設定
+
+日本語のロケールの設定が行われている必要があります（Mutt 付属のワイド文字関数を
+使っている場合は特に設定は必要ありません）．環境変数 LC_CTYPE の値を "ja_JP" か
+"ja" に設定してください．指定しない場合は環境変数 LANG で指定したものが有効にな
+ります．
+
+例）
+
+Bsh 系
+  $ LC_CTYPE=ja_JP
+  $ export LC_CTYPE
+csh 系
+  % setenv LC_CTYPE ja_JP
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
+
+Mutt の設定
+
+サイト共通の設定ファイルは /usr/local/share/mutt/Muttrc あるいは /etc/Muttrc で
+す．ユーザ全員に共通だと思われる設定はここで行ってください．ユーザ毎の設定ファ
+イルは $HOME/.muttrc です．このファイルが見つからなければ $HOME/.mutt/muttrc を
+探します．または，-F オプションで任意の設定ファイルを指定することもできます．
+alias ファイルなど別のファイルを呼び出したりすることもできますので，ホームディ
+レクトリに .mutt というディレクトリを作って運用することをお勧めします．
+
+日本語を使うために必要な設定
+
+この章で示す設定は日本語を使うために必ず必要なものです．./configure時に
+"--enable-default-japanese"オプションを付けた場合，あるいは日本語パッチと一緒に
+配布しているサンプルファイル mutt-ja.rc を設定ファイルに取り込んだ場合はこの章
+で示す設定が行なわれています．ただし，表示用の文字符号化方式が EUC-JP であるこ
+とを想定しているので Shift_JIS の場合は $charset="shift_jis"を設定してください
+．
+
+なお，"--enable-default-japanese"オプションを付けた場合で，英語環境で使いたい場
+合はサンプルファイル mutt-en.rc を設定ファイルに取り込んでください．
+
+表示用／作成用と送信用の文字符号化方式を設定する必要があります．表示用／作成用
+が charset で送信用が send_charset です．設定例を示すと次のようになります．
+
+    set charset="euc-jp"
+    set send_charset="us-ascii:iso-2022-jp"
+
+なお，Mutt 付属のワイド文字関数はステートフルな（エスケープシーケンスによりシフ
+ト状態が変わる） ISO-2022-JP を扱えないため，charset は EUC-JP か Shift_JIS を
+指定してください．当然，エディタの設定も同じ文字符号化方式を指定してください．
+なお，.signature の文字符号化方式も同じものにしてください．
+
+テキストの添付ファイル用の文字符号化方式を設定します．これは日本語パッチの機能
+です．
+
+    set file_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
+
+さらに，日本語(ISO-2022-JP)で記述されているにも関わらず，文字符号化方式の指定が
+行われていないメールを受け取ることがあります．また，へッダにおいて ISO-2022-JP
+の文字列を MIME 符号化せずに，そのまま記述したものもあります．標準ではこのよう
+なメールを読むことができません．しかし，日本語パッチでは次の設定を行うとそのよ
+うなメールを表示することができます．
+
+    set strict_mime=no
+    set assumed_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
+
+へッダに関しては指定したリストの先頭の文字符号化方式から順番に試されます．ボデ
+ィに関しては先頭のものしか試しません．ボディがうまく表示されないようでしたら，
+edit-type(^E) で Content-Type フィールドの編集ができますので，適当な charset の
+指定を行ってください．ただし，Content-Type フィールドの charset パラメータが記
+述されている場合は Mutt はそのパラメータを信用しますので，実際の文字符号化方式
+と一致していなければ表示ができません．この場合は，edit-type(^E) で Content-Type
+フィールドの編集モードに入り，適当な charset の指定を行ってください．
+
+標準の設定では日本語でボディの検索を行うことができません．必ず次の設定を行って
+ください．
+
+    set thorough_search=yes
+
+機種依存文字があるとその文字以降の文字列は文字化けします．これを防ぐために次の
+設定を行ってください．ただし，これは日本語パッチの機能です．
+
+    set sanitize_ja_chars=yes
+
+添付ファイルのファイル名が日本語である場合，MIME B encoding の形式に符号化され
+たものがほとんどです．これは RFC 違反(RFC 2231 の形式で符号化するべき)であるた
+め Mutt は標準では復号化しようとしません．そのため次の設定を行ってください．
+
+    set rfc2047_parameters=yes
+
+メッセージを転送する際に不具合が生じる可能性があるため，次の設定値はデフォルト
+値のままにして変更しないでください．
+
+    set forward_decode=yes
+    set mime_forward_decode=no
+
+必ず設定しなければいけないものではないですが，作成するメッセージのSubjectなどを
+編集するのはエディタ上の方が行ないやすいため次の設定を行なってください．
+
+    set edit_headers=yes
+
+日本語回りの動作に関連する設定
+
+日本語で記述された text/enriched なメールや text/html なメールは Mutt では正常
+に表示できないことがあります．そのため，設定ファイルに次の一行を追加してくださ
+い．
+
+    auto_view text/enriched text/html
+
+text/html なメールをインラインで表示しない場合は 'text/html' を auto_view の設
+定からはずしてもかまいません．このときは，mailcap の設定で，text/html の項目行
+の最後の '; copiousoutput' を取り除いてください．次に mailcap ファイルのパスを
+指定してください．
+
+    set mailcap_path="$HOME/.mailcap:/etc/mailcap"
+
+次に，mailcap の設定ファイルにそれぞれの種類のファイルを表示できるプログラムを
+指定してください．auto_view 用いるときは文字符号化方式の変換が行なわれないため
+，nkf や lv (特に推奨)などを用いて表示用の文字符号化方式（ここではEUC-JP）に変
+換した後に表示するプログラムに渡してください．次の例は richtext (metamail) と
+w3m を使って表示する例です．共にlvを用いてEUC-JPに変換した後に表示するプログラ
+ムに渡しています．
+
+    text/enriched; lv -Oej %s | richtext -t; copiousoutput
+    text/html; lv -Oej %s | w3m -dump -T %t; copiousoutput
+
+添付するファイルのファイル名が日本語である場合，Mutt はRFC 2231の形式で符号化し
+ます．しかし，RFC 2231形式のパラメータを理解できないメイラーがあるため，受取り
+側がそのファイル名を読めない場合があります．次の設定を行なうと，Content-Type フ
+ィールドに MIME B encoding 形式の name パラメータを追加するようになります．ただ
+し，このパラメータはRFC違反であるため，必要な場合以外はこの設定を行なわないでく
+ださい．なお，これは日本語パッチの機能です．
+
+    set create_rfc2047_parameters=yes
+
+ユーザの情報の設定
+
+あなたのメールアドレス，名前などを設定してください．hostname はメールアドレスの
+ドメイン部(@の右側)だけを記述しましょう．From フィールドや Message-ID フィール
+ドがこの情報に基づいて生成されます．
+
+    set realname="foo"
+    set from="foo@example.org"
+    set hostname="example.org"
+
+ディレクトリの設定
+
+ディレクトリの設定を行ってください．Maildir 形式のメイルボックスを使った時の一
+例を示します．この通りに設定する必要はありません．
+
+    set mbox_type=Maildir
+    set spoolfile="~/Maildir"
+    set folder="~/Mail"
+    set mbox="+mbox"
+    set postponed="+postponed"
+    set record="+outbox"
+    set tmpdir="~/tmp"
+
+エディタの設定
+
+使用するエディタの設定を行ってください．次の行は jed を使う例です．
+
+    set editor="jed %s -f set_buffer_no_backup"
+
+PGP の設定例
+
+次の例は GnuPG を使う例です．日本語を使う場合は必ず pgp_strict_enc=no を設定し
+てください．そうでないと quoted-printable で符号化されます．
+
+    set pgp_long_ids=yes
+    set pgp_strict_enc=no
+    set pgp_verify_sig=ask-yes
+    source "/usr/local/doc/mutt/samples/gpg.rc"
+    pgp-hook foo@example.org 0x3456789A
+
+色の設定
+
+kterm など termcap(terminfo でも?)での color support が示されていない端末では
+COLORTERM という環境変数になにか設定する必要があります．設定されているかどうか
+だけを確認するので内容は '' 以外ならなんでも構いません．
+
+色の設定例です．好きなようにカスタマイズしてください．なお，このときは環境変数
+COLORFGBG="white;black" を設定しています．
+
+    # normal setting
+    color normal green default
+
+    # pager
+    color hdrdefault cyan default
+    color header yellow default ^(From|Subject):
+    color quoted cyan default
+    color signature red default
+    color attachment blue default
+    color body magenta default "(ftp|http)://[^ ]+" # point out URLs
+    color body magenta default [-a-z_0-9.]+@[-a-z_0-9.]+  # e-mail addresses
+    color search black yellow  # how to hilite search patterns in the pager
+
+    # index screen
+    color index green default .*
+    color tree cyan default   # the thread tree in the index menu
+    color indicator black brightcyan
+
+    # symbols
+    color markers blue default
+    color tilde blue default
+
+    # menu，message
+    color status yellow blue
+    color message cyan default
+    color error brightred default
+
+メイリングリストの場合に便利かもしれない設定例
+
+次の設定をすることによりインデックス画面でスレッド表示をします．
+
+    folder-hook . 'set sort=threads'
+
+スレッド表示をしたくないフォルダがあったら，次のように folder-hook で日付順にで
+も設定しましょう．
+
+    folder-hook outbox 'set sort=date-sent'
+
+日本のメイリングリストでは
+
+    Subject: [prefix:0123] hogohoge
+
+のように Subject フィールドにプレフィックスをつける場合が多いです．しかし，プレ
+フィックスが長いと，肝心の Subject の内容が行からはみ出てしまって読めません．そ
+のため，次の設定を行うと，このプレフィックスをインデックス画面では表示しなくな
+ります．また，返信や転送する際も除去します．
+
+    set delete_prefix=yes
+
+このプレフィックスのパターンは次のように正規表現で設定できます．なお，この例は
+デフォルト値です．
+
+    set delete_regexp="^(\[[A-Za-z0-9_.: \-]*\][ ]*)"
+
+この delete_prefix と delete_regexp は日本語パッチの拡張機能です．
+
+その他
+
+ここに書いた例は滝澤が設定を行っているものです．参考程度に捉えてください．
+manual.txt や Muttrc の説明を読んで適当に設定を行ってください．
+
+    set alias_file="~/.mutt/alias"
+    source $HOME/.mutt/alias
+    set allow_8bit=no
+    set abort_nosubject=no
+    set attribution="On %d,\n %n wrote:\n"
+    set forward_format="Fwd: %s"
+    set mark_old=no
+    set mime_forward=ask-yes
+    set pager_index_lines=10
+    set tilde=yes
+    set envelope_from=yes
+    set sendmail="/usr/local/bin/nullmailer-inject"
+    ignore *
+    unignore date from to cc reply-to subject x-mailer user-agent content-type
+    hdr_order date from subject to cc
+

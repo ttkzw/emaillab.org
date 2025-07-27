@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="ISO-2022-JP"?>
+<?xml-stylesheet href="table.css" type="text/css"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-type" content='text/html; charset=ISO-2022-JP' />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rev="made" href="mailto:taki@cyber.email.ne.jp" />
+<link rel="stylesheet" href="table.css" type="text/css" />
+<title>MUAs for Windows - explanation of "table 6: SMTP, POP, IMAP, LDAP"</title>
+</head>
+<body>
+<div class="header">
+<a href="index.html">目次</a> | 
+<a href="table-basic.html">表1. 基礎情報</a> | 
+<a href="table-header.html">表2. へッダ</a> | 
+<a href="table-japanese.html">表3. 日本語処理</a> | 
+<a href="table-lang.html">表4. 言語</a> | 
+<a href="table-cipher.html">表5. 暗号</a> | 
+<a href="table-otherspec.html">表6. SMTP, POP, IMAP, LDAP</a>
+</div>
+
+<h2>「<a href="table-otherspec.html">表6. SMTP, POP, IMAP, LDAP</a>」の解説</h2>
+<div class="update">
+<!-- hhmts start -->
+Last modified: Sat Jan 13 16:13:27 2001
+<!-- hhmts end -->
+</div>
+<hr />
+
+<h3>SMTP</h3>
+<h4>評価方法</h4>
+<p>SMTP をサポートしているかを示します。</p>
+
+<h3>POP before SMTP</h3>
+<h4>説明</h4>
+<p>ISP経由でメイルの送受信を認めている場合、そのメールサーバは第三者の不正中継に利用される恐れがあります。これを防ぐために、POP の認証後の一定時間の間だけ、そのISPのホストからのメイルの中継を許可する仕組みを設けることがあります。一方、これに対してメイラ─側の対応は送信前に POP の認証を行う仕組みがあると便利です。この仕組みがないと、送信をする前に受信を手動で行わなければなりません。うっかり受信を行うのを忘れるとそんなメイルは受け取れないよとサーバに怒られます。このため、送信前に POP の認証ができるかを調べました。POP before SMTP については「<a href="../essay/auth-submission.html">正規ユーザのみ送信できる方法について</a>」もご覧下さい。</p>
+
+<h4>評価方法</h4>
+<p>送信時に POP の認証を行うかどうかを示します。メッセージを作成した後にすぐに送信するときにPOP認証を行うものは"○"を示します。このときに実際にメッセージを受信するものは"(with RETR)"が付きます。一旦保存して後で送受信を行うものは"△"を示します。</p>
+
+<h3>SMTP認証</h3>
+<h4>説明</h4>
+<p>ISP経由でメイルの送受信を認めている場合、そのメールサーバは第三者の不正中継に利用される恐れがあります。これを防ぐために、送信者に対して <a href="../emailref/RFC/rfc2554.txt">RFC 2554 "SMTP Service Extension for Authentication"</a> に規定された SMTP 認証を行うことがあります。詳しくは「<a href="../essay/auth-submission.html">正規ユーザのみ送信できる方法について</a>」もご覧下さい。</p>
+
+<h4>評価方法</h4>
+<p>SMTP-AUTH をサポートしているかを示します。括弧内は平文以外でサポートしている認証プロトコルです。ただし、試験環境では CRAM-MD5 しかサポートしていないため、実質的に CRAM-MD5 のサポートの有無となります。しかし、現状ではサーバ／クライアント共に平文以外の認証は CRAM-MD5 しかサポートしていない(一部で DIGEST-MD5 をサポート)ようなのでこの評価で問題ないと思われます。</p>
+
+<h3>POP</h3>
+<h4>評価方法</h4>
+<p>POP3 をサポートしているかを示します。</p>
+
+<h3>POP認証</h3>
+<h4>説明</h4>
+<p>通常の USER/PASS コマンドによる認証では平文でパスワードが流れるため、パケットが盗聴されたら、そのパスワードが不正使用される恐れがあります。これを防ぐために、RFC1939 "Post Office Protocol - Version 3"では APOP コマンドによる認証が規定されています。APOP ではパスワードをダイジェスト関数である MD5 でハッシュ化して送信するので盗聴されても再利用できません（簡単なパスワードは総当たりで解読されるかも知れませんが）。そのため APOP を使うことによってパスワードの安全性が高まります。また、SASL による認証もありますが、ほとんど実装されていないので、ここでは特に触れません。</p>
+
+<h4>評価方法</h4>
+<p>平文認証以外でサポートしている認証プロトコルです。だし、試験環境では APOP しかサポートしていないため、実質的に APOP のサポートの有無となります。</p>
+
+<h3>IMAP</h3>
+<h4>評価方法</h4>
+<p>IMAP をサポートしているかを示します。</p>
+
+<h3>IMAP認証</h3>
+<h4>説明</h4>
+<p>IMAP の認証には通常 SASL による方法を用います。SASL では様々な認証プロトコルを用いることができます。認証プロトコル "LOGIN" では平文でパスワードが流れるため、パケットが盗聴されたら、そのパスワードが不正使用される恐れがあります。これを防ぐために、CRAM-MD5 などのセキュアな認証プロトコルが必要です。</p>
+
+<h4>評価方法</h4>
+<p>平文認証以外でサポートしている認証プロトコルです。ただし、試験環境では CRAM-MD5 しかサポートしていないため、実質的に CRAM-MD5 のサポートの有無となります。</p>
+
+<h3>LDAP</h3>
+<h4>説明</h4>
+<p>会社などの組織になると、メイラーのアドレス帳などでメイルアドレスを管理するのは規模が大きくなるほど不可能になります。そのため、メイルアドレスを検索するために LDAP を使用する組織も多いと思います。そのため、LDAP のサポートを調べました。また、名前を漢字で調べることができると便利なため、漢字で検索できるかも調べました。サーバ側では UTF-8 にて漢字を記述しています。ただし、筆者の方での理解が足らず、日本語を使うためにこの方法でいいのかが確信が持てないため参考程度にとどめてください。（OpenLDAP ML の過去ログのアーカイブを検索したら、UTF-8 を使えというメッセージがあったので UTF-8 に変換しただけです。）
+</p>
+
+<h4>評価方法</h4>
+<p>LDAP をサポートしているかを示します。LDAP のバージョンの違いにより検証できなかったものもありますので、検証の結果ではなく、機能があるか無いかだけで評価しました。
+また、UTF-8 ベースで日本語を使えるものは"(ja)"が付きます。</p>
+
+<hr />
+<address>
+滝澤 隆史(TAKIZAWA Takashi)
+<a href="mailto:taki@cyber.email.ne.jp">taki@cyber.email.ne.jp</a>
+</address>
+</body>
+</html>

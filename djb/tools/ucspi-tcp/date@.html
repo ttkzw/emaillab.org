@@ -1,0 +1,36 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>The date@ program</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<br><a href="top.html">ucspi-tcp</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp/date@.html"><tt>date@</tt> プログラム</a></h1>
+<tt>date@</tt> はリモートホストの日時を出力します。
+
+<h2>使い方</h2>
+<pre>
+     date@ <i>host</i>
+</pre>
+<tt>date@</tt> は <tt><i>host</i></tt> の TCP 13 番ポート (Daytime) に接続し、受け取ったどんなデータも出力します。
+CR (\015) を取り除き、表示できない文字を表示できる形式に変換します。
+
+<p>
+<tt><i>host</i></tt> が指定されなかったら、<tt>date@</tt> はローカルホストに接続します。
+
+<p>
+コンピュータの中には人間が読むことのできる日時データを 13 番ポートに返答するものもあります。
+例えば、<a href="tcpserver.html"><tt>tcpserver</tt></a> を使って次にように動いているかもしれません。
+<pre>
+     tcpserver -RHl0 0 13 date
+</pre>
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sat Mar 18 20:02:41 2000
+<!-- hhmts end -->
+</body>
+</html>

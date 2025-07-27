@@ -1,0 +1,52 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="content-style-type" content="text/css" />
+<title>SpamAssassin Milter Plugin</title>
+</head>
+<body>
+
+<h1>SpamAssassin Milter Plugin</h1>
+
+<p>このページは<a href="http://savannah.nongnu.org/projects/spamass-milt/">SpamAssassin Milter Plugin</a>についての情報を提供するかも知れないページです。</p>
+
+<h2>SpamAssassin Milter Pluginとは</h2>
+<p>SpamAssassin Milter PluginとはSpamAssassinをsendmailやPostfixのMilterから利用するためのプラグインです。</p>
+
+<h2>ClamAV Plugin対応パッチ</h2>
+
+<p>このパッチは次のことを行います。</p>
+<ul>
+<li>SpamAssassinで<a href="http://wiki.apache.org/spamassassin/ClamAVPlugin">ClamAV Plugin</a>を利用しているときに、判定結果のヘッダX-Spam-Virusを挿入する。</li>
+<li>X-Spam-*ヘッダの挿入をヘッダの末尾ではなく先頭にするように変更する。</li>
+</ul>
+
+<h3>パッチ</h3>
+<ul>
+<li><a href="spamass-milter-0.3.1-clamav_plugin.patch">spamass-milter-0.3.1-clamav_plugin.patch</a></li>
+</ul>
+
+<h3>RHEL/CentOS/Fedora用SRPM</h3>
+<p><a href="http://dag.wieers.com/rpm/packages/spamass-milter/">RPMForge(Dag Wieers)のSRPM</a>を修正したものです。</p>
+<ul>
+<li><a href="spamass-milter-0.3.1-2.rf.src.rpm">spamass-milter-0.3.1-2.rf.src.rpm</a></li>
+</ul>
+
+<!--
+<h2>Postfixで利用する方法</h2>
+
+<p>spamass-milterを起動したときに生成されるUNIXドメインソケット(/var/run/spamass.sock)をpostfixユーザ権限で書き込み可能にしてください。</p>
+
+<p>main.cfに以下の行を追加します。non_smtpd_miltersはローカルからのメールをチェックしない場合には必要ありません。</p>
+<pre>
+smtpd_milters = unix:/var/run/spamass.sock
+non_smtpd_milters = unix:/var/run/spamass.sock
+</pre>
+
+-->
+
+</body>
+</html>

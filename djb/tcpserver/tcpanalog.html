@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+<title>tcpserver - tcpanalog</title>
+<meta http-equiv="content-type" content="text/html;charset=iso-2022-jp">
+<meta http-equiv="content-style-type" content="text/css">
+<link rev="made" href="mailto:taki@cyber.email.ne.jp">
+<link rel="stylesheet" href="../../taki.css">
+</head>
+<body lang="ja">
+<h1>tcpserver</h1>
+<h2>tcpanalog: tcpserver のログの整理ツール</h2>
+<p>2002年6月11日更新</p>
+<hr>
+<p>tcpserver のログを整理するツールを作りましたので公開します。<br>
+<a href="tcpanalog-splogger-0.23.tar.gz">tcpanalog-splogger-0.23.tar.gz</a> (splogger 版)<br>
+<a href="tcpanalog-multilog-0.23.tar.gz">tcpanalog-multilog-0.23.tar.gz</a>
+(multilog 版)<br>
+</p>
+<p>これを作った動機は tcpserver + splogger のログを眺めているうちに、qmail の
+ログの分析ツール qmailanalog の tcpserver 版が欲しいと思ったからです。そういう
+わけで qmailanalog を真似て、tcpanalog という名前をつけました。中身も参考にし
+ただけあってよく似ています。このバージョンでは接続したホスト名あるいはドメイン
+名とその回数・時間、接続拒否したホスト名とその回数しか情報は出ませんが、他にこ
+ういう情報が入った方が良いというのがあれば、メイルを下さい。考慮します。なお、
+ucspi-tcp-0.83 以降用です。なお、multilog を使っているときには、tcpmatchup にログを渡す前に <a href="../daemontools/tai64ntai.html">tai64ntai</a> を通してタイムスタンプを TAI 形式に変更してください。</p>
+
+<hr>
+<h3><a name="ta1">tcpanalog のインストール</a></h3>
+<ol>
+<li>ファイルを入手します。<br>
+<a href="tcpanalog-splogger-0.23.tar.gz">tcpanalog-splogger-0.23.tar.gz</a> (splogger 版)<br>
+<a href="tcpanalog-multilog-0.23.tar.gz">tcpanalog-multilog-0.23.tar.gz</a>
+(multilog 版)<br>
+<li>ファイルを展開し、そのディレクトリに移動する。
+<pre>
+$ gzip -dc tcpanalog-multilog-0.23.tar.gz | tar xvf -
+$ cd tcpanalog-multilog-0.23
+</pre>
+<li>インストールするディレクトリと使用する awk を Makefile で設定します。標準では /usr/local/bin/tcpanalog にインストールされます。
+<li>次のようにしてインストールします。
+<pre>
+$ make
+$ su
+# make install
+</pre>
+</ol>
+<p>これでインストールの終了です。</p>
+
+<hr>
+<h3><a name="ta2">tcpanalog(splogger版) の使い方</a></h3>
+<ol>
+<li>tcpserver のログから syslog で付加される日時とホスト名を除去します。通常、1列目から4列目までです。
+<li>これを tcpmatchup に入力すると、整形して出力されます。
+<li>ztcphosts, ztcpdomains, ztcpdeny にこれを入力すると、接続情報、拒否情報が出力されます。
+</ol>
+<p>サンプル・スクリプトを示します。</p>
+<pre>
+#!/bin/sh
+#  tcpanalog
+PATH=/usr/local/bin/tcpanalog
+AUTHLOG="/var/log/authlog"
+TMPLOG="$HOME/tmp/log.$$"
+
+/usr/bin/awk '{$1="";$2="";$3="";$4="";print}' &lt; $AUTHLOG | \
+  tcpmatchup &gt; $TMPLOG
+ztcpdomains &lt; $TMPLOG
+ztcphosts &lt; $TMPLOG
+ztcpdeny &lt; $TMPLOG
+/bin/rm -f $TMPLOG
+</pre>
+
+<hr>
+<h3><a name="ta2">tcpanalog(multilog版) の使い方</a></h3>
+<ol>
+<li>multilog のタイムスタンプは TAI64N 形式であるので、これを TAI 形式に変換し
+ます。変換するプログラムに関しては <a
+href="../daemontools/tai64ntai.html">tai64ntai</a> を参照してください。
+<li>タイムスタンプをTAI形式に変換したログを tcpmatchup に入力すると、整形して出力されます。
+<li>ztcphosts, ztcpdomains, ztcpdeny にこれを入力すると、接続情報、拒否情報が出力されます。
+</ol>
+<p>サンプル・スクリプトを示します。入力するログのファイル名をオプションとして実行するものです。logcollector は cyclog の吐き出すログから必要な時間だけを取り出すスクリプトだと思ってください。</p>
+<pre>
+#!/bin/sh
+#  tcpanalog
+PATH=/usr/local/bin/tcpanalog:/usr/local/bin
+TMPLOG="$HOME/tmp/log.$$"
+
+logcollector $1 $2 | tcpmatchup &gt; $TMPLOG
+ztcpdomains &lt; $TMPLOG
+ztcphosts &lt; $TMPLOG
+ztcpdeny &lt; $TMPLOG
+/bin/rm -f $TMPLOG
+</pre>
+
+<hr>
+<p>
+<a href="index.html">目次</a> - 
+<a href="whatis.html">tcpserver とは</a> - 
+<a href="install.html">インストール</a> - 
+<a href="database.html">接続制御データベース</a> - 
+<a href="environ.html">環境変数</a> - 
+<a href="options.html">オプション</a> - 
+<a href="start.html">起動例</a> - 
+<strong>tcpanalog</strong>
+</p>
+</body>
+</html>

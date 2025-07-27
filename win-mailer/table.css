@@ -1,0 +1,47 @@
+body {
+    color: black;
+    background-color: #fff8dc
+}
+
+h1,h2,h3 {
+    color: green;
+}
+
+caption {
+    text-align: left;
+    font-weight: bold;
+}
+
+tr {
+    fontsize: 0.8em;
+}
+
+.foot-menu {
+    fontsize: 0.9em;
+}
+
+.update {
+    text-align: right;
+}
+
+.header {
+    background-color: #bfffbf;
+    fontsize: 0.95em;
+}
+
+.tableheader {
+    background-color: #bfbfbf;
+}
+
+.shareware {
+    background-color: #bfffff;
+}
+
+.freesoft {
+    background-color: #bfffbf;
+}
+
+.package {
+    background-color: #ffffbf;
+}
+

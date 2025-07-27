@@ -1,0 +1,46 @@
+body {
+    color: black;
+    background-color: #fff8dc
+}
+
+h1 {
+    color: green;
+    fontsize: 2em
+}
+
+h2 {
+    color: green;
+    fontsize: 1.6em
+}
+
+h3 {
+    color: green;
+    fontsize: 1.3em
+}
+
+h4 {
+    color: green;
+    fontsize: 1em
+}
+
+.contents {
+    fontsize: 1.2em
+}
+
+caption {
+    text-align: left;
+    font-weight: bold
+}
+
+.doc-source {
+    text-align: right
+}
+
+.foot-menu {
+    fontsize: 0.9em
+}
+
+.update {
+    text-align: right
+}
+

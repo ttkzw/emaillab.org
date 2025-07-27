@@ -1,0 +1,20 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../tcpip.html">TCP/IP</a>
+<br><a href="../ucspi-tcp.html">ucspi-tcp</a>
+<h1>The <tt>addcr</tt> and <tt>delcr</tt> programs</h1>
+<tt>addcr</tt> inserts a CR (\015) before each LF (\012),
+i.e., at the end of each line of input.
+It does not insert a CR at the end of a partial final line.
+<p>
+<tt>delcr</tt> removes a CR at the end of each line of input,
+if a CR is present.
+It does not remove a CR at the end of a partial final line.
+<p>
+Some <tt>unix2dos</tt> and <tt>dos2unix</tt> programs
+have trouble with long lines and nulls.
+<tt>addcr</tt> and <tt>delcr</tt>
+have no trouble with long lines and nulls.
+</body>
+</html>

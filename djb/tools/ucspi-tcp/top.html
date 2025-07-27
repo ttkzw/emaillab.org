@@ -1,0 +1,96 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>ucspi-tcp</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/tcpip.html">TCP/IP</a>
+<h1><a href="http://cr.yp.to/ucspi-tcp.html">ucspi-tcp</a></h1>
+<a href="install.html">ucspi-tcp のインストール</a>
+<br><a href="upgrade.html">ucspi-tcp の以前のバージョンからのアップグレード</a>
+<p>
+<a href="tcpserver.html"><tt>tcpserver</tt> プログラム</a>
+<br><a href="tcprules.html"><tt>tcprules</tt> プログラム</a>
+<br><a href="tcprulescheck.html"><tt>tcprulescheck</tt> プログラム</a>
+<br><a href="argv0.html"><tt>argv0</tt> プログラム</a>
+<br><a href="fixcrio.html"><tt>fixcrio</tt> プログラム</a>
+<br><a href="recordio.html"><tt>recordio</tt> プログラム</a>
+<br><a href="rblsmtpd.html"><tt>rblsmtpd</tt> プログラム</a>
+<p>
+<a href="tcpclient.html"><tt>tcpclient</tt> プログラム</a>
+<br><a href="who@.html"><tt>who@</tt> プログラム</a>
+<br><a href="date@.html"><tt>date@</tt> プログラム</a>
+<br><a href="finger@.html"><tt>finger@</tt> プログラム</a>
+<br><a href="http@.html"><tt>http@</tt> プログラム</a>
+<br><a href="tcpcat.html"><tt>tcpcat</tt> プログラム</a>
+<br><a href="mconnect.html"><tt>mconnect</tt> プログラム</a>
+<br><a href="addcr.html"><tt>addcr</tt> プログラムと <tt>delcr</tt> プログラム</a>
+<p>
+<br><a href="environment.html">TCP 環境変数</a>
+<hr>
+<h2>それは何か？</h2>
+tcpserver と tcpclient は TCP クライアント・サーバ・アプリケーションを構築するための使いやすいコマンドラインツールです。
+<p>
+<b>tcpserver</b> は入ってくる接続を待ち、各々の接続に対して、好みのプログラムを起動させます。
+プログラムはローカルやリモートのホスト名、IP アドレス、ポート番号を示す環境変数を受け取ります。
+<p>
+tcpserver はプロセスやメモリを使い過ぎることのないように同時接続数を制限することができます。
+（デフォルトで）40の同時接続を処理しているときには、tcpserver は新規接続の受け付けを円滑に延期します。
+<p>
+tcpserver は TCP アクセス制御もできます。これは tcp-wrappers/tcpd の hosts.allow に似ていますが、ずっと高速です。
+そのアクセス制御ルールは <a href="../cdb/top.html">cdb</a> のハッシュ形式にコンパイルされるため、数千ものホストを容易に処理できます。
+<p>
+このパッケージにはサーバの全入出力を監視する recordio ツールが含まれています。
+<p>
+<b>tcpclient</b> は TCP 接続 を行い、好みのプログラムを起動させます。
+tcpserver と同様の環境変数を設定します。
+
+<p>
+このパッケージには tcpclient を使って構築したサンプル・クライアント
+（who@, date@, finger@, http@, tcpcat, mconnect）が含まれています。
+<p>
+tcpserver と tcpclient は <a href="ucspi-tcp.txt">TCP</a> プロトコルを用いた <a href="ucspi.txt">UCSPI</a> (UNIX Client-Server Program Interface) に適合しています。
+UCSPI ツールはいくつかの異なるネットワークに利用できます。
+
+
+<h2>他のコマンドライン TCP ツール</h2>
+現在の ucspi-tcp インターフェイスは私の 1991 clientserver パッケージの tcpserver/tcpclient インターフェイスを改良したものです。その clientserver パッケージは、私の 1989 auth パッケージの attachport/authtcp インターフェイスを置き換えたものです。
+
+<p>
+ucspi-tcp はいくつかの他のプログラムと競合しています。
+
+<ul>
+<li>inetd, 全ての UNIX ベンダによって供給されている root のみの TCP サーバ
+<li>xinetd, inetd を置き換えるもの
+<li>SunOS の一部として供給される mconnect クライアント
+<li><a href="http://www.freebsd.org/cgi/pds.cgi?ports/sysutils/socket">socket</a>
+プログラム
+<li>faucet と hose,
+<a href="http://web.purplefrog.com/~thoth/netpipes/">netpipes</a>
+パッケージの一部
+<li>
+<a href="http://www.avian.org/web1/hak/netcat.html">netcat</a>
+プログラム, これは UDP もサポートしている
+</ul>
+
+<p>
+たくさんのサイトが次のようないくつかの理由で inetd を tcpserver で置き換えています：
+<ul>
+<li>inetd は高負荷時には信頼できません。
+1分間に「非常に多くの」接続を受けると、10分間サービスを中断します。
+<li>inetd は有効な資源管理を提供しません。
+人気のあるサービスを動かしていれば、うまく
+<a href="http://cr.yp.to/docs/inetd.html">全てのメモリを使い切る</a>
+でしょう。
+<li>inetd は急に集中した活動で問題が生じます
+その listen() backlog は一般に 5 か 10 だけであり、起動できません。
+</ul>
+
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Apr 16 16:41:40 2000
+<!-- hhmts end -->
+</body>
+</html>

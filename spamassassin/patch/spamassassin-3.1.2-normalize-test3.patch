@@ -1,0 +1,1794 @@
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Bayes.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Bayes.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Bayes.pm	2006-03-11 04:29:55.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Bayes.pm	2006-05-28 01:06:43.000000000 +0900
+@@ -345,7 +345,7 @@
+   # include quotes, .'s and -'s for URIs, and [$,]'s for Nigerian-scam strings,
+   # and ISO-8859-15 alphas.  Do not split on @'s; better results keeping it.
+   # Some useful tokens: "$31,000,000" "www.clock-speed.net" "f*ck" "Hits!"
+-  tr/-A-Za-z0-9,\@\*\!_'"\$.\241-\377 / /cs;
++  tr/-A-Za-z0-9,\@\*\!_'"\$.\200-\377 / /cs;
+ 
+   # DO split on "..." or "--" or "---"; common formatting error resulting in
+   # hapaxes.  Keep the separator itself as a token, though, as long ones can
+@@ -411,14 +411,17 @@
+     # the domain ".net" appeared in the To header.
+     #
+     if ($len > MAX_TOKEN_LENGTH && $token !~ /\*/) {
+-      if (TOKENIZE_LONG_8BIT_SEQS_AS_TUPLES && $token =~ /[\xa0-\xff]{2}/) {
+-	# Matt sez: "Could be asian? Autrijus suggested doing character ngrams,
+-	# but I'm doing tuples to keep the dbs small(er)."  Sounds like a plan
+-	# to me! (jm)
+-	while ($token =~ s/^(..?)//) {
+-	  push (@rettokens, "8:$1");
+-	}
+-	next;
++      if ($token !~ /(?:[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3})/) {
++        # except UTF-8 characters
++        if (TOKENIZE_LONG_8BIT_SEQS_AS_TUPLES && $token =~ /[\xa0-\xff]{2}/) {
++          # Matt sez: "Could be asian? Autrijus suggested doing character ngrams,
++          # but I'm doing tuples to keep the dbs small(er)."  Sounds like a plan
++          # to me! (jm)
++          while ($token =~ s/^(..?)//) {
++            push (@rettokens, "8:$1");
++          }
++          next;
++        }
+       }
+ 
+       if (($region == 0 && HDRS_TOKENIZE_LONG_TOKENS_AS_SKIPS)
+@@ -992,8 +995,14 @@
+   my ($self, $msg) = @_;
+ 
+   my $msgdata = { };
+-  $msgdata->{bayes_token_body} = $msg->{msg}->get_visible_rendered_body_text_array();
+-  $msgdata->{bayes_token_inviz} = $msg->{msg}->get_invisible_rendered_body_text_array();
++  if ($self->{conf}->{normalize_charset}) {
++    $msgdata->{bayes_token_body} = $msg->{msg}->get_visible_normalized_body_text_array();
++    $msgdata->{bayes_token_inviz} = $msg->{msg}->get_invisible_normalized_body_text_array();
++  }
++  else {
++    $msgdata->{bayes_token_body} = $msg->{msg}->get_visible_rendered_body_text_array();
++    $msgdata->{bayes_token_inviz} = $msg->{msg}->get_invisible_rendered_body_text_array();
++  }
+   @{$msgdata->{bayes_token_uris}} = $msg->get_uri_list();
+   return $msgdata;
+ }
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Conf/Parser.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Conf/Parser.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Conf/Parser.pm	2006-05-25 05:07:28.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Conf/Parser.pm	2006-05-26 22:49:46.000000000 +0900
+@@ -697,6 +697,9 @@
+           # We don't do priorities for $Mail::SpamAssassin::Conf::TYPE_RBL_EVALS
+           $conf->{rbl_evals}->{$name} = \@args;
+         }
++        elsif ($type == $Mail::SpamAssassin::Conf::TYPE_NBODY_EVALS) {
++          $conf->{nbody_evals}->{$priority}->{$name} = \@args if ($self->{conf}->{normalize_charset});
++        }
+         elsif ($type == $Mail::SpamAssassin::Conf::TYPE_RAWBODY_EVALS) {
+           $conf->{rawbody_evals}->{$priority}->{$name} = \@args;
+         }
+@@ -739,6 +742,9 @@
+       elsif ($type == $Mail::SpamAssassin::Conf::TYPE_URI_TESTS) {
+         $conf->{uri_tests}->{$priority}->{$name} = $text;
+       }
++      elsif ($type == $Mail::SpamAssassin::Conf::TYPE_NBODY_TESTS) {
++        $conf->{nbody_tests}->{$priority}->{$name} = $text if ($self->{conf}->{normalize_charset});
++      }
+       elsif ($type == $Mail::SpamAssassin::Conf::TYPE_RAWBODY_TESTS) {
+         $conf->{rawbody_tests}->{$priority}->{$name} = $text;
+       }
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Conf.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Conf.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Conf.pm	2006-05-25 05:07:29.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Conf.pm	2006-05-26 22:49:46.000000000 +0900
+@@ -90,7 +90,7 @@
+ $TYPE_HEAD_TESTS $TYPE_HEAD_EVALS
+ $TYPE_BODY_TESTS $TYPE_BODY_EVALS $TYPE_FULL_TESTS $TYPE_FULL_EVALS
+ $TYPE_RAWBODY_TESTS $TYPE_RAWBODY_EVALS $TYPE_URI_TESTS $TYPE_URI_EVALS
+-$TYPE_META_TESTS $TYPE_RBL_EVALS
++$TYPE_META_TESTS $TYPE_RBL_EVALS $TYPE_NBODY_TESTS $TYPE_NBODY_EVALS
+ };
+ 
+ @ISA = qw();
+@@ -109,11 +109,13 @@
+ $TYPE_URI_EVALS     = 0x0011;
+ $TYPE_META_TESTS    = 0x0012;
+ $TYPE_RBL_EVALS     = 0x0013;
++$TYPE_NBODY_TESTS   = 0x0014;
++$TYPE_NBODY_EVALS   = 0x0015;
+ 
+ my @rule_types = ("body_tests", "uri_tests", "uri_evals",
+                   "head_tests", "head_evals", "body_evals", "full_tests",
+                   "full_evals", "rawbody_tests", "rawbody_evals",
+-		  "rbl_evals", "meta_tests");
++		  "rbl_evals", "meta_tests", "nbody_tests", "nbody_evals");
+ 
+ $VERSION = 'bogus';     # avoid CPAN.pm picking up version strings later
+ 
+@@ -838,6 +840,18 @@
+     type => $CONF_TYPE_STRING
+   });
+ 
++=item normalize_charset ( 0 | 1)	(default: 0)
++
++If you set this option, messages are checked after UTF-8 encoding conversion.
++
++=cut
++
++  push (@cmds, {
++    setting => 'normalize_charset',
++    default => 0,
++    type => $CONF_TYPE_BOOL
++  });
++
+ =back
+ 
+ =head2 NETWORK TEST OPTIONS
+@@ -1943,6 +1957,45 @@
+     }
+   });
+ 
++=item nbody SYMBOLIC_TEST_NAME /pattern/modifiers
++
++Define a nbody pattern test.  C<pattern> is a Perl regular expression.  Note:
++as per the header tests, C<#> must be escaped (C<\#>) or else it is considered
++the beginning of a comment.
++
++The 'nbody' in this case is the utf-8 normalized textual parts of the 
++message body;
++any non-text MIME parts are stripped, and the message decoded from
++Quoted-Printable or Base-64-encoded format if necessary.  The message
++Subject header is considered part of the nbody and becomes the first
++paragraph when running the rules.  All HTML tags and line breaks will
++be removed before matching.
++
++=item nbody SYMBOLIC_TEST_NAME eval:name_of_eval_method([args])
++
++Define a nbody eval test.  See above.
++
++=cut
++
++  push (@cmds, {
++    setting => 'nbody',
++    is_frequent => 1,
++    is_priv => 1,
++    code => sub {
++      my ($self, $key, $value, $line) = @_;
++      if ($value =~ /^(\S+)\s+eval:(.*)$/) {
++        $self->{parser}->add_test ($1, $2, $TYPE_NBODY_EVALS);
++      }
++      else {
++	my @values = split(/\s+/, $value, 2);
++	if (@values != 2) {
++	  return $MISSING_REQUIRED_VALUE;
++	}
++        $self->{parser}->add_test (@values, $TYPE_NBODY_TESTS);
++      }
++    }
++  });
++
+ =item uri SYMBOLIC_TEST_NAME /pattern/modifiers
+ 
+ Define a uri pattern test.  C<pattern> is a Perl regular expression.  Note: as
+@@ -2791,6 +2844,8 @@
+   $self->{rawbody_evals} = { };
+   $self->{meta_tests} = { };
+   $self->{eval_plugins} = { };
++  $self->{nbody_tests} = { };
++  $self->{nbody_evals} = { };
+ 
+   # testing stuff
+   $self->{regression_tests} = { };
+@@ -3091,6 +3146,7 @@
+   return 0 if (!defined ($type));
+ 
+   if (($type == $TYPE_BODY_TESTS) || ($type == $TYPE_BODY_EVALS)
++        || ($type == $TYPE_NBODY_TESTS) || ($type == $TYPE_NBODY_EVALS)
+         || ($type == $TYPE_URI_TESTS) || ($type == $TYPE_URI_EVALS))
+   {
+     # some rawbody go off of headers...
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/HTML.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/HTML.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/HTML.pm	2006-03-11 04:29:55.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/HTML.pm	2006-05-26 22:49:46.000000000 +0900
+@@ -746,7 +746,13 @@
+     }
+   }
+   else {
+-    $text =~ s/[ \t\n\r\f\x0b\xa0]+/ /g;
++    if ( $text =~ /[\x80-\xff]{2}/ ) {
++      # multibyte string
++      $text =~ s/[ \t\n\r\f\x0b]+/ /g;
++    }
++    else {
++      $text =~ s/[ \t\n\r\f\x0b\xa0]+/ /g;
++    }
+     # trim leading whitespace if previous element was whitespace
+     if (@{ $self->{text} } &&
+ 	defined $self->{text_whitespace} &&
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Message/Node.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Message/Node.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Message/Node.pm	2006-03-11 04:29:53.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Message/Node.pm	2006-05-28 12:10:05.000000000 +0900
+@@ -41,6 +41,7 @@
+ use Mail::SpamAssassin::Constants qw(:sa);
+ use Mail::SpamAssassin::HTML;
+ use Mail::SpamAssassin::Logger;
++use Mail::SpamAssassin::Util::Charset;
+ 
+ =item new()
+ 
+@@ -55,6 +56,7 @@
+ 
+   my $self = {
+     headers		=> {},
++    utf8_headers	=> {},
+     raw_headers		=> {},
+     body_parts		=> [],
+     header_order	=> []
+@@ -65,6 +67,7 @@
+   if (defined $opts->{'subparse'}) {
+     $self->{subparse} = $opts->{'subparse'};
+   }
++  $self->{conf} = $opts->{'conf'};
+ 
+   bless($self,$class);
+   $self;
+@@ -173,10 +176,16 @@
+     if ( !exists $self->{'headers'}->{$key} ) {
+       $self->{'headers'}->{$key} = [];
+       $self->{'raw_headers'}->{$key} = [];
++      $self->{'utf8_headers'}->{$key} = [];
+     }
+ 
+-    push @{ $self->{'headers'}->{$key} },     _decode_header($raw_value);
++    my ($decoded_value, $utf8_value) = 
++      _decode_header($raw_value, $self->{'conf'}->{'normalize_charset'});
++    push @{ $self->{'headers'}->{$key} }, $decoded_value;
+     push @{ $self->{'raw_headers'}->{$key} }, $raw_value;
++    if ($self->{'conf'}->{'normalize_charset'}) {
++      push @{ $self->{'utf8_headers'}->{$key} }, $utf8_value;
++    }
+ 
+     return $self->{'headers'}->{$key}->[-1];
+   }
+@@ -226,6 +235,40 @@
+   }
+ }
+ 
++=item utf8_header()
++
++Retrieves the normalized version of headers from a specific MIME part.
++The only parameter is the header name.  Header names are case-insensitive.
++
++For retrieval, if utf8_header() is called in an array context, an array
++will be returned with each header entry in a different element.  In a
++scalar context, the last specific header is returned.
++
++ie: If 'Subject' is specified as the header, and there are 2 Subject
++headers in a message, the last/bottom one in the message is returned in
++scalar context or both are returned in array context.
++
++=cut
++
++# Retrieve utf8 headers from a given MIME object
++#
++sub utf8_header {
++  my $self = shift;
++  my $key  = lc(shift);
++
++  # Trim whitespace off of the header keys
++  $key       =~ s/^\s+//;
++  $key       =~ s/\s+$//;
++
++  if (wantarray) {
++    return unless exists $self->{'utf8_headers'}->{$key};
++    return @{ $self->{'utf8_headers'}->{$key} };
++  }
++  else {
++    return '' unless exists $self->{'utf8_headers'}->{$key};
++    return $self->{'utf8_headers'}->{$key}->[-1];
++  }
++}
+ =item add_body_part()
+ 
+ Adds a Node child object to the current node object.
+@@ -392,6 +435,31 @@
+       $self->{rendered_type} = $self->{type};
+       $self->{rendered} = $text;
+     }
++
++    if ($self->{'conf'}->{'normalize_charset'}) {
++      my ($charset, $normalized_text) =
++        Mail::SpamAssassin::Util::Charset::normalize_charset($self->{'charset'}, $self->{rendered});
++      $self->{normalized} = $normalized_text;
++      $self->{charset} = $charset;
++      $self->{language} =
++        Mail::SpamAssassin::Util::Charset::get_language($charset, $normalized_text);
++
++      if ($self->{visible_rendered}) {
++        my $visible_normalized;
++        (undef, $visible_normalized) =
++          Mail::SpamAssassin::Util::Charset::normalize_charset($charset, $self->{visible_rendered});
++        $self->{visible_normalized} = $visible_normalized;
++      }
++      else {
++        $self->{visible_normalized} = $self->{'normalized'};
++      }
++      if ($self->{invisible_rendered}) {
++        my $invisible_normalized;
++        (undef, $invisible_normalized) =
++          Mail::SpamAssassin::Util::Charset::normalize_charset($charset, $self->{invisible_rendered});
++        $self->{invisible_normalized} = $invisible_normalized;
++      }
++    }
+   }
+ 
+   return ($self->{rendered_type}, $self->{rendered});
+@@ -421,6 +489,42 @@
+   return ($self->{rendered_type}, $self->{invisible_rendered});
+ }
+ 
++=item normalized()
++
++Render and return the normalized text in this part.
++
++=cut
++
++sub normalized {
++  my ($self) = @_;
++  $self->rendered();  # ignore return, we want just this:
++  return ($self->{rendered_type}, $self->{normalized});
++}
++
++=item visible_normalized()
++
++Render and return the visible normalized text in this part.
++
++=cut
++
++sub visible_normalized {
++  my ($self) = @_;
++  $self->rendered();  # ignore return, we want just this:
++  return ($self->{rendered_type}, $self->{visible_normalized});
++}
++
++=item invisible_normalized()
++
++Render and return the invisible normalized text in this part.
++
++=cut
++
++sub invisible_normalized {
++  my ($self) = @_;
++  $self->rendered();  # ignore return, we want just this:
++  return ($self->{rendered_type}, $self->{invisible_normalized});
++}
++
+ =item content_summary()
+ 
+ Returns an array of scalars describing the mime parts of the message.
+@@ -470,6 +574,7 @@
+   foreach ( grep(/^${hdr}$/i, keys %{$self->{'headers'}}) ) {
+     delete $self->{'headers'}->{$_};
+     delete $self->{'raw_headers'}->{$_};
++    delete $self->{'utf8_headers'}->{$_};
+   }
+   
+   my @neworder = grep(!/^${hdr}$/i, @{$self->{'header_order'}});
+@@ -480,9 +585,10 @@
+ sub __decode_header {
+   my ( $encoding, $cte, $data ) = @_;
+ 
++  my $decoded_data;
+   if ( $cte eq 'B' ) {
+     # base 64 encoded
+-    return Mail::SpamAssassin::Util::base64_decode($data);
++    $decoded_data = Mail::SpamAssassin::Util::base64_decode($data);
+   }
+   elsif ( $cte eq 'Q' ) {
+     # quoted printable
+@@ -490,36 +596,56 @@
+     # the RFC states that in the encoded text, "_" is equal to "=20"
+     $data =~ s/_/=20/g;
+ 
+-    return Mail::SpamAssassin::Util::qp_decode($data);
++    $decoded_data = Mail::SpamAssassin::Util::qp_decode($data);
+   }
+   else {
+     # not possible since the input has already been limited to 'B' and 'Q'
+     die "message: unknown encoding type '$cte' in RFC2047 header";
+   }
++  if ($encoding) {
++    ($encoding, $decoded_data) =
++        Mail::SpamAssassin::Util::Charset::normalize_charset($encoding, $decoded_data);
++  }
++  return $decoded_data;
+ }
+ 
+ # Decode base64 and quoted-printable in headers according to RFC2047.
+ #
+ sub _decode_header {
+-  my($header) = @_;
++  my($header, $normalize_charset) = @_;
+ 
+-  return '' unless $header;
++  return ('', '') unless $header;
+ 
+   # deal with folding and cream the newlines and such
+   $header =~ s/\n[ \t]+/\n /g;
+   $header =~ s/\r?\n//g;
+ 
+-  return $header unless $header =~ /=\?/;
++  my $utf8_header;
++  unless ($header =~ /=\?/) {
++    if ($normalize_charset) {
++      $utf8_header = $header;
++      if ($header =~ /[\x1b\x80-\xff]/) {
++        (undef, $utf8_header) =
++          Mail::SpamAssassin::Util::Charset::normalize_charset(undef, $header);
++      }
++    }
++    return ($header, $utf8_header);
++  }
+ 
+   # multiple encoded sections must ignore the interim whitespace.
+   # to avoid possible FPs with (\s+(?==\?))?, look for the whole RE
+   # separated by whitespace.
+   1 while ($header =~ s/(=\?[\w_-]+\?[bqBQ]\?[^?]+\?=)\s+(=\?[\w_-]+\?[bqBQ]\?[^?]+\?=)/$1$2/g);
+ 
++  if ($normalize_charset) {
++    $utf8_header = $header;
++    $utf8_header =~
++      s/=\?([\w_-]+)\?([bqBQ])\?([^?]+)\?=/__decode_header($1, uc($2), $3)/ge;
++  }
+   $header =~
+-    s/=\?([\w_-]+)\?([bqBQ])\?([^?]+)\?=/__decode_header($1, uc($2), $3)/ge;
++    s/=\?([\w_-]+)\?([bqBQ])\?([^?]+)\?=/__decode_header(undef, uc($2), $3)/ge;
+ 
+-  return $header;
++  return ($header, $utf8_header);
+ }
+ 
+ =item get_header()
+@@ -542,20 +668,27 @@
+ # TODO: this could be made much faster by only processing all headers
+ # when called in array context, otherwise just do one header
+ sub get_header {
+-  my ($self, $hdr, $raw) = @_;
++  my ($self, $hdr, $raw, $utf8 ) = @_;
+   $raw ||= 0;
++  $utf8 ||= 0;
+ 
+   # And now pick up all the entries into a list
+   # This is assumed to include a newline at the end ...
+   # This is also assumed to have removed continuation bits ...
+ 
+-  # Deal with the possibility that header() or raw_header() returns undef
++  # Deal with the possibility that header(), raw_header(), utf8_header()
++  # returns undef
+   my @hdrs;
+   if ( $raw ) {
+     if (@hdrs = $self->raw_header($hdr)) {
+       @hdrs = map { s/\r?\n\s+/ /g; $_; } @hdrs;
+     }
+   }
++  elsif ( $utf8 ) {
++    if (@hdrs = $self->utf8_header($hdr)) {
++      @hdrs = map { "$_\n" } @hdrs;
++    }
++  }
+   else {
+     if (@hdrs = $self->header($hdr)) {
+       @hdrs = map { "$_\n" } @hdrs;
+@@ -639,14 +772,20 @@
+   # Clean up ourself
+   undef $self->{'headers'};
+   undef $self->{'raw_headers'};
++  undef $self->{'utf8_headers'};
+   undef $self->{'header_order'};
+   undef $self->{'raw'};
+   undef $self->{'decoded'};
+   undef $self->{'rendered'};
+   undef $self->{'visible_rendered'};
+   undef $self->{'invisible_rendered'};
++  undef $self->{'normalized'};
++  undef $self->{'visible_normalized'};
++  undef $self->{'invisible_normalized'};
+   undef $self->{'type'};
+   undef $self->{'rendered_type'};
++  undef $self->{'charset'};
++  undef $self->{'language'};
+ 
+   # Clean up our kids
+   if (exists $self->{'body_parts'}) {
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Message.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Message.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Message.pm	2006-05-25 05:07:29.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Message.pm	2006-05-28 00:27:41.000000000 +0900
+@@ -110,6 +110,7 @@
+   my($opts) = @_;
+   my $message = $opts->{'message'} || \*STDIN;
+   my $parsenow = $opts->{'parsenow'} || 0;
++  $self->{conf} = $opts->{'conf'};
+ 
+   # Specifies whether or not to parse message/rfc822 parts into its own tree.
+   # If the # > 0, it'll subparse, otherwise it won't.  By default, do one
+@@ -543,6 +544,7 @@
+   delete $self->{pristine_body};
+   delete $self->{text_decoded};
+   delete $self->{text_rendered};
++  delete $self->{text_normalized};
+ 
+   # Destroy the tree ...
+   $self->SUPER::finish();
+@@ -658,7 +660,7 @@
+   }
+ 
+   # prepare a new tree node
+-  my $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1 });
++  my $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1, conf=>$self->{conf} });
+   my $in_body = 0;
+   my $header;
+   my $part_array;
+@@ -705,7 +707,7 @@
+ 
+       # make sure we start with a new clean node
+       $in_body  = 0;
+-      $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1 });
++      $part_msg = Mail::SpamAssassin::Message::Node->new({ subparse=>$msg->{subparse}-1, conf=>$self->{conf} });
+       undef $part_array;
+       undef $header;
+ 
+@@ -773,6 +775,7 @@
+   # 0: content-type, 1: boundary, 2: charset, 3: filename
+   my @ct = Mail::SpamAssassin::Util::parse_content_type($part_msg->header('content-type'));
+   $part_msg->{'type'} = $ct[0];
++  $part_msg->{'charset'} = $ct[2];
+ 
+   # multipart sections are required to have a boundary set ...  If this
+   # one doesn't, assume it's malformed and revert to text/plain
+@@ -1006,6 +1009,163 @@
+ 
+ # ---------------------------------------------------------------------------
+ 
++sub get_normalized_body_text_array {
++  my ($self) = @_;
++
++  if (exists $self->{text_normalized}) { return $self->{text_normalized}; }
++
++  $self->{text_normalized} = [];
++
++  # Find all parts which are leaves
++  my @parts = $self->find_parts(qr/^(?:text|message)\b/i,1);
++  return $self->{text_normalized} unless @parts;
++
++  # the html metadata may have already been set, so let's not bother if it's
++  # already been done.
++  my $html_needs_setting = !exists $self->{metadata}->{html};
++
++  # Go through each part
++  my $text = $self->get_header ('subject', undef, 1) || '';
++  my @langs;
++  for(my $pt = 0 ; $pt <= $#parts ; $pt++ ) {
++    my $p = $parts[$pt];
++
++    # put a blank line between parts ...
++    $text .= "\n" if ( $text );
++
++    my($type, $rnd) = $p->normalized(); # decode this part
++    if ( defined $rnd ) {
++      # Only text/* types are normalized ...
++      $text .= $rnd;
++
++      if ($html_needs_setting && $type eq 'text/html') {
++        $self->{metadata}->{html} = $p->{html_results};
++      }
++    }
++    else {
++      $text .= $p->decode();
++    }
++  }
++
++  # whitespace handling (warning: small changes have large effects!)
++  $text =~ s/\n+\s*\n+/\f/gs;		# double newlines => form feed
++  $text =~ s/\xc2\xa0/ /g;		# no-break space => space
++  $text =~ tr/ \t\n\r\x0b/ /s;		# whitespace => space
++  $text =~ tr/\f/\n/;			# form feeds => newline
++  
++  # warn "message: $text";
++
++  my @textary = split_into_array_of_short_lines ($text);
++  $self->{text_normalized} = \@textary;
++
++  return $self->{text_normalized};
++}
++
++sub get_visible_normalized_body_text_array {
++  my ($self) = @_;
++
++  if (exists $self->{text_visible_normalized}) {
++    return $self->{text_visible_normalized};
++  }
++
++  $self->{text_visible_normalized} = [];
++
++  # Find all parts which are leaves
++  my @parts = $self->find_parts(qr/^(?:text|message)\b/i,1);
++  return $self->{text_visible_normalized} unless @parts;
++
++  # the html metadata may have already been set, so let's not bother if it's
++  # already been done.
++  my $html_needs_setting = !exists $self->{metadata}->{html};
++
++  # Go through each part
++  my $text = $self->get_header ('subject', undef, 1) || '';
++  for(my $pt = 0 ; $pt <= $#parts ; $pt++ ) {
++    my $p = $parts[$pt];
++
++    # put a blank line between parts ...
++    $text .= "\n" if ( $text );
++
++    my($type, $rnd) = $p->visible_normalized(); # decode this part
++    if ( defined $rnd ) {
++      # Only text/* types are normalized ...
++      $text .= $rnd;
++
++      if ($html_needs_setting && $type eq 'text/html') {
++        $self->{metadata}->{html} = $p->{html_results};
++      }
++    }
++    else {
++      $text .= $p->decode();
++    }
++  }
++
++  # whitespace handling (warning: small changes have large effects!)
++  $text =~ s/\xc2\xa0/ /g;		# no-break space => space
++  $text =~ s/\xe3\x80\x80/ /g;		# ideographicspace => space
++  $text =~ s/\n+\s*\n+/\f/gs;		# double newlines => form feed
++  $text =~ tr/ \t\n\r\x0b/ /s;		# whitespace => space
++  $text =~ tr/\f/\n/;			# form feeds => newline
++
++  $text = $self->tokenize($text);
++  my @textary = split_into_array_of_short_lines ($text);
++  $self->{text_visible_normalized} = \@textary;
++
++  return $self->{text_visible_normalized};
++}
++
++sub get_invisible_normalized_body_text_array {
++  my ($self) = @_;
++
++  if (exists $self->{text_invisible_normalized}) {
++    return $self->{text_invisible_normalized};
++  }
++
++  $self->{text_invisible_normalized} = [];
++
++  # Find all parts which are leaves
++  my @parts = $self->find_parts(qr/^(?:text|message)\b/i,1);
++  return $self->{text_invisible_normalized} unless @parts;
++
++  # the html metadata may have already been set, so let's not bother if it's
++  # already been done.
++  my $html_needs_setting = !exists $self->{metadata}->{html};
++
++  # Go through each part
++  my $text = '';
++  for(my $pt = 0 ; $pt <= $#parts ; $pt++ ) {
++    my $p = $parts[$pt];
++
++    # put a blank line between parts ...
++    $text .= "\n" if ( $text );
++
++    my($type, $rnd) = $p->invisible_normalized(); # decode this part
++    if ( defined $rnd ) {
++      # Only text/* types are normalized ...
++      $text .= $rnd;
++
++      if ($html_needs_setting && $type eq 'text/html') {
++        $self->{metadata}->{html} = $p->{html_results};
++      }
++    }
++  }
++
++  # whitespace handling (warning: small changes have large effects!)
++  $text =~ s/\xc2\xa0/ /g;		# no-break space => space
++  $text =~ s/\xe3\x80\x80/ /g;		# ideographicspace => space
++  $text =~ s/\n+\s*\n+/\f/gs;		# double newlines => form feed
++  $text =~ tr/ \t\n\r\x0b/ /s;		# whitespace => space
++  $text =~ tr/\f/\n/;			# form feeds => newline
++
++  $text = $self->tokenize($text);
++  my @textary = split_into_array_of_short_lines ($text);
++  $self->{text_invisible_normalized} = \@textary;
++
++  return $self->{text_invisible_normalized};
++}
++
++# ---------------------------------------------------------------------------
++
+ sub get_decoded_body_text_array {
+   my ($self) = @_;
+ 
+@@ -1027,6 +1187,44 @@
+ 
+ # ---------------------------------------------------------------------------
+ 
++sub get_language() {
++  my ($self) = @_;
++
++  if (defined $self->{language}) { return $self->{language}; }
++  my @parts = $self->find_parts(qr/^(?:text|message)\b/i,1);
++  return '' unless @parts;
++
++  # Go through each part
++  my @langs;
++  for(my $pt = 0 ; $pt <= $#parts ; $pt++ ) {
++    my $p = $parts[$pt];
++    my $lang = $p->{language};
++    push(@langs, $lang) unless (grep(/^$lang$/, @langs))
++  }
++  $self->{language} = join(' ', @langs);
++  return $self->{language};
++}
++
++# ---------------------------------------------------------------------------
++
++sub tokenize {
++  my ($self, $text) = @_;
++
++  my $tokenizer;
++  my @languages = split(/\s+/,$self->get_language());
++  foreach my $lang (@languages) {
++    $tokenizer = $self->{'conf'}->{'tokenizer'}->{$lang};
++    last if ($tokenizer);
++  }
++  # if tokenizer exists, call tokenizer.
++  if ($tokenizer) {
++    $text = $tokenizer->tokenize($text);
++  }
++  return $text;
++}
++
++# ---------------------------------------------------------------------------
++
+ sub split_into_array_of_short_lines {
+   my @result = ();
+   foreach my $line (split (/^/m, $_[0])) {
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/PerMsgStatus.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/PerMsgStatus.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/PerMsgStatus.pm	2006-05-25 05:07:29.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/PerMsgStatus.pm	2006-05-26 22:49:46.000000000 +0900
+@@ -160,6 +160,7 @@
+     my $needs_dnsbl_harvest_p = 1; # harvest needs to be run
+ 
+     my $decoded = $self->get_decoded_stripped_body_text_array();
++    my $normalized = $self->get_normalized_body_text_array();
+     my $bodytext = $self->get_decoded_body_text_array();
+     my $fulltext = $self->{msg}->get_pristine();
+ 
+@@ -199,6 +200,11 @@
+       $self->do_body_tests($priority, $decoded);
+       $self->do_body_uri_tests($priority, @uris);
+       $self->do_body_eval_tests($priority, $decoded);
++
++      if ($self->{conf}->{normalize_charset}) {
++        $self->do_nbody_tests($priority, $normalized);
++        $self->do_nbody_eval_tests($priority, $normalized);
++      }
+   
+       $self->do_rawbody_tests($priority, $bodytext);
+       $self->do_rawbody_eval_tests($priority, $bodytext);
+@@ -226,6 +232,7 @@
+     # finished running rules
+     delete $self->{current_rule_name};
+     undef $decoded;
++    undef $normalized;
+     undef $bodytext;
+     undef $fulltext;
+ 
+@@ -1314,6 +1321,9 @@
+     if (defined &{'_body_uri_tests_'.$clean_priority}) {
+       undef &{'_body_uri_tests_'.$clean_priority};
+     }
++    if (defined &{'_nbody_tests_'.$clean_priority}) {
++      undef &{'_nbody_tests_'.$clean_priority};
++    }
+     if (defined &{'_rawbody_tests_'.$clean_priority}) {
+       undef &{'_rawbody_tests_'.$clean_priority};
+     }
+@@ -1385,6 +1395,10 @@
+   return $_[0]->{msg}->get_rendered_body_text_array();
+ }
+ 
++sub get_normalized_body_text_array {
++  return $_[0]->{msg}->get_normalized_body_text_array();
++}
++
+ ###########################################################################
+ 
+ =item $status->get (header_name [, default_value])
+@@ -1475,12 +1489,16 @@
+   my $getaddr = 0;
+   my $getname = 0;
+   my $getraw = 0;
++  my $getutf8 = 0;
+ 
+   # special queries
+   if (index($request, ':') != -1) {
+     $getaddr = ($request =~ s/:addr$//);
+     $getname = ($request =~ s/:name$//);
+     $getraw = ($request =~ s/:raw$//);
++    if ($self->{conf}->{normalize_charset}) {
++      $getutf8 = ($request =~ s/:utf8$//);
++    }
+   }
+ 
+   # ALL: entire raw headers
+@@ -1509,26 +1527,26 @@
+   }
+   # ToCc: the combined recipients list
+   elsif ($request eq 'ToCc') {
+-    $result = join("\n", $self->{msg}->get_header('To', $getraw));
++    $result = join("\n", $self->{msg}->get_header('To', $getraw, $getutf8));
+     if ($result) {
+       chomp $result;
+       $result .= ", " if $result =~ /\S/;
+     }
+-    $result .= join("\n", $self->{msg}->get_header('Cc', $getraw));
++    $result .= join("\n", $self->{msg}->get_header('Cc', $getraw, $getutf8));
+     $result = undef if !$result;
+   }
+   # MESSAGEID: handle lists which move the real message-id to another
+   # header for resending.
+   elsif ($request eq 'MESSAGEID') {
+     $result = join("\n", grep { defined($_) && length($_) > 0 }
+-		   $self->{msg}->get_header('X-Message-Id', $getraw),
+-		   $self->{msg}->get_header('Resent-Message-Id', $getraw),
+-		   $self->{msg}->get_header('X-Original-Message-ID', $getraw),
+-		   $self->{msg}->get_header('Message-Id', $getraw));
++		   $self->{msg}->get_header('X-Message-Id', $getraw, $getutf8),
++		   $self->{msg}->get_header('Resent-Message-Id', $getraw, $getutf8),
++		   $self->{msg}->get_header('X-Original-Message-ID', $getraw, $getutf8),
++		   $self->{msg}->get_header('Message-Id', $getraw, $getutf8));
+   }
+   # a conventional header
+   else {
+-    $result = join('', $self->{msg}->get_header($request, $getraw));
++    $result = join('', $self->{msg}->get_header($request, $getraw, $getutf8));
+ 
+     # metadata
+     if (!$result) {
+@@ -1826,6 +1844,96 @@
+   }
+ }
+ 
++sub do_nbody_tests {
++  my ($self, $priority, $textary) = @_;
++  local ($_);
++
++  dbg("rules: running nbody-text per-line regexp tests; score so far=".$self->{score});
++
++  my $doing_user_rules = 
++    $self->{conf}->{user_rules_to_compile}->{$Mail::SpamAssassin::Conf::TYPE_NBODY_TESTS};
++
++  # clean up priority value so it can be used in a subroutine name
++  my $clean_priority;
++  ($clean_priority = $priority) =~ s/-/neg/;
++
++  $self->{test_log_msgs} = ();        # clear test state
++  if (defined &{'Mail::SpamAssassin::PerMsgStatus::_nbody_tests_'.$clean_priority}
++       && !$doing_user_rules) {
++    no strict "refs";
++    &{'Mail::SpamAssassin::PerMsgStatus::_nbody_tests_'.$clean_priority}($self, @$textary);
++    use strict "refs";
++    return;
++  }
++
++  # build up the eval string...
++  my $evalstr = '';
++  my $evalstr2 = '';
++
++  while (my($rulename, $pat) = each %{$self->{conf}{nbody_tests}->{$priority}}) {
++    $evalstr .= '
++      if ($self->{conf}->{scores}->{q{'.$rulename.'}}) {
++        # call procedurally as it is faster.
++        '.$rulename.'_nbody_test($self,@_);
++      }
++    ';
++
++    if ($doing_user_rules) {
++      next if (!$self->is_user_rule_sub ($rulename.'_nbody_test'));
++    }
++
++    $evalstr2 .= '
++    sub '.$rulename.'_nbody_test {
++           my $self = shift;
++           foreach (@_) {
++             '.$self->hash_line_for_rule($rulename).'
++             if ('.$pat.') { 
++                $self->got_pattern_hit(q{'.$rulename.'}, "NBODY: "); 
++                '. $self->ran_rule_debug_code($rulename, "nbody", 2) . '
++		# Ok, we hit, stop now.
++		last;
++             }
++           }
++    }
++    ';
++  }
++
++  # clear out a previous version of this fn, if already defined
++  if (defined &{'_nbody_tests_'.$clean_priority}) {
++    undef &{'_nbody_tests_'.$clean_priority};
++  }
++
++  return unless ($evalstr);
++
++  # generate the loop that goes through each line...
++  $evalstr = <<"EOT";
++{
++  package Mail::SpamAssassin::PerMsgStatus;
++
++  $evalstr2
++
++  sub _nbody_tests_$clean_priority {
++    my \$self = shift;
++    $evalstr;
++  }
++
++  1;
++}
++EOT
++
++  # and run it.
++  eval $evalstr;
++  if ($@) {
++    warn("rules: failed to compile nbody tests, skipping:\n" . "\t($@)\n");
++    $self->{rule_errors}++;
++  }
++  else {
++    no strict "refs";
++    &{'Mail::SpamAssassin::PerMsgStatus::_nbody_tests_'.$clean_priority}($self, @$textary);
++    use strict "refs";
++  }
++}
++
+ sub is_user_rule_sub {
+   my ($self, $subname) = @_;
+   return 0 if (eval 'defined &Mail::SpamAssassin::PerMsgStatus::'.$subname);
+@@ -2410,6 +2518,12 @@
+   $self->run_eval_tests ($self->{conf}->{body_evals}->{$priority}, 'BODY: ', $bodystring);
+ }
+ 
++sub do_nbody_eval_tests {
++  my ($self, $priority, $nbodystring) = @_;
++  return unless (defined($self->{conf}->{nbody_evals}->{$priority}));
++  $self->run_eval_tests ($self->{conf}->{nbody_evals}->{$priority}, 'NBODY: ', $nbodystring);
++}
++
+ sub do_rawbody_eval_tests {
+   my ($self, $priority, $bodystring) = @_;
+   return unless (defined($self->{conf}->{rawbody_evals}->{$priority}));
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer/Kakasi.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Plugin/Tokenizer/Kakasi.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer/Kakasi.pm	1970-01-01 09:00:00.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Plugin/Tokenizer/Kakasi.pm	2006-05-28 01:24:15.000000000 +0900
+@@ -0,0 +1,70 @@
++# <@LICENSE>
++# Copyright 2004 Apache Software Foundation
++# 
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++# 
++#     http://www.apache.org/licenses/LICENSE-2.0
++# 
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# </@LICENSE>
++
++=head1 NAME
++
++Tokenizer::Kakasi - Japanese tokenizer with Kakasi.
++
++=head1 SYNOPSIS
++
++loadplugin     Mail::SpamAssassin::Plugin::Tokenizer::Kakasi
++
++=head1 DESCRIPTION
++
++This plugin tokenizes Japanese string with Kakasi.
++Text::Kakasi 2.04 or over is required.
++
++=cut
++
++package Mail::SpamAssassin::Plugin::Tokenizer::Kakasi;
++
++use Mail::SpamAssassin::Plugin::Tokenizer;
++use strict;
++use warnings;
++use bytes;
++use Encode;
++
++use vars qw(@ISA);
++@ISA = qw(Mail::SpamAssassin::Plugin::Tokenizer);
++
++# Have to do this so that RPM doesn't find these as required perl modules
++BEGIN { require Text::Kakasi; }
++our $kakasi;
++our $language = 'ja';
++
++sub new {
++  my $class = shift;
++  my $mailsaobject = shift;
++
++  $class = ref($class) || $class;
++  my $self = $class->SUPER::new($mailsaobject, $language);
++  bless ($self, $class);
++
++  $kakasi = Text::Kakasi->new(qw/-iutf8 -outf8 -w/);
++  return $self;
++}
++
++sub tokenize {
++  my $self = shift;
++  my $text = shift;
++
++  # return if CJK characters are not included (U3000-U9FBB)
++  if ( $text !~ /[\xe2-\xe9][\x80-\xbf]{2}/ ) { return $text; }
++
++  return $kakasi->get($text);
++}
++
++1;
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer/MeCab.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Plugin/Tokenizer/MeCab.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer/MeCab.pm	1970-01-01 09:00:00.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Plugin/Tokenizer/MeCab.pm	2006-05-28 01:58:50.000000000 +0900
+@@ -0,0 +1,68 @@
++# <@LICENSE>
++# Copyright 2004 Apache Software Foundation
++# 
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++# 
++#     http://www.apache.org/licenses/LICENSE-2.0
++# 
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# </@LICENSE>
++
++=head1 NAME
++
++Tokenizer::MeCab - Japanese tokenizer with MeCab
++
++=head1 SYNOPSIS
++
++loadplugin     Mail::SpamAssassin::Plugin::Tokenizer::MeCab
++
++=head1 DESCRIPTION
++
++This plugin tokenizes Japanese string with MeCab.
++
++=cut
++
++package Mail::SpamAssassin::Plugin::Tokenizer::MeCab;
++
++use Mail::SpamAssassin::Plugin::Tokenizer;
++use strict;
++use warnings;
++use bytes;
++
++use vars qw(@ISA);
++@ISA = qw(Mail::SpamAssassin::Plugin::Tokenizer);
++
++# Have to do this so that RPM doesn't find these as required perl modules
++BEGIN { require MeCab; }
++our $mecab;
++our $language = 'ja';
++
++sub new {
++  my $class = shift;
++  my $mailsaobject = shift;
++
++  $class = ref($class) || $class;
++  my $self = $class->SUPER::new($mailsaobject, $language);
++  bless ($self, $class);
++
++  $mecab = MeCab::Tagger->new("-Owakati");
++  return $self;
++}
++
++sub tokenize {
++  my $self = shift;
++  my $text = shift;
++
++  # return if CJK characters are not included (U3000-U9FBB)
++  if ( $text !~ /[\xe2-\xe9][\x80-\xbf]{2}/ ) { return $text; }
++
++  return $mecab->parse($text);
++}
++
++1;
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm	1970-01-01 09:00:00.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Plugin/Tokenizer.pm	2006-05-26 22:49:46.000000000 +0900
+@@ -0,0 +1,114 @@
++# <@LICENSE>
++# Copyright 2004 Apache Software Foundation
++# 
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++# 
++#     http://www.apache.org/licenses/LICENSE-2.0
++# 
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# </@LICENSE>
++
++=head1 NAME
++
++Mail::SpamAssassin::Plugin::Tokenizer - Tokenizer plugin base class
++
++=head1 SYNOPSIS
++
++=head2 SpamAssassin configuration:
++
++  loadplugin MyTokenizerPlugin /path/to/MyTokenizerPlugin.pm
++
++=head2 Perl code:
++
++  use Mail::SpamAssassin::Plugin::Tokenizer;
++  use vars qw(@ISA);
++  @ISA = qw(Mail::SpamAssassin::Plugin::Tokenizer);
++  # language to use this plugin
++  our $language = 'ja';
++
++  # constructor: register the eval rule
++  sub new {
++    my $class = shift;
++    my $mailsaobject = shift;
++
++    # some boilerplate...
++    $class = ref($class) || $class;
++    my $self = $class->SUPER::new($mailsaobject, $language);
++    bless ($self, $class);
++
++    return $self;
++  }
++
++  # tokenize function
++  sub tokenize {
++    my $self = shift;
++    my $text = shift;
++
++    ......
++
++    return $tokenizedtext;
++  }
++
++
++=head1 DESCRIPTION
++
++This plugin is the base class of tokenizer plugin.
++You must define tokenize() and $language
++
++=head1 INTERFACE
++
++  sub tokenize {
++    my $self = shift;
++    my $text = shift;
++
++    ......
++ 
++    return $tokenizedtext;
++  }
++
++=cut
++
++package Mail::SpamAssassin::Plugin::Tokenizer;
++
++use Mail::SpamAssassin::Plugin;
++use Mail::SpamAssassin::Logger;
++use strict;
++use warnings;
++use bytes;
++
++use vars qw(@ISA);
++@ISA = qw(Mail::SpamAssassin::Plugin);
++
++sub new {
++  my $class = shift;
++  my $mailsaobject = shift;
++  my $language = shift;
++
++  # some boilerplate...
++  $class = ref($class) || $class;
++  my $self = $class->SUPER::new($mailsaobject);
++  bless ($self, $class);
++
++  if ($language) {
++    $self->{main}->{conf}->{tokenizer}->{$language} = $self;
++  }
++  else {
++    dbg("plugin: $self: \$language is not defined");
++  }
++
++  return $self;
++}
++
++sub tokenize {
++  my ($self, $text) = @_;
++
++  return $text;
++}
++
++1;
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/Charset.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/Charset.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/Charset.pm	1970-01-01 09:00:00.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/Charset.pm	2006-05-28 11:37:28.000000000 +0900
+@@ -0,0 +1,530 @@
++# <@LICENSE>
++# Copyright 2004 Apache Software Foundation
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# </@LICENSE>
++
++
++=head1 NAME
++
++  Mail::SpamAssassin::Util::Charset.pm - Utility for charset and language
++
++=head1 SYNOPSIS
++
++  my ($detected,$decoded) = Mail::SpamAssassin::Util::Charset::normalize_charset($charset,$data);
++
++
++=head1 DESCRIPTION
++
++This module implements utility methods for charset and language.
++
++=cut
++
++package Mail::SpamAssassin::Util::Charset;
++
++use strict;
++use warnings;
++
++use vars qw (
++  @ISA @EXPORT
++);
++
++require Exporter;
++
++@ISA = qw(Exporter);
++@EXPORT = qw(detect_charset normalize_charset get_language);
++
++###########################################################################
++
++use constant HAS_ENCODE => eval { require Encode; require Encode::Guess; require Encode::Alias; };
++use constant HAS_ENCODE_DETECT => eval { require Encode::Detect::Detector; };
++use constant HAS_ENCODE_HANEXTRA => eval { require Encode::HanExtra; };
++
++###########################################################################
++
++our %langmap;
++our %charsetmap;
++our %latinscriptmap;
++our %nonlatinscriptmap;
++our @nonlatinscriptorder;
++
++BEGIN {
++
++  # See the following URL about this map:
++  #   http://czyborra.com/charsets/iso8859.html
++  #   http://czyborra.com/charsets/codepages.html
++  #   http://czyborra.com/charsets/cyrillic.html
++  #   http://www.w3.org/International/O-charset-lang.html
++  %langmap = (
++    # buint-in Encodings and Encode::Byte
++    #   N. America
++    'ascii'         => 'en',
++    'cp437'         => 'en',
++    'cp863'         => 'fr',
++
++    #   W. Europe (Latin1, Latin9)
++    'iso-8859-1'    => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'iso-8859-15'   => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'cp850'         => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'cp860'         => 'pt',
++    'cp1252'        => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++    'MacRoman'      => 'fr es ca eu pt it sq rm nl de da sv no fi fo is ga gd en af',
++
++    #   Cntrl. Europe / Latin2 / Latin10
++    'iso-8859-2'    => 'hr cs hu pl ro sr sk sl',
++    'cp852'         => 'hr cs hu pl ro sr sk sl',
++    'cp1250'        => 'hr cs hu pl ro sr sk sl',
++    'MacCentralEurRoman' => 'hr cs hu pl ro sr sk sl',
++    'MacCroatian'   => 'hr',
++    'iso-8859-16'   => 'ro',
++    'MacRomanian'   => 'ro',
++#    'MacRumanian'   => 'ro',
++
++    #   Latin3 (Esperanto, Maltese, and Turkish. Turkish is now on 8859-9.)
++    'iso-8859-3'    => 'eo mt',
++
++    #   Baltics (Latin4, Latin7)
++    'iso-8859-4'    => 'lv',
++    'iso-8859-13'   => 'lv lt',
++    'cp1257'        => 'lv lt',
++#    'cp775'         => 'lv lt',
++
++    #   Nordics (Latin6) : FIXME
++    'iso-8859-10'   => 'et kl iu se',
++    'MacIcelandic'  => 'is',
++#    'cp865'         => 'et kl iu se',
++#    'cp861'         => 'is',
++#    'MacSami'       => 'se',
++
++
++    #   Cyrillics
++    'iso-8859-5'    => 'bg be uk sr mk ru',
++    'cp855'         => 'ru',
++    'cp1251'        => 'mk sr ru',
++    'cp866'         => 'ru',
++    'MacCyrillic'   => 'ru',
++    'koi8-r'        => 'ru',
++    'MacUkrainian'  => 'uk',
++    'koi8-u'        => 'uk',
++#    'koi8-f'        => 'be uk ru',
++
++    #   Arabic
++    'iso-8859-6'    => 'ar',
++    'cp864'         => 'ar',
++    'cp1256'        => 'ar',
++    'MacArabic'     => 'ar',
++    'cp1006'        => 'fa',
++    'MacFarsi'      => 'fa',
++
++    #   Greek
++    'iso-8859-7'    => 'el',
++    'cp1253'        => 'el',
++    'MacGreek'      => 'el',
++#    'cp737'         => 'el',
++#    'cp869'         => 'el',
++
++    #   Hebrew
++    'iso-8859-8'    => 'he yi',
++    'cp862'         => 'he yi',
++    'cp1255'        => 'he yi',
++    'MacHebrew'     => 'he yi',
++#    'cp424'         => 'he yi',
++#    'cp856'         => 'he yi',
++
++    #   Turkish
++    'iso-8859-9'    => 'tr',
++    'cp857'         => 'tr',
++    'cp1254'        => 'tr',
++    'MacTurkish'    => 'tr',
++
++    #   Thai
++    'iso-8859-11'   => 'th',
++    'cp874'         => 'th',
++#    'MacThai'       => 'th',
++
++    #   Celtics (Latin8)
++    'iso-8859-14'   => 'gd cy br',
++
++
++    #   Vietnamese
++    'viscii'        => 'vi',
++    'cp1258'        => 'vi',
++
++    # Encode::CN
++    'euc-cn'        => 'zh',
++    'cp936'         => 'zh',
++    'hz'            => 'zh',
++
++    # Encode::TW
++    'big5-eten'     => 'zh',
++    'big5-hkscs'    => 'zh',
++    'cp950'         => 'zh',
++
++    # Encode::JP
++    'euc-jp'        => 'ja',
++    'shiftjis'      => 'ja',
++    '7bit-jis'      => 'ja',
++    'iso-2022-jp'   => 'ja',
++    'iso-2022-jp-1' => 'ja',
++    'cp932'         => 'ja',
++
++    # Encode::KR
++    'euc-kr'        => 'ko',
++    'cp949'         => 'ko',
++    'johab'         => 'ko',
++    'iso-2022-kr'   => 'ko',
++
++    # Encode::HanExtra
++    'euc-tw'        => 'zh',
++    'gb18030'       => 'zh',
++
++    # Encode::JIS2K
++    'euc-jisx0213'  => 'ja',
++    'shiftjisx0123' => 'ja',
++    'iso-2022-jp-3' => 'ja',
++
++  );
++
++  %charsetmap = (
++    # Latin1
++    'en' => ['us-ascii'],
++    'fr' => ['cp1252'],
++    'es' => ['cp1252'],
++    'ca' => ['cp1252'],
++    'eu' => ['cp1252'],
++    'pt' => ['cp1252'],
++    'it' => ['cp1252'],
++    'sq' => ['cp1252'],
++    'rm' => ['cp1252'],
++    'nl' => ['cp1252'],
++    'de' => ['cp1252'],
++    'da' => ['cp1252'],
++    'sv' => ['cp1252'],
++    'no' => ['cp1252'],
++    'fi' => ['cp1252'],
++    'fo' => ['cp1252'],
++    'is' => ['cp1252'],
++    'ga' => ['cp1252'],
++    'gd' => ['cp1252'],
++    'af' => ['cp1252'],
++
++    # Latin2
++    'hr' => ['cp1250'],
++    'cs' => ['cp1250'],
++    'hu' => ['cp1250'],
++    'pl' => ['cp1250'],
++    'ro' => ['cp1250'],
++    'sr' => ['cp1250'],
++    'sk' => ['cp1250'],
++    'sl' => ['cp1250'],
++
++    # Latin3
++    'eo' => ['iso-8859-3'],
++    'mt' => ['iso-8859-3'],
++
++    # Latin4
++    'lv' => ['iso-8859-4'],
++
++    # Latin5
++    'tr' => ['cp1254'],
++
++    # Latin6
++    'et' => ['iso-8859-10'],
++    'kl' => ['iso-8859-10'],
++    'iu' => ['iso-8859-10'],
++    'se' => ['iso-8859-10'],
++    'is' => ['cp861'],
++
++    # Latin7
++    'lv' => ['cp1257'],
++    'lt' => ['cp1257'],
++
++    # Latin8
++    'gd' => ['iso-8859-14'],
++    'cy' => ['iso-8859-14'],
++    'br' => ['iso-8859-14'],
++
++    # Non Latin
++    'bg' => ['iso-8859-5'],
++    'be' => ['iso-8859-5'],
++    'mk' => ['cp1251', 'iso-8859-5'],
++    'ru' => ['koi8-r', 'cp1251', 'iso-8859-5'],
++    'sr' => ['cp1251', 'iso-8859-5'],
++    'uk' => ['koi8-u'],
++
++    'ar' => ['cp1256'],
++    'el' => ['cp1253'],
++    'he' => ['cp1255'],
++    'yi' => ['cp1255'],
++    'th' => ['cp874'],
++    'vi' => ['viscii', 'cp1258'],
++    'zh' => ['euc-cn', 'cp950'],
++    'ja' => ['euc-jp', 'cp932'],
++    'ko' => ['euc-kr', 'cp949'],
++
++  );
++
++  %latinscriptmap = (
++    'InLatin1Supplement' => [
++      'fr', 'es', 'ca', 'eu', 'pt', 'it', 'sq', 'rm', 'nl', 'de', 'da', 'sv',
++      'no', 'fi', 'fo', 'is', 'ga', 'gd', 'af'
++    ],
++    'InLatinExtendedA' => [
++      'hr', 'cs', 'hu', 'pl', 'ro', 'sr', 'sk', 'sl',
++      'eo', 'mt',
++      'lv',
++      'tr',
++      'vi'
++    ],
++    'InLatinExtendedB' => [
++      'et', 'kl', 'iu', 'se', 'is',
++      'lv', 'lt',
++      'gd', 'cy', 'br'
++    ],
++    'Thai'   => ['th'],
++    'Cyrillic' => ['ru', 'uk'],
++    'Arabic' => ['ar'],
++    'Greek'  => ['el'],
++    'Hebrew' => ['he', 'yi'],
++  );
++
++  @nonlatinscriptorder = ('Hiragana','Katakana','Hangul','Han');
++  %nonlatinscriptmap = (
++    'Hiragana' => ['ja'],
++    'Katakana' => ['ja'],
++    'Hangul' => ['ko'],
++    'Han'    => ['zh', 'ja', 'ko'],
++  );
++
++  if (HAS_ENCODE) {
++    unless (HAS_ENCODE_HANEXTRA) {
++      Encode::Alias::define_alias( qr/^gb18030$/i => ' "euc-cn"' );
++    }
++    Encode::Alias::define_alias( qr/^x-euc-tw$/i => ' "euc-tw"' );
++    Encode::Alias::define_alias( qr/^TIS-620$/i => ' "iso-8859-11"' );
++    Encode::Alias::define_alias( qr/^x-mac-(.+)$/i => ' "Mac$1"' );
++  }
++}
++
++sub get_language {
++  my $charset = shift;
++  my $utf8str = shift;
++
++  return undef unless $charset;
++  if ($charset =~ /^utf/i && defined($utf8str)) {
++    return _detect_language($utf8str);
++  }
++  else {
++    my @langs;
++    foreach my $enc (split(' ',$charset)) {
++      if (exists($langmap{$enc})) {
++        my $lang = $langmap{$enc};
++        push(@langs,$lang) unless (grep(/^$lang$/,@langs))
++      }
++    }
++    return join(' ',@langs);
++  }
++}
++
++sub _detect_language {
++  my $data = shift;
++  my @langs;
++
++  $data =~ s/[\x00-\x7F]//g;
++  $data = Encode::decode_utf8($data);
++  return 'en' if ($data eq '');
++  foreach my $script (@nonlatinscriptorder) {
++    if ($data =~ /\p{$script}/) {
++      foreach my $lang (@{$nonlatinscriptmap{$script}}) {
++        push(@langs,$lang) unless (grep(/^$lang$/,@langs))
++      }
++    }
++  }
++  foreach my $script (keys(%latinscriptmap)) {
++    if ($data =~ /\p{$script}/) {
++      foreach my $lang (@{$latinscriptmap{$script}}) {
++        push(@langs,$lang) unless (grep(/^$lang$/,@langs))
++      }
++    }
++  }
++
++  my @charsets;
++  foreach my $lang (@langs) {
++    foreach my $charset (@{$charsetmap{$lang}}) {
++      push(@charsets,$charset) unless (grep(/^$charset$/,@charsets))
++    }
++  }
++  my $decoded;
++  foreach my $charset (@charsets) {
++    eval {$decoded = Encode::encode($charset,$data,1);};
++    return $langmap{$charset} if (!$@ && $decoded);
++  }
++  return undef;
++}
++
++
++# TEST 1: try conversion to use the specified charset. 
++# TEST 2: try conversion to use Encode::Detect.
++# TEST 3: try conversion to use Encode::Guess.
++sub normalize_charset {
++  my $charset = shift;
++  my $data = shift;
++  my $decoded;
++  my $detected;
++
++  return ($charset,$data) unless HAS_ENCODE;
++  return ('ascii',$data) unless ($data);
++
++  if ($charset) {
++    ($detected,$decoded) = _specified_charset($charset,$data,1);
++  }
++  unless (defined($detected)) {
++    ($detected,$decoded) = _encode_detect($data,1)
++  }
++  unless (defined($detected)) {
++    ($detected,$decoded) = _encode_guess($charset,$data,1)
++  }
++  unless ($detected) {
++    return (undef,$data);
++  }
++  # unfold hiragana, katakana and han
++  if ($detected =~ /^(?:UTF|EUC|BIG5|GB|SHIFTJIS|ISO-2022|CP969$|CP932$|CP949$)/i) {
++    $decoded =~ s/([\x{3040}-\x{30FF}\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}])\r?\n([\x{3040}-\x{30FF}\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}])/$1$2/g;
++  }
++  return ($detected,Encode::encode_utf8($decoded));
++}
++
++sub detect_charset {
++  my $charset = shift;
++  my $data = shift;
++
++  return $charset unless HAS_ENCODE;
++  return 'ascii' unless ($data);
++
++  my $detected;
++  if ($charset) {
++    $detected = _specified_charset($charset,$data);
++  }
++  unless (defined($detected)) {
++    $detected = _encode_detect($data);
++  }
++  unless (defined($detected)) {
++    $detected = _encode_guess($charset,$data);
++  }
++  return $detected;
++}
++
++sub _specified_charset {
++  my $charset = shift;
++  my $data = shift;
++  my $decode = shift;
++
++  my $detected;
++  my $decoded;
++  # note: iso-2022-* is not deistinguish from ascii
++  my $escseq = ($data =~ /\x1B/);
++  if ($charset && (!$escseq || $charset =~ /^iso-2022/i)) {
++    my $encoder = Encode::find_encoding($charset);
++    if (defined($encoder)) {
++      eval {$decoded = $encoder->decode($data,1);};
++      if (!$@ && $decoded) {
++        $detected = $encoder->name;
++      }
++    }
++  }
++  if ($decode) {
++    return ($detected,$decoded);
++  }
++  else {
++    return $detected;
++  }
++}
++
++sub _encode_detect {
++  return undef unless HAS_ENCODE_DETECT;
++  my $data = shift;
++  my $decode = shift;
++
++  my $encoder;
++  my $detected = Encode::Detect::Detector::detect($data);
++  if (defined($detected)) {
++    $encoder = Encode::find_encoding($detected);
++    $detected = defined($encoder) ? $encoder->name : undef;
++  }
++  if ($decode) {
++    my $decoded = defined($encoder) ? $encoder->decode($data) : undef;
++    return ($detected,$decoded);
++  }
++  else {
++    return $detected;
++  }
++}
++
++sub _encode_guess {
++  my $encoding = shift;
++  my $data = shift;
++  my $decode = shift;
++
++  my $detected;
++  my $decoded;
++  my $encoder;
++  if ($encoding) {
++    my $ce = Encode::resolve_alias($encoding);
++    if ($ce && $ce !~ /ascii/i) {
++      $encoder = Encode::Guess::guess_encoding($data, $ce);
++    }
++  }
++  unless (ref($encoder)) {
++    if ($data =~ /\x1B/) {
++      $encoder = Encode::Guess::guess_encoding($data, qw/iso-2022-jp iso-2022-kr/);
++    }
++    elsif ($data =~ /[\x80-\xFF]{2}/) {
++      $encoder = Encode::Guess::guess_encoding($data, qw/euc-cn big5-eten euc-jp cp932 euc-kr cp949/);
++    }
++    else {
++      $encoder = Encode::Guess::guess_encoding($data, qw/iso-8859-1 cp1252 ascii/);
++    }
++  }
++  if (ref($encoder)) {
++    $detected = $encoder->name;
++  }
++  elsif ($encoder =~ / or /) {
++    $detected = $encoder;
++    $detected =~ s/ or / /g;
++  }
++
++  if ($decode) {
++    my $decoded;
++    if (defined($detected)) {
++      if (ref($encoder)) {
++        $decoded = $encoder->decode($data);
++      }
++      else {
++        foreach my $enc (split(/ /,$detected)) {
++          eval {$decoded = Encode::decode($enc,$data,1);};
++          if (!$@ && $decoded) {
++            $detected = $enc;
++            last;
++          }
++        }
++      }
++    }
++    return ($detected,$decoded);
++  }
++  else {
++    return $detected;
++  }
++}
++
++1;
++
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/DependencyInfo.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/DependencyInfo.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin/Util/DependencyInfo.pm	2006-03-11 04:29:53.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin/Util/DependencyInfo.pm	2006-05-26 22:49:46.000000000 +0900
+@@ -168,6 +168,12 @@
+   desc => 'The "sa-update" script requires this module to access compressed
+   update archive files.',
+ },
++{
++  module => 'Encode::Detect',
++  version => '0.00',
++  desc => 'If this module is installed, SpamAssassin will detect charsets
++  and convert them into Unicode.',
++},
+ );
+ 
+ ###########################################################################
+diff -uNr Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin.pm Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin.pm
+--- Mail-SpamAssassin-3.1.2.orig/lib/Mail/SpamAssassin.pm	2006-05-26 02:02:01.000000000 +0900
++++ Mail-SpamAssassin-3.1.2/lib/Mail/SpamAssassin.pm	2006-05-28 12:10:28.000000000 +0900
+@@ -360,7 +360,8 @@
+ 
+ sub parse {
+   my($self, $message, $parsenow) = @_;
+-  my $msg = Mail::SpamAssassin::Message->new({message=>$message, parsenow=>$parsenow});
++  $self->init(1);
++  my $msg = Mail::SpamAssassin::Message->new({message=>$message, parsenow=>$parsenow, conf=>$self->{'conf'}});
+   return $msg;
+ }
+ 

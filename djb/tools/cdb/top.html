@@ -1,0 +1,72 @@
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-2022-jp">
+<title>cdb</title>
+</head>
+<body>
+<a href="http://cr.yp.to/djb.html">D. J. Bernstein</a>
+<br><a href="http://cr.yp.to/data.html">Data structures</a>
+<h1><a href="http://cr.yp.to/cdb.html">cdb</a></h1>
+<a href="install.html">cdbのインストール</a>
+<br><a href="cdbget.html">cdbget プログラム</a>
+<br><a href="cdbmake.html">cdbmake プログラムと cdbdump プログラム</a>
+<br><a href="cdbstats.html">cdbstats プログラムと cdbtest プログラム</a>
+<p>
+<a href="cdb.txt">cdb フォーマットの特徴</a>
+<br><a href="reading.html">cdb-reading ライブラリ・インターフェース</a>
+<hr>
+cdb については
+<a href="http://cr.yp.to/lists.html#cdb">cdb mailing list</a>
+で議論されています。
+<p>
+<h2>それは何か？</h2>
+<p>cdb はコンスタント・データベースの作成と読み出しのための高速で信頼できる単純なパッケージです。そのデータベース構造から、以下の特徴を持っています：</p>
+
+<ul>
+<li>
+<b>高速な検索:</b> 大きなデータベースにおいても、検索の成功時には通常2回のディスクアクセスしかしません。検索の失敗時には1回のみです。
+<li>
+<b>低いオーバーヘッド:</b> データベースは 2048 バイトの固定領域と一レコードにつき 24 バイト、そしてキーとデータの空間を使用します。
+<li>
+<b>根拠のない限界がない:</b> cdb は4ギガバイトまでのデータベースを扱えます。他に制限はありません。レコードはメモリに収まる必要さえありません。データベースは機種に依存しない形式で格納されます。
+<li>
+<b>データベースの高速で不可分な置き換え:</b> cdbmake は全データベースを書き換えることを他のハッシュ化パッケージよりも2桁も速くできます。
+<li>
+<b>高速なデータベースのダンプ:</b> cdbdump は cdbmake 互換の形式でデータベースの内容を出力します。
+</ul>
+
+cdb は電子メイルのようなミッション・クリティカルなアプリケーションで使われるように設計されています。
+データベースの置き換えはシステム・クラッシュに対して安全です。
+読み込むソフトウェアは書き換えの間も待つ必要がありません。
+
+<h2>再配布に関する情報</h2>
+cdb パッケージを変更しなければ再配布してもかまいません。
+
+<p>
+cdb ファイルを読む必要のあるパッケージは外部 cdb ライブラリを使うよりも cdb ライブラリの必要な部分を組み込むべきです。
+
+<h2>関連パッケージ</h2>
+Tim Goodwin's
+<a href="http://www.perl.com/CPAN-local/modules/by-module/CDB_File/">CDB_File</a
+>
+is a Perl interface to cdb.
+<p>
+Felix von Leitner's
+<a href="http://www.math.fu-berlin.de/~leitner/rdb/">rdbm</a>
+combines cdb with a separate journal of database updates.
+<p>
+cdb is used in my
+<a href="http://cr.yp.to/qmail.html">qmail</a>(<a href="http://www.jp.qmail.org/djb/qmail.html">日本語</a>),
+<a href="http://cr.yp.to/fastforward.html">fastforward</a>,
+<a href="http://cr.yp.to/mess822.html">mess822</a>,
+<a href="http://cr.yp.to/ucspi-tcp.html">ucspi-tcp</a>
+and
+<a href="http://cr.yp.to/dnscache.html">DNScache</a>
+packages.
+<hr>
+訳：滝澤 隆史<br>
+<!-- hhmts start -->
+Last modified: Sun Mar  5 23:48:40 2000
+<!-- hhmts end -->
+</body>
+</html>

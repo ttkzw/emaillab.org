@@ -1,0 +1,68 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../unix.html">UNIX</a>
+<br><a href="../daemontools.html">daemontools</a>
+<h1>The softlimit program</h1>
+<tt>softlimit</tt> runs another program with new resource limits.
+<h2>Interface</h2>
+<pre>
+     softlimit <i>opts</i> <i>child</i>
+</pre>
+<p>
+<tt><i>opts</i></tt> is a series of getopt-style options.
+<tt><i>child</i></tt>
+consists of one or more arguments.
+<p>
+<tt>softlimit</tt>
+sets soft resource limits
+as specified by <tt><i>opts</i></tt>.
+It then runs <tt><i>child</i></tt>.
+<h2>Options</h2>
+In each of the following options,
+<tt><i>n</i></tt> may be <tt>=</tt>,
+indicating that the soft limit should be set equal to the hard limit.
+<p>
+Options controlling memory use:
+<ul>
+<li><tt>-m <i>n</i></tt>:
+Same as
+<tt>-d <i>n</i> -s <i>n</i> -l <i>n</i> -a <i>n</i></tt>.
+<li><tt>-d <i>n</i></tt>:
+Limit the data segment per process to <tt><i>n</i></tt> bytes.
+<li><tt>-s <i>n</i></tt>:
+Limit the stack segment per process to <tt><i>n</i></tt> bytes.
+<li><tt>-l <i>n</i></tt>:
+Limit the locked physical pages per process to <tt><i>n</i></tt> bytes.
+This option has no effect on some operating systems.
+<li><tt>-a <i>n</i></tt>:
+Limit the total of all segments per process to <tt><i>n</i></tt> bytes.
+This option has no effect on some operating systems.
+<li><tt>-o <i>n</i></tt>:
+Limit the number of open file descriptors per process to <tt><i>n</i></tt>.
+This option has no effect on some operating systems.
+<li><tt>-p <i>n</i></tt>:
+Limit the number of processes per uid to <tt><i>n</i></tt>.
+</ul>
+<p>
+Options controlling file sizes:
+<ul>
+<li><tt>-f <i>n</i></tt>:
+Limit output file sizes to <tt><i>n</i></tt> bytes.
+<li><tt>-c <i>n</i></tt>:
+Limit core file sizes to <tt><i>n</i></tt> bytes.
+</ul>
+<p>
+Efficiency options:
+<ul>
+<li><tt>-r <i>n</i></tt>:
+Limit the resident set size to <tt><i>n</i></tt> bytes.
+This limit is not enforced unless physical memory is full.
+<li><tt>-t <i>n</i></tt>:
+Limit the CPU time to <tt><i>n</i></tt> seconds.
+This limit is not enforced
+except that the process receives a SIGXCPU signal
+after <tt><i>n</i></tt> seconds.
+</ul>
+</body>
+</html>

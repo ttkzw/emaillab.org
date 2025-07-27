@@ -1,0 +1,50 @@
+<html>
+<body>
+<a href="../djb.html">D. J. Bernstein</a>
+<br><a href="../tcpip.html">TCP/IP</a>
+<br><a href="../ucspi-tcp.html">ucspi-tcp</a>
+<h1>The <tt>recordio</tt> program</h1>
+<tt>recordio</tt> records the input and output of a program.
+<h2>Interface</h2>
+<pre>
+     recordio <i>prog</i>
+</pre>
+<tt>recordio</tt> runs <tt><i>prog</i></tt>.
+It prints lines to descriptor 2
+showing the input and output of <tt><i>prog</i></tt>.
+<p>
+At the beginning of each line on descriptor 2,
+<tt>recordio</tt> inserts the <tt><i>prog</i></tt> process ID,
+along with <tt>&lt;</tt> for input or <tt>&gt;</tt> for output.
+At the end of each line it inserts <tt>+</tt>, a space, or <tt>[EOF]</tt>;
+a space indicates that there was a new line in the input or output,
+and <tt>[EOF]</tt> indicates the end of input or output.
+<p>
+<tt>recordio</tt> prints every packet of input and output immediately.
+It does not attempt to combine packets into coherent lines.
+For example,
+<pre>
+     recordio sh -c 'cat /dev/fd/8 2&gt;&amp;1' &gt; /dev/null
+</pre>
+could produce
+<pre>
+     5135 &gt; cat: /dev/fd/8: Bad file descriptor 
+     5135 &gt; [EOF]
+</pre>
+or
+<pre>
+     5135 &gt; cat: +
+     5135 &gt; /dev/fd/8+
+     5135 &gt; : +
+     5135 &gt; Bad file descriptor 
+     5135 &gt; [EOF]
+</pre>
+if the <tt>cat</tt> program prints several packets.
+<p>
+<tt>recordio</tt> uses several lines for long packets
+to guarantee that each line is printed atomically.
+<p>
+<tt>recordio</tt> runs as a child process of <tt><i>prog</i></tt>.
+It exits when it sees the end of <tt><i>prog</i></tt>'s output.
+</body>
+</html>
