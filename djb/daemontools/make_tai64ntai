@@ -1,4 +1,0 @@
-#!/bin/sh
-./compile tai64ntai.c
-./load tai64ntai substdio.a error.a str.a fs.a 
-
